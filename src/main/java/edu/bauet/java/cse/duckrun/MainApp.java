@@ -1,8 +1,23 @@
 package edu.bauet.java.cse.duckrun;
 
-public class MainApp{
-    public static void main(String[] args){
-        System.out.println("Hello World");
-        System.out.println("New folder connection");
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
+public class MainApp extends Application {
+
+    @Override
+    public void start(Stage stage) {
+        Label label = new Label("JavaFX is working! 🦆");
+        Scene scene = new Scene(label, 400, 300);
+
+        stage.setTitle("DuckRun");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
