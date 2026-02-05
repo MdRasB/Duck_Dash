@@ -10,7 +10,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) {
         Label label = new Label("JavaFX is working! 🦆");
-        Scene scene = new Scene(label, 400, 300);
+        Scene scene = new Scene(label, 680, 840);
 
         stage.setTitle("DuckRun");
         stage.setScene(scene);
