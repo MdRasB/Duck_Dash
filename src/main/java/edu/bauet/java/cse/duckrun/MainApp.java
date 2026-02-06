@@ -33,6 +33,7 @@ public class MainApp extends Application {
 
     /**
      * Allows scene switching later (Menu, Game, GameOver, etc.)
+     * No Scene at this point
      */
     public static void switchScene(Scene scene) {
         primaryStage.setScene(scene);
