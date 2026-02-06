@@ -2,23 +2,43 @@ package edu.bauet.java.cse.duckrun;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.io.InputStream;
-
+/**
+ * Entry point of the DuckRun game.
+ */
 public class MainApp extends Application {
+
+    public static final int WINDOW_WIDTH = 1280;
+    public static final int WINDOW_HEIGHT = 720;
+
+    private static Stage primaryStage;
 
     @Override
     public void start(Stage stage) {
-        Label label = new Label(" What's up? Good Day! JavaFX is working! The game is starting. This is the test repository. My Update");
-        Scene scene = new Scene(label, 680, 840);
+        primaryStage = stage;
 
-        stage.setTitle("DuckRun");
+        stage.setTitle("DuckRun 🦆 - Reach the Class!");
+        stage.setResizable(false);
+
+        // Temporary root until scenes are implemented
+        StackPane root = new StackPane();
+        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+
         stage.setScene(scene);
         stage.show();
+    }
+
+    /**
+     * Allows scene switching later (Menu, Game, GameOver, etc.)
+     */
+    public static void switchScene(Scene scene) {
+        primaryStage.setScene(scene);
+    }
+
+    public static Stage getPrimaryStage() {
+        return primaryStage;
     }
 
     public static void main(String[] args) {
