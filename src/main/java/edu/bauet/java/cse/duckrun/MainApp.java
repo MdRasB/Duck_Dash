@@ -13,7 +13,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        Label label = new Label(" What's up? Good Day! JavaFX is working! The game is starting. This is the test repository");
+        Label label = new Label(" What's up? Good Friday! JavaFX is working! The game is starting. This is the test repository");
         Scene scene = new Scene(label, 680, 840);
 
         stage.setTitle("DuckRun");
