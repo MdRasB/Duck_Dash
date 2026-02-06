@@ -17,6 +17,7 @@ public class MainApp extends Application {
     public void start(Stage stage) {
         primaryStage = stage;
 
+        //Failling to load image in the windows javafx terminal
         stage.setTitle("DuckRun 🦆 - Reach the Class!");
         stage.setResizable(false);
 
