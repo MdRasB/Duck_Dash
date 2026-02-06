@@ -26,6 +26,7 @@ public class MainApp extends Application {
         StackPane root = new StackPane();
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 
+        // No scene due to the unavailability of Main Scene
         stage.setScene(scene);
         stage.show();
     }
