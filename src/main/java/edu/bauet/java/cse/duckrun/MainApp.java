@@ -22,6 +22,7 @@ public class MainApp extends Application {
         stage.setResizable(false);
 
         // Temporary root until scenes are implemented
+        // MainScene is not available right now
         StackPane root = new StackPane();
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 
