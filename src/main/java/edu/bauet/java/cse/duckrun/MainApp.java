@@ -5,9 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-/**
- * Entry point of the DuckRun game.
- */
+// Entry point of the game...
 public class MainApp extends Application {
 
     public static final int WINDOW_WIDTH = 1280;
