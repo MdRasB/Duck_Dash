@@ -18,7 +18,7 @@ public class MainApp extends Application {
         primaryStage = stage;
 
         //Failling to load image in the windows javafx terminal
-        stage.setTitle("DuckRun 🦆 - Reach the Class!");
+        stage.setTitle("DuckRun 🦆 - Reach the Class! jim");
         stage.setResizable(false);
 
         // Temporary root until scenes are implemented
