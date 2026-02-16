@@ -49,6 +49,10 @@ public class GameScene {
             if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.UP) {
                 duck.jump();
             }
+
+            if(event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S){
+                duck.knee();
+            }
         });
     }
 

@@ -49,6 +49,16 @@ public class Duck {
         }
     }
 
+    public void knee(){
+        if(isOnGround){
+            velocityY = jumpForce;
+            isOnGround = false;
+        }else{
+            velocityY = 0;
+            isOnGround = true;
+        }
+    }
+
     public void update() {
 
         // Apply gravity
