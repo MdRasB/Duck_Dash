@@ -57,6 +57,7 @@ public class MenuScene {
         startBtn.setPrefHeight(50);
 
         startBtn.setOnAction(e -> {
+            System.out.println("Starting Game...");
             GameScene gameScene = new GameScene();
             MainApp.switchScene(gameScene.getScene());
         });
