@@ -1,6 +1,8 @@
 package edu.bauet.java.cse.duckrun.scenes;
 
 import edu.bauet.java.cse.duckrun.MainApp;
+import edu.bauet.java.cse.duckrun.scenes.GameScene;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -55,8 +57,8 @@ public class MenuScene {
         startBtn.setPrefHeight(50);
 
         startBtn.setOnAction(e -> {
-            System.out.println("Start Game Clicked!");
-            // Later we switch to GameScene
+            GameScene gameScene = new GameScene();
+            MainApp.switchScene(gameScene.getScene());
         });
 
         VBox menuBox = new VBox(40, titleBox, startBtn);
