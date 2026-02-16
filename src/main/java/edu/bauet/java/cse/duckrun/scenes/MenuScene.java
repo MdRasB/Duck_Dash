@@ -37,7 +37,7 @@ public class MenuScene {
 
 // 🔹 Duck Icon
         ImageView duckIcon = new ImageView(
-                new Image(MenuScene.class.getResource("/images/ui/duck_emoji.png").toExternalForm())
+                new Image(MenuScene.class.getResource("/images/duck/base_duck.png").toExternalForm())
         );
 
         duckIcon.setFitWidth(70);
