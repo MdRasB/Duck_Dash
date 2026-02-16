@@ -1,5 +1,7 @@
 package edu.bauet.java.cse.duckrun;
 
+import edu.bauet.java.cse.duckrun.scenes.MenuScene;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -17,17 +19,18 @@ public class MainApp extends Application {
     public void start(Stage stage) {
         primaryStage = stage;
 
-        //Failling to load image in the windows javafx terminal
+        //Persistent issues
+        //Issues: Failling to load image in the windows javafx terminal
         stage.setTitle("DuckRun 🦆 --- Reach the Class!");
         stage.setResizable(false);
 
         // Temporary root until scenes are implemented
         // MainScene is not available right now
-        StackPane root = new StackPane();
-        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        MenuScene menu = new MenuScene();
+        stage.setScene(menu.getScene());
 
         // No scene due to the unavailability of Main Scene
-        stage.setScene(scene);
+        //stage.setScene(scene);
         stage.show();
     }
 
