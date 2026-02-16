@@ -38,15 +38,15 @@ public class GameScene {
 
         scene.setOnKeyPressed(event -> {
 
-            if (event.getCode() == KeyCode.LEFT) {
+            if (event.getCode() == KeyCode.A || event.getCode() ==  KeyCode.LEFT) {
                 duck.moveLeft();
             }
 
-            if (event.getCode() == KeyCode.RIGHT) {
+            if (event.getCode() == KeyCode.RIGHT || event.getCode() == KeyCode.D) {
                 duck.moveRight();
             }
 
-            if (event.getCode() == KeyCode.SPACE) {
+            if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.UP) {
                 duck.jump();
             }
         });
