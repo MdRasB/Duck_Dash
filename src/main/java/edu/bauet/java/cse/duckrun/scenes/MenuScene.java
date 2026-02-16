@@ -10,6 +10,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
 
 public class MenuScene {
 
@@ -27,10 +30,24 @@ public class MenuScene {
         bgView.setFitWidth(MainApp.WINDOW_WIDTH);
         bgView.setFitHeight(MainApp.WINDOW_HEIGHT);
 
-        // 🔹 Title
-        Text title = new Text("DuckRun 🦆");
+        // 🔹 Title Text
+        Text title = new Text("DuckRun");
         title.setFont(Font.font("Arial", 60));
         title.setStyle("-fx-fill: white; -fx-font-weight: bold;");
+
+// 🔹 Duck Icon
+        ImageView duckIcon = new ImageView(
+                new Image(MenuScene.class.getResource("/images/ui/duck_emoji.png").toExternalForm())
+        );
+
+        duckIcon.setFitWidth(70);
+        duckIcon.setFitHeight(70);
+        duckIcon.setPreserveRatio(true);
+
+// 🔹 Combine Icon + Title
+        HBox titleBox = new HBox(15, title, duckIcon);
+        titleBox.setAlignment(Pos.CENTER);
+
 
         // 🔹 Start Button
         Button startBtn = new Button("Start Game");
@@ -42,7 +59,7 @@ public class MenuScene {
             // Later we switch to GameScene
         });
 
-        VBox menuBox = new VBox(30, title, startBtn);
+        VBox menuBox = new VBox(40, titleBox, startBtn);
         menuBox.setAlignment(Pos.CENTER);
 
         root.getChildren().addAll(bgView, menuBox);
