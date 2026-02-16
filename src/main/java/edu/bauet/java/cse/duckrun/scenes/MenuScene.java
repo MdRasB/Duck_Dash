@@ -37,7 +37,7 @@ public class MenuScene {
         title.setFont(Font.font("Arial", 60));
         title.setStyle("-fx-fill: white; -fx-font-weight: bold;");
 
-// 🔹 Duck Icon
+        // 🔹 Duck Icon
         ImageView duckIcon = new ImageView(
                 new Image(MenuScene.class.getResource("/images/duck/base_duck.png").toExternalForm())
         );
@@ -46,7 +46,7 @@ public class MenuScene {
         duckIcon.setFitHeight(70);
         duckIcon.setPreserveRatio(true);
 
-// 🔹 Combine Icon + Title
+        // 🔹 Combine Icon + Title
         HBox titleBox = new HBox(15, title, duckIcon);
         titleBox.setAlignment(Pos.CENTER);
 
