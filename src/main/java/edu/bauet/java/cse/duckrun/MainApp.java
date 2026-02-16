@@ -20,7 +20,7 @@ public class MainApp extends Application {
         primaryStage = stage;
 
         //Persistent issues
-        //Issues: Failling to load image in the windows javafx terminal
+        //Issues: Failling to load image in the windows javafx terminal bar
         stage.setTitle("DuckRun 🦆 --- Reach the Class!");
         stage.setResizable(false);
 
