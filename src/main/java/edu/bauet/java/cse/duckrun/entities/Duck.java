@@ -49,7 +49,8 @@ public class Duck {
         }
     }
 
-    public void knee(){
+    // The method crouch is under development...
+    public void crouch(){
         if(isOnGround){
             velocityY = jumpForce;
             isOnGround = false;
