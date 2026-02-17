@@ -27,17 +27,18 @@ public class Duck {
     private boolean crouching = false;
 
     // Dimensions
-    public static final double NORMAL_WIDTH = 60;
-    public static final double NORMAL_HEIGHT = 60;
+    public static final double NORMAL_WIDTH = 80;
+    public static final double NORMAL_HEIGHT = 80;
 
-    public static final double CROUCH_WIDTH = 60;
-    public static final double CROUCH_HEIGHT = 30;
+    public static final double CROUCH_WIDTH = 90;
+    public static final double CROUCH_HEIGHT = 50;
 
-    private final double groundY;
+    private final double groundLevel; // Y position of the ground line
 
-    public Duck(double startX, double startY) {
 
-        groundY = startY;
+    public Duck(double startX, double groundLevel) {
+
+        this.groundLevel = groundLevel;
 
         normalImage = new Image(
                 getClass().getResource("/images/duck/running.png").toExternalForm()
@@ -47,22 +48,25 @@ public class Duck {
                 getClass().getResource("/images/duck/ducking.png").toExternalForm()
         );
 
-        //jumpImage = new Image(
-                //getClass().getResource("images/duck/jumping.png").toExternalForm()
-        //);
-
         sprite = new ImageView(normalImage);
-        sprite.setFitWidth(80);
-        sprite.setFitHeight(80);
+        sprite.setFitWidth(NORMAL_WIDTH);
+        sprite.setFitHeight(NORMAL_HEIGHT);
 
-        hitbox = new Rectangle(NORMAL_WIDTH, NORMAL_HEIGHT);
+        hitbox = new Rectangle(NORMAL_WIDTH, NORMAL_HEIGHT-5);
         hitbox.setFill(Color.TRANSPARENT);
-        hitbox.setStroke(Color.RED); // DEBUG
+        hitbox.setStroke(Color.RED);
 
         container = new StackPane(sprite, hitbox);
+
+        StackPane.setAlignment(sprite, javafx.geometry.Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(hitbox, javafx.geometry.Pos.BOTTOM_CENTER);
+
         container.setLayoutX(startX);
-        container.setLayoutY(startY);
+
+        // IMPORTANT:
+        container.setLayoutY(groundLevel - NORMAL_HEIGHT);
     }
+
 
     // =========================
     // Jump
@@ -87,18 +91,25 @@ public class Duck {
             crouching = true;
             sprite.setImage(crouchImage);
 
+            sprite.setFitWidth(CROUCH_WIDTH);
+            sprite.setFitHeight(CROUCH_HEIGHT);
+
             hitbox.setWidth(CROUCH_WIDTH);
-            hitbox.setHeight(CROUCH_HEIGHT);
+            hitbox.setHeight(CROUCH_HEIGHT-10);
 
         } else if (!state && crouching) {
 
             crouching = false;
             sprite.setImage(normalImage);
 
+            sprite.setFitWidth(NORMAL_WIDTH);
+            sprite.setFitHeight(NORMAL_HEIGHT);
+
             hitbox.setWidth(NORMAL_WIDTH);
-            hitbox.setHeight(NORMAL_HEIGHT);
+            hitbox.setHeight(NORMAL_HEIGHT-5);
         }
     }
+
 
     // =========================
     // Physics Update
@@ -108,12 +119,17 @@ public class Duck {
         velocityY += GRAVITY;
         container.setLayoutY(container.getLayoutY() + velocityY);
 
-        if (container.getLayoutY() >= groundY) {
-            container.setLayoutY(groundY);
+        double currentHeight = crouching ? CROUCH_HEIGHT : NORMAL_HEIGHT;
+
+        double groundTop = groundLevel - currentHeight;
+
+        if (container.getLayoutY() >= groundTop) {
+            container.setLayoutY(groundTop);
             velocityY = 0;
             onGround = true;
         }
     }
+
 
     // =========================
     // Getters

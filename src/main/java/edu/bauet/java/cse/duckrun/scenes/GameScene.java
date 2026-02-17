@@ -53,7 +53,7 @@ public class GameScene {
     private void createGround() {
 
         Rectangle ground = new Rectangle(
-                MainApp.WINDOW_WIDTH * 2,
+                MainApp.WINDOW_WIDTH * 5,
                 100,
                 Color.DARKGREEN
         );
@@ -63,10 +63,10 @@ public class GameScene {
     }
 
     private void createPlayer() {
-        duck = new Duck(
-                200,
-                MainApp.WINDOW_HEIGHT - Duck.NORMAL_HEIGHT - 100
-        );
+        double groundLine = MainApp.WINDOW_HEIGHT - 100;
+
+        duck = new Duck(200, groundLine+15);
+
     }
 
     private void setupControls() {
