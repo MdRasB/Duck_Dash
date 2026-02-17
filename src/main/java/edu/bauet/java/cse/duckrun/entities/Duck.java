@@ -3,40 +3,41 @@ package edu.bauet.java.cse.duckrun.entities;
 import edu.bauet.java.cse.duckrun.MainApp;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.layout.StackPane;
 
 public class Duck {
 
-    private StackPane container;      // Holds sprite + hitbox
-    private ImageView duckView;
+    private StackPane container;
+    private ImageView sprite;
     private Rectangle hitbox;
 
     // Images
-    private Image normalImage;
-    private Image crouchImage;
+    private final Image normalImage;
+    private final Image crouchImage;
 
     // Physics
-    private double jumpForce = -15;
-    private double gravity = 0.8;
+    private static final double GRAVITY = 0.8;
+    private static final double JUMP_FORCE = -15;
+
     private double velocityY = 0;
+    private boolean onGround = true;
+    private boolean crouching = false;
 
-    private boolean isOnGround = true;
-    private boolean isCrouching = false;
+    // Dimensions
+    public static final double NORMAL_WIDTH = 60;
+    public static final double NORMAL_HEIGHT = 60;
 
-    private final double groundLevel = MainApp.WINDOW_HEIGHT - 150;
+    public static final double CROUCH_WIDTH = 60;
+    public static final double CROUCH_HEIGHT = 30;
 
-    // Hitbox dimensions
-    private final double normalWidth = 60;
-    private final double normalHeight = 60;
-
-    private final double crouchWidth = 60;
-    private final double crouchHeight = 30;
+    private final double groundY;
 
     public Duck(double startX, double startY) {
 
-        // Load images
+        groundY = startY;
+
         normalImage = new Image(
                 getClass().getResource("/images/duck/base_duck.png").toExternalForm()
         );
@@ -45,85 +46,73 @@ public class Duck {
                 getClass().getResource("/images/duck/ducking.png").toExternalForm()
         );
 
-        duckView = new ImageView(normalImage);
-        duckView.setFitWidth(80);
-        duckView.setFitHeight(80);
+        sprite = new ImageView(normalImage);
+        sprite.setFitWidth(80);
+        sprite.setFitHeight(80);
 
-        // Hitbox (for collision detection)
-        hitbox = new Rectangle(normalWidth, normalHeight);
+        hitbox = new Rectangle(NORMAL_WIDTH, NORMAL_HEIGHT);
         hitbox.setFill(Color.TRANSPARENT);
-        hitbox.setStroke(Color.RED); // DEBUG: remove later
+        hitbox.setStroke(Color.RED); // DEBUG
 
-        container = new StackPane(duckView, hitbox);
-
+        container = new StackPane(sprite, hitbox);
         container.setLayoutX(startX);
         container.setLayoutY(startY);
     }
 
-    // ========================
+    // =========================
     // Jump
-    // ========================
+    // =========================
     public void jump() {
-        if (isOnGround && !isCrouching) {
-            velocityY = jumpForce;
-            isOnGround = false;
+
+        if (onGround && !crouching) {
+            velocityY = JUMP_FORCE;
+            onGround = false;
         }
     }
 
-    // ========================
+    // =========================
     // Crouch
-    // ========================
-    public void crouch(boolean state) {
+    // =========================
+    public void setCrouching(boolean state) {
 
-        if (state && isOnGround) {
+        if (!onGround) return;
 
-            isCrouching = true;
+        if (state && !crouching) {
 
-            // Change sprite
-            duckView.setImage(crouchImage);
+            crouching = true;
+            sprite.setImage(crouchImage);
 
-            // Change hitbox size
-            hitbox.setWidth(crouchWidth);
-            hitbox.setHeight(crouchHeight);
+            hitbox.setWidth(CROUCH_WIDTH);
+            hitbox.setHeight(CROUCH_HEIGHT);
 
-            // Adjust Y so duck doesn't float
-            container.setLayoutY(container.getLayoutY()+30);
+        } else if (!state && crouching) {
 
-        } else if (!state && isCrouching) {
+            crouching = false;
+            sprite.setImage(normalImage);
 
-            isCrouching = false;
-
-            // Back to normal sprite
-            duckView.setImage(normalImage);
-
-            // Restore hitbox
-            hitbox.setWidth(normalWidth);
-            hitbox.setHeight(normalHeight);
-
-            // Reset Y
-            container.setLayoutY(container.getLayoutY() - 30);
+            hitbox.setWidth(NORMAL_WIDTH);
+            hitbox.setHeight(NORMAL_HEIGHT);
         }
     }
 
-    // ========================
-    // Update Physics
-    // ========================
+    // =========================
+    // Physics Update
+    // =========================
     public void update() {
 
-        velocityY += gravity;
+        velocityY += GRAVITY;
         container.setLayoutY(container.getLayoutY() + velocityY);
 
-        // Ground collision
-        if (container.getLayoutY() >= groundLevel) {
-            container.setLayoutY(groundLevel);
+        if (container.getLayoutY() >= groundY) {
+            container.setLayoutY(groundY);
             velocityY = 0;
-            isOnGround = true;
+            onGround = true;
         }
     }
 
-    // ========================
+    // =========================
     // Getters
-    // ========================
+    // =========================
     public StackPane getNode() {
         return container;
     }

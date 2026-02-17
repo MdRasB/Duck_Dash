@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 // Entry point of the game...
 public class MainApp extends Application {
 
+    public static final int WINDOW_WIDTH = 1280;
+    public static final int WINDOW_HEIGHT = 720;
     private static Stage primaryStage;
 
     @Override

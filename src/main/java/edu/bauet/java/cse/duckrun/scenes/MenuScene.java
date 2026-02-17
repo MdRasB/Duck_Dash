@@ -1,5 +1,7 @@
 package edu.bauet.java.cse.duckrun.scenes;
 
+import edu.bauet.java.cse.duckrun.MainApp;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -35,8 +37,8 @@ public class MenuScene {
         ImageView background = new ImageView(bgImage);
 
         //background size
-        background.setFitWidth(800);
-        background.setFitHeight(400);
+        background.setFitWidth(MainApp.WINDOW_WIDTH);
+        background.setFitHeight(MainApp.WINDOW_HEIGHT);
         background.setPreserveRatio(false);
 
         //title
@@ -57,7 +59,13 @@ public class MenuScene {
 
         //button action
         btnExit.setOnAction(e -> stage.close());
-        btnNewGame.setOnAction(e -> System.out.println("Loading..."));
+        btnNewGame.setOnAction(e -> {
+
+            GameScene gameScene = new GameScene();
+            MainApp.switchScene(gameScene.getScene());
+
+        });
+
 
         //organize buttons
         VBox menuBox = new VBox(10); //spacing between buttons
@@ -71,7 +79,7 @@ public class MenuScene {
         root.getChildren().addAll(background, menuBox);
 
         //create scene and link CSS
-        Scene scene = new Scene(root,800,400);
+        Scene scene = new Scene(root,MainApp.WINDOW_WIDTH,MainApp.WINDOW_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/styles/main_menu.css").toExternalForm());
 
         return scene;
