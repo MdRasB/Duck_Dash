@@ -70,9 +70,9 @@ public class Duck {
         }
     }
 
-    // =========================
+    // ========================
     // Crouch
-    // =========================
+    // ========================
     public void setCrouching(boolean state) {
 
         if (!onGround) return;
