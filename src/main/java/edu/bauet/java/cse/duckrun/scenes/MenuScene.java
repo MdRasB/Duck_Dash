@@ -1,76 +1,85 @@
 package edu.bauet.java.cse.duckrun.scenes;
 
-import edu.bauet.java.cse.duckrun.MainApp;
-import edu.bauet.java.cse.duckrun.scenes.GameScene;
-
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-
+import javafx.stage.Stage;
 
 public class MenuScene {
 
-    private Scene scene;
+    private Stage stage;
 
-    public MenuScene() {
-
-        StackPane root = new StackPane();
-
-        // 🔹 Background Image
-        Image bgImage = new Image(
-                getClass().getResource("/images/ui/hall_background.png").toExternalForm()
-        );
-        ImageView bgView = new ImageView(bgImage);
-        bgView.setFitWidth(MainApp.WINDOW_WIDTH);
-        bgView.setFitHeight(MainApp.WINDOW_HEIGHT);
-
-        // 🔹 Title Text
-        Text title = new Text("DuckRun");
-        title.setFont(Font.font("Arial", 60));
-        title.setStyle("-fx-fill: white; -fx-font-weight: bold;");
-
-        // 🔹 Duck Icon
-        ImageView duckIcon = new ImageView(
-                new Image(MenuScene.class.getResource("/images/duck/base_duck.png").toExternalForm())
-        );
-
-        duckIcon.setFitWidth(70);
-        duckIcon.setFitHeight(70);
-        duckIcon.setPreserveRatio(true);
-
-        // 🔹 Combine Icon + Title
-        HBox titleBox = new HBox(15, title, duckIcon);
-        titleBox.setAlignment(Pos.CENTER);
-
-
-        // 🔹 Start Button
-        Button startBtn = new Button("Start Game");
-        startBtn.setPrefWidth(200);
-        startBtn.setPrefHeight(50);
-
-        startBtn.setOnAction(e -> {
-            System.out.println("Starting Game...");
-            GameScene gameScene = new GameScene();
-            MainApp.switchScene(gameScene.getScene());
-        });
-
-        VBox menuBox = new VBox(40, titleBox, startBtn);
-        menuBox.setAlignment(Pos.CENTER);
-
-        root.getChildren().addAll(bgView, menuBox);
-
-        scene = new Scene(root, MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
+    public MenuScene(Stage stage) {
+        this.stage = stage;
     }
 
-    public Scene getScene() {
+    public Scene createScene() {
+        //menu options text font
+        Font pixelFont = Font.loadFont(getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"), 14);
+        if (pixelFont != null) {
+            System.out.println("Font loaded: " + pixelFont.getFamily());
+        } else {
+            System.out.println("Font file not found at path!");
+        }
+
+        StackPane root = new StackPane(); //root layout
+
+        //background image
+        Image bgImage = new Image(getClass().getResourceAsStream("/images/ui/menu/menu_bg.png"));
+        ImageView background = new ImageView(bgImage);
+
+        //background size
+        background.setFitWidth(800);
+        background.setFitHeight(400);
+        background.setPreserveRatio(false);
+
+        //title
+        Image gameTitle = new Image(getClass().getResourceAsStream("/images/ui/menu/title.png"));
+        ImageView titleView = new ImageView(gameTitle);
+
+        titleView.setFitWidth(295);
+        titleView.setPreserveRatio(true);
+
+        VBox.setMargin(titleView, new javafx.geometry.Insets(-110, 0, 5, -65));
+
+        //buttons
+        Button btnNewGame = createMenuButton("New Game");
+        Button btnLevels = createMenuButton("Levels");
+        Button btnScore = createMenuButton("High Score");
+        Button btnSettings = createMenuButton("Settings");
+        Button btnExit = createMenuButton("Exit");
+
+        //button action
+        btnExit.setOnAction(e -> stage.close());
+        btnNewGame.setOnAction(e -> System.out.println("Loading..."));
+
+        //organize buttons
+        VBox menuBox = new VBox(10); //spacing between buttons
+        menuBox.getChildren().addAll(titleView, btnNewGame, btnLevels, btnScore, btnSettings, btnExit);
+
+        //alignment of buttons
+        menuBox.setAlignment(Pos.CENTER_LEFT);
+        menuBox.setStyle("-fx-padding: 50 0 0 100;");
+
+        //final assembly
+        root.getChildren().addAll(background, menuBox);
+
+        //create scene and link CSS
+        Scene scene = new Scene(root,800,400);
+        scene.getStylesheets().add(getClass().getResource("/styles/main_menu.css").toExternalForm());
+
         return scene;
+    }
+
+    private Button createMenuButton(String text) {
+        Button btn = new Button(text);
+        btn.getStyleClass().add("menu-button");
+        return btn;
     }
 }
