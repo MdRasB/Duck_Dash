@@ -16,6 +16,7 @@ public class Duck {
     // Images
     private final Image normalImage;
     private final Image crouchImage;
+    //private final Image jumpImage;
 
     // Physics
     private static final double GRAVITY = 0.8;
@@ -39,12 +40,16 @@ public class Duck {
         groundY = startY;
 
         normalImage = new Image(
-                getClass().getResource("/images/duck/base_duck.png").toExternalForm()
+                getClass().getResource("/images/duck/running.png").toExternalForm()
         );
 
         crouchImage = new Image(
                 getClass().getResource("/images/duck/ducking.png").toExternalForm()
         );
+
+        //jumpImage = new Image(
+                //getClass().getResource("images/duck/jumping.png").toExternalForm()
+        //);
 
         sprite = new ImageView(normalImage);
         sprite.setFitWidth(80);
