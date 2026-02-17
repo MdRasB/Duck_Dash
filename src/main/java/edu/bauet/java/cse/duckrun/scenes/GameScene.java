@@ -51,7 +51,7 @@ public class GameScene {
             }
 
             if(event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S){
-                duck.knee();
+                duck.crouch();
             }
         });
     }
