@@ -5,19 +5,15 @@ import javafx.scene.Scene;
 
 public class Level1 {
 
-    // Background image path for Level 1
-    private static final String BACKGROUND_PATH =
+    private static final String BACKGROUND =
             "/images/backgrounds/level1.png";
 
     private GameScene gameScene;
 
     public Level1() {
-        gameScene = new GameScene(BACKGROUND_PATH);
+        gameScene = new GameScene(BACKGROUND);
     }
 
-    /**
-     * Returns the scene for this level
-     */
     public Scene createLevel() {
         return gameScene.getScene();
     }

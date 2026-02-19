@@ -7,23 +7,29 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.input.KeyCode;
 
 public class GameScene {
 
     private Pane root;
+    private Pane world;
     private Scene scene;
 
     private Duck duck;
 
     private AnimationTimer gameLoop;
 
+    // World settings
+    private static final double WORLD_SPEED = 10;
+    private double worldOffset = 0;
+
     // Background
     private ImageView bg1;
     private ImageView bg2;
 
-    private static final double WORLD_SPEED = 5;
-
+    // 🔥 Constructor now accepts background image path
     public GameScene(String backgroundPath) {
         initialize(backgroundPath);
     }
@@ -33,10 +39,13 @@ public class GameScene {
         root = new Pane();
         root.setPrefSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
 
+        world = new Pane();
+
         createBackground(backgroundPath);
+        createGround();
         createPlayer();
 
-        root.getChildren().addAll(bg1, bg2, duck.getNode());
+        root.getChildren().addAll(bg1, bg2, world, duck.getNode());
 
         scene = new Scene(root);
 
@@ -49,7 +58,7 @@ public class GameScene {
         var resource = getClass().getResource(path);
 
         if (resource == null) {
-            throw new RuntimeException("Background not found: " + path);
+            throw new RuntimeException("Background image not found: " + path);
         }
 
         Image bgImage = new Image(resource.toExternalForm());
@@ -67,13 +76,25 @@ public class GameScene {
         bg2.setLayoutX(MainApp.WINDOW_WIDTH);
     }
 
+    private void createGround() {
+
+        Rectangle ground = new Rectangle(
+                MainApp.WINDOW_WIDTH * 5,
+                100,
+                Color.DARKGREEN
+        );
+
+        ground.setLayoutY(MainApp.WINDOW_HEIGHT - 100);
+        world.getChildren().add(ground);
+    }
+
     private void createPlayer() {
 
-        double groundLine = MainApp.WINDOW_HEIGHT - 120;
+        double groundLine = MainApp.WINDOW_HEIGHT - 100;
 
-        duck = new Duck(200, groundLine);
+        duck = new Duck(200, groundLine + 15);
 
-        // 🔥 Example gravity tuning (change per level)
+        // Gravity tuning
         duck.setGravity(0.6, 1.5);
         duck.setJumpForce(-15);
     }
@@ -82,24 +103,31 @@ public class GameScene {
 
         scene.setOnKeyPressed(event -> {
 
-            if (event.getCode() == KeyCode.SPACE ||
-                    event.getCode() == KeyCode.W ||
-                    event.getCode() == KeyCode.UP) {
+            if (event.getCode() == KeyCode.SPACE
+                    || event.getCode() == KeyCode.W
+                    || event.getCode() == KeyCode.UP) {
 
                 duck.jump();
             }
 
-            if (event.getCode() == KeyCode.S ||
-                    event.getCode() == KeyCode.DOWN) {
+            if (event.getCode() == KeyCode.S
+                    || event.getCode() == KeyCode.DOWN) {
 
                 duck.setCrouching(true);
+            }
+
+            if (event.getCode() == KeyCode.ESCAPE) {
+                stop();
+                MainApp.switchScene(
+                        new MenuScene(MainApp.getPrimaryStage()).createScene()
+                );
             }
         });
 
         scene.setOnKeyReleased(event -> {
 
-            if (event.getCode() == KeyCode.S ||
-                    event.getCode() == KeyCode.DOWN) {
+            if (event.getCode() == KeyCode.S
+                    || event.getCode() == KeyCode.DOWN) {
 
                 duck.setCrouching(false);
             }
@@ -113,6 +141,7 @@ public class GameScene {
             public void handle(long now) {
 
                 updateBackground();
+                updateWorld();
                 duck.update();
             }
         };
@@ -131,6 +160,17 @@ public class GameScene {
 
         if (bg2.getLayoutX() + MainApp.WINDOW_WIDTH <= 0) {
             bg2.setLayoutX(bg1.getLayoutX() + MainApp.WINDOW_WIDTH);
+        }
+    }
+
+    private void updateWorld() {
+        worldOffset -= WORLD_SPEED;
+        world.setLayoutX(worldOffset);
+    }
+
+    public void stop() {
+        if (gameLoop != null) {
+            gameLoop.stop();
         }
     }
 
