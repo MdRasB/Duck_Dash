@@ -1,9 +1,8 @@
 package edu.bauet.java.cse.duckrun;
 
-import edu.bauet.java.cse.duckrun.scenes.MenuScene;
+import edu.bauet.java.cse.duckrun.scenes.StoryScene;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 // Entry point of the game...
@@ -20,20 +19,16 @@ public class MainApp extends Application {
         stage.setTitle("Duck Dash");
         stage.setResizable(false);
 
+        // Show the story scene first
+        StoryScene story = new StoryScene();
+        Scene storyScene = story.createScene(stage);
 
-        // Create the instance of your MenuScene
-        MenuScene menuSceneObj = new MenuScene(stage);
-        //build StackPane
-        Scene scene = menuSceneObj.createScene();
-
-        //show the specific scene
-        stage.setScene(scene);
+        stage.setScene(storyScene);
         stage.show();
     }
 
     /**
      * Allows scene switching later (Menu, Game, GameOver, etc.)
-     * No Scene at this point
      */
     public static void switchScene(Scene scene) {
         primaryStage.setScene(scene);
