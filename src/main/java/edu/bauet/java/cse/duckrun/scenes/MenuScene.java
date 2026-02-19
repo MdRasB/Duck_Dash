@@ -14,6 +14,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.geometry.Insets;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.effect.GaussianBlur;
 
 public class MenuScene {
 
@@ -22,6 +24,9 @@ public class MenuScene {
     private StackPane root;
     private VBox settingsBox;
     private Button musicToggle;
+    private ImageView background;
+    private VBox menuBox;
+    private Rectangle overlay;
 
     public MenuScene(Stage stage) {
         this.stage = stage;
@@ -40,12 +45,17 @@ public class MenuScene {
 
         //background image
         Image bgImage = new Image(getClass().getResourceAsStream("/images/ui/menu/menu_bg.png"));
-        ImageView background = new ImageView(bgImage);
+        background = new ImageView(bgImage);
 
         //background size
         background.setFitWidth(MainApp.WINDOW_WIDTH);
         background.setFitHeight(MainApp.WINDOW_HEIGHT);
         background.setPreserveRatio(false);
+
+        // Create overlay for dimming effect (initially transparent)
+        overlay = new Rectangle(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
+        overlay.setStyle("-fx-fill: rgba(0, 0, 0, 0.5);");
+        overlay.setVisible(false);
 
         //title
         Image gameTitle = new Image(getClass().getResourceAsStream("/images/ui/menu/title2.png"));
@@ -73,7 +83,7 @@ public class MenuScene {
         btnSettings.setOnAction(e -> toggleSettingsBox());
 
         //organize buttons
-        VBox menuBox = new VBox(10); //spacing between buttons
+        menuBox = new VBox(10); //spacing between buttons
         menuBox.getChildren().addAll(titleView, btnNewGame, btnLevels, btnScore, btnSettings, btnExit);
 
         //alignment of buttons
@@ -84,7 +94,7 @@ public class MenuScene {
         createSettingsBox();
 
         //final assembly
-        root.getChildren().addAll(background, menuBox);
+        root.getChildren().addAll(background, overlay, menuBox);
 
         // Add settings box to root (will be hidden initially)
         if (settingsBox != null) {
@@ -101,20 +111,22 @@ public class MenuScene {
 
     private void createSettingsBox() {
         // Create main settings container
-        settingsBox = new VBox(15);
+        settingsBox = new VBox();
         settingsBox.setAlignment(Pos.TOP_CENTER);
         settingsBox.getStyleClass().add("settings-box");
+        settingsBox.setPrefSize(869, 469);
+        settingsBox.setMaxSize(869, 469);
 
-        // Position the settings box in the center right area
-        StackPane.setAlignment(settingsBox, Pos.CENTER_RIGHT);
-        StackPane.setMargin(settingsBox, new Insets(0, 200, 0, 0));
+        // Position the settings box in the center of the screen
+        StackPane.setAlignment(settingsBox, Pos.CENTER);
 
-        // Settings title
+        // Settings title - at top center
         Label titleLabel = new Label("SETTINGS");
         titleLabel.getStyleClass().add("settings-title");
+        VBox.setMargin(titleLabel, new Insets(30, 0, 0, 0));
 
         // Music control
-        HBox musicBox = new HBox(20);
+        HBox musicBox = new HBox(30);
         musicBox.setAlignment(Pos.CENTER_LEFT);
 
         Label musicLabel = new Label("Music :");
@@ -132,19 +144,28 @@ public class MenuScene {
 
         musicBox.getChildren().addAll(musicLabel, musicToggle);
 
-        // Close button (small X in corner)
+        // Close button (small X in corner) - positioned absolutely via CSS
         Button closeButton = new Button("X");
         closeButton.getStyleClass().add("settings-close");
+        closeButton.setOnAction(e -> toggleSettingsBox());
 
-        closeButton.setOnAction(e -> settingsBox.setVisible(false));
+        // Create a container for the close button to position it absolutely
+        StackPane closeButtonContainer = new StackPane(closeButton);
+        closeButtonContainer.setAlignment(Pos.TOP_RIGHT);
+        closeButtonContainer.setPadding(new Insets(20, 30, 0, 0));
 
-        // Create a top bar for title and close button
-        HBox topBar = new HBox(150);
-        topBar.setAlignment(Pos.CENTER);
-        topBar.getChildren().addAll(titleLabel, closeButton);
+        // Main content area (for music control)
+        VBox contentBox = new VBox(40);
+        contentBox.setAlignment(Pos.CENTER_LEFT);
+        contentBox.setPadding(new Insets(80, 0, 0, 80));
+        contentBox.getChildren().add(musicBox);
 
-        // Add all elements to settings box
-        settingsBox.getChildren().addAll(topBar, musicBox);
+        // Use a StackPane to layer title and close button
+        StackPane titleArea = new StackPane();
+        titleArea.setAlignment(Pos.TOP_CENTER);
+        titleArea.getChildren().addAll(titleLabel, closeButtonContainer);
+
+        settingsBox.getChildren().addAll(titleArea, contentBox);
     }
 
     private void updateMusicToggleStyle() {
@@ -160,7 +181,20 @@ public class MenuScene {
 
     private void toggleSettingsBox() {
         if (settingsBox != null) {
-            settingsBox.setVisible(!settingsBox.isVisible());
+            boolean isVisible = !settingsBox.isVisible();
+            settingsBox.setVisible(isVisible);
+            overlay.setVisible(isVisible);
+
+            // Optional: Disable menu buttons when settings is open
+            menuBox.setDisable(isVisible);
+            menuBox.setOpacity(isVisible ? 0.3 : 1.0);
+
+            //bg blur when settings box on
+            if (isVisible) {
+                background.setEffect(new GaussianBlur(10));
+            } else {
+                background.setEffect(null);
+            }
         }
     }
 
