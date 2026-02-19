@@ -13,23 +13,21 @@ public class GameScene {
 
     private Pane root;
     private Scene scene;
-
     private Duck duck;
-
     private AnimationTimer gameLoop;
 
-    // Background
     private ImageView bg1;
     private ImageView bg2;
 
-    private static final double WORLD_SPEED = 3;
+    // This must match your actual image width (1280 * 2 = 2560)
+    private double bgImageWidth;
+    private static final double WORLD_SPEED = 5;
 
     public GameScene(String backgroundPath) {
         initialize(backgroundPath);
     }
 
     private void initialize(String backgroundPath) {
-
         root = new Pane();
         root.setPrefSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
 
@@ -37,7 +35,6 @@ public class GameScene {
         createPlayer();
 
         root.getChildren().addAll(bg1, bg2, duck.getNode());
-
         scene = new Scene(root);
 
         setupControls();
@@ -45,98 +42,78 @@ public class GameScene {
     }
 
     private void createBackground(String path) {
-
         var resource = getClass().getResource(path);
-
         if (resource == null) {
             throw new RuntimeException("Background not found: " + path);
         }
 
         Image bgImage = new Image(resource.toExternalForm());
 
+        // 1. Get the actual width (2560)
+        bgImageWidth = bgImage.getWidth();
+
         bg1 = new ImageView(bgImage);
         bg2 = new ImageView(bgImage);
 
-        bg1.setPreserveRatio(false);
-        bg2.setPreserveRatio(false);
+        // 2. ONLY set height. Do NOT set FitWidth to WINDOW_WIDTH.
+        // Let the width stay at 2560 so the image isn't squashed.
+        bg1.setFitHeight(MainApp.WINDOW_HEIGHT);
+        bg1.setPreserveRatio(true);
 
-        // Long level background
-        bg1.setFitWidth(1280 * 2.5);
-        bg1.setFitHeight(720);
+        bg2.setFitHeight(MainApp.WINDOW_HEIGHT);
+        bg2.setPreserveRatio(true);
 
-        bg2.setFitWidth(1280 * 2.5);
-        bg2.setFitHeight(720);
-
+        // 3. Position the second image at the end of the first one (2560px away)
         bg1.setLayoutX(0);
-        bg2.setLayoutX(MainApp.WINDOW_WIDTH);
+        bg2.setLayoutX(bgImageWidth);
     }
 
+    private void updateBackground() {
+        // Move both images
+        bg1.setLayoutX(bg1.getLayoutX() - WORLD_SPEED);
+        bg2.setLayoutX(bg2.getLayoutX() - WORLD_SPEED);
+
+        // 4. Reset logic using bgImageWidth (2560) instead of Window Width (1280)
+        if (bg1.getLayoutX() + bgImageWidth <= 0) {
+            bg1.setLayoutX(bg2.getLayoutX() + bgImageWidth);
+        }
+
+        if (bg2.getLayoutX() + bgImageWidth <= 0) {
+            bg2.setLayoutX(bg1.getLayoutX() + bgImageWidth);
+        }
+    }
+
+    // ... (rest of your methods: createPlayer, setupControls, startGameLoop, etc.)
     private void createPlayer() {
-
-        double groundLine = MainApp.WINDOW_HEIGHT - 100;
-
+        double groundLine = MainApp.WINDOW_HEIGHT - 120;
         duck = new Duck(200, groundLine);
-
-        // 🔥 Arcade jump tuning
-        duck.setJumpHeight(220);   // Max jump height
-        duck.setJumpSpeed(22);     // Fast rise
-        duck.setFallSpeed(3);      // Slow glide
     }
 
     private void setupControls() {
-
         scene.setOnKeyPressed(event -> {
-
-            if (event.getCode() == KeyCode.SPACE ||
-                    event.getCode() == KeyCode.W ||
-                    event.getCode() == KeyCode.UP) {
-
+            if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.W || event.getCode() == KeyCode.UP) {
                 duck.jump();
             }
-
-            if (event.getCode() == KeyCode.S ||
-                    event.getCode() == KeyCode.DOWN) {
-
+            if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
                 duck.setCrouching(true);
             }
         });
-
         scene.setOnKeyReleased(event -> {
-
-            if (event.getCode() == KeyCode.S ||
-                    event.getCode() == KeyCode.DOWN) {
-
+            if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
                 duck.setCrouching(false);
             }
         });
     }
 
     private void startGameLoop() {
-
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-
                 updateBackground();
                 duck.update();
             }
         };
-
         gameLoop.start();
-    }
-
-    private void updateBackground() {
-
-        bg1.setLayoutX(bg1.getLayoutX() - WORLD_SPEED);
-        bg2.setLayoutX(bg2.getLayoutX() - WORLD_SPEED);
-
-        if (bg1.getLayoutX() + MainApp.WINDOW_WIDTH <= 0) {
-            bg1.setLayoutX(bg2.getLayoutX() + MainApp.WINDOW_WIDTH);
-        }
-
-        if (bg2.getLayoutX() + MainApp.WINDOW_WIDTH <= 0) {
-            bg2.setLayoutX(bg1.getLayoutX() + MainApp.WINDOW_WIDTH);
-        }
     }
 
     public Scene getScene() {
