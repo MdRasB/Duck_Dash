@@ -10,15 +10,23 @@ public class Duck {
     private Image runningImage;
     private Image crouchingImage;
 
-    private double velocityY = 0;
     private double groundLine;
 
-    // Configurable physics
-    private double gravityUp = 1.2;
-    private double gravityDown = 0.05; // Adjusted for slower fall
-    private double jumpForce = -16;
+    // Jump system (constant speed, no acceleration)
+    private boolean jumping = false;
+    private boolean goingUp = false;
+    private boolean comingDown = false;
+
+    private double jumpHeight = 200;
+    private double jumpSpeed = 20;
+    private double fallSpeed = 4;
+
+    private double maxY;
 
     private boolean crouching = false;
+
+    // SAME visual height always (no distortion)
+    private final double DISPLAY_HEIGHT = 80;
 
     public Duck(double x, double groundLine) {
 
@@ -27,70 +35,88 @@ public class Duck {
         runningImage = new Image(
                 getClass().getResource("/images/duck/running.png").toExternalForm()
         );
-        
+
         crouchingImage = new Image(
                 getClass().getResource("/images/duck/ducking.png").toExternalForm()
         );
 
         duckView = new ImageView(runningImage);
-        duckView.setFitHeight(80);
-        duckView.setFitWidth(80);
-        duckView.setPreserveRatio(false);
+        duckView.setFitHeight(DISPLAY_HEIGHT);
+        duckView.setPreserveRatio(true);
         duckView.setLayoutX(x);
-        duckView.setLayoutY(groundLine);
+
+
+        // Lock feet to ground
+        duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
     }
 
     public void update() {
 
-        // Apply gravity only if not on ground
-        if (!isOnGround()) {
+        if (goingUp) {
 
-            if (velocityY <= 0) {
-                velocityY += gravityUp;      // Going up
-            } else {
-                velocityY = gravityDown;    // Falling down
+            duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed);
+
+            if (duckView.getLayoutY() <= maxY) {
+                goingUp = false;
+                comingDown = true;
             }
         }
 
-        duckView.setLayoutY(duckView.getLayoutY() + velocityY);
+        else if (comingDown) {
 
-        // Ground collision
-        if (duckView.getLayoutY() >= groundLine) {
-            duckView.setLayoutY(groundLine);
-            velocityY = 0;
+            duckView.setLayoutY(duckView.getLayoutY() + fallSpeed);
+
+            if (duckView.getLayoutY() >= groundLine - DISPLAY_HEIGHT) {
+                duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
+                comingDown = false;
+                jumping = false;
+            }
         }
     }
 
     public void jump() {
-        if (isOnGround()) {
-            velocityY = jumpForce;
-        }
-    }
 
-    private boolean isOnGround() {
-        return duckView.getLayoutY() >= groundLine;
+        if (!jumping) {
+
+            jumping = true;
+            goingUp = true;
+
+            maxY = duckView.getLayoutY() - jumpHeight;
+        }
     }
 
     public void setCrouching(boolean crouch) {
+
+        if (this.crouching == crouch) return;
+
         this.crouching = crouch;
+
         if (crouch) {
             duckView.setImage(crouchingImage);
-            // Adjust height if needed, or keep it same but change image
-            // duckView.setFitHeight(60); // Example if crouching image is shorter
         } else {
             duckView.setImage(runningImage);
-            // duckView.setFitHeight(80);
         }
+
+        // Keep same height always
+        duckView.setFitHeight(DISPLAY_HEIGHT);
+        duckView.setPreserveRatio(true);
+
+        // Always force bottom alignment
+        duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
     }
 
-    // 🔥 Physics setters (very important)
-    public void setGravity(double gravityUp, double gravityDown) {
-        this.gravityUp = gravityUp;
-        this.gravityDown = gravityDown;
+    // ---- TUNING ----
+
+    public void setJumpHeight(double height) {
+        this.jumpHeight = height;
     }
 
-    public void setJumpForce(double jumpForce) {
-        this.jumpForce = jumpForce;
+    public void setJumpSpeed(double speed) {
+        this.jumpSpeed = speed;
+    }
+
+    public void setFallSpeed(double speed) {
+        this.fallSpeed = speed;
     }
 
     public Node getNode() {

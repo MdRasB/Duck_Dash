@@ -60,10 +60,11 @@ public class GameScene {
         bg1.setPreserveRatio(false);
         bg2.setPreserveRatio(false);
 
-        bg1.setFitWidth(1280*2.5);
+        // Long level background
+        bg1.setFitWidth(1280 * 2.5);
         bg1.setFitHeight(720);
 
-        bg2.setFitWidth(1280*2.5);
+        bg2.setFitWidth(1280 * 2.5);
         bg2.setFitHeight(720);
 
         bg1.setLayoutX(0);
@@ -72,13 +73,14 @@ public class GameScene {
 
     private void createPlayer() {
 
-        double groundLine = MainApp.WINDOW_HEIGHT - 180;
+        double groundLine = MainApp.WINDOW_HEIGHT - 100;
 
         duck = new Duck(200, groundLine);
 
-        // 🔥 Example gravity tuning (change per level)
-        duck.setGravity(0.6, 1.5);
-        duck.setJumpForce(-15);
+        // 🔥 Arcade jump tuning
+        duck.setJumpHeight(220);   // Max jump height
+        duck.setJumpSpeed(22);     // Fast rise
+        duck.setFallSpeed(3);      // Slow glide
     }
 
     private void setupControls() {
