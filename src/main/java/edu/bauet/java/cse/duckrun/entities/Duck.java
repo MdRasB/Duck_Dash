@@ -9,6 +9,7 @@ import javafx.scene.shape.Rectangle;
 
 public class Duck {
 
+
     private StackPane container;
     private ImageView sprite;
     private Rectangle hitbox;
@@ -18,11 +19,14 @@ public class Duck {
     private final Image crouchImage;
     //private final Image jumpImage;
 
-    // Physics
-    private static final double GRAVITY = 0.8;
-    private static final double JUMP_FORCE = -15;
+    // Gravity settings (configurable)
+    private double gravityUp;
+    private double gravityDown;
+    private double jumpForce;
 
+    // Velocity
     private double velocityY = 0;
+
     private boolean onGround = true;
     private boolean crouching = false;
 
@@ -39,6 +43,12 @@ public class Duck {
     public Duck(double startX, double groundLevel) {
 
         this.groundLevel = groundLevel;
+
+        // Default gravity values (can be changed later)
+        this.gravityUp = 1.2;
+        this.gravityDown = 0.6;
+        this.jumpForce = -16;
+
 
         normalImage = new Image(
                 getClass().getResource("/images/duck/running.png").toExternalForm()
@@ -72,12 +82,11 @@ public class Duck {
     // Jump
     // =========================
     public void jump() {
-
-        if (onGround && !crouching) {
-            velocityY = JUMP_FORCE;
-            onGround = false;
+        if (isOnGround()) {
+            velocityY = jumpForce;
         }
     }
+
 
     // ========================
     // Crouch
@@ -110,14 +119,39 @@ public class Duck {
         }
     }
 
+    public void setGravity(double gravityUp, double gravityDown) {
+        this.gravityUp = gravityUp;
+        this.gravityDown = gravityDown;
+    }
+
+    public void setJumpForce(double jumpForce) {
+        this.jumpForce = jumpForce;
+    }
+
 
     // =========================
     // Physics Update
     // =========================
     public void update() {
 
-        velocityY += GRAVITY;
-        container.setLayoutY(container.getLayoutY() + velocityY);
+        if (!isOnGround()) {
+
+            if (velocityY < 0) {
+                // Going UP
+                velocityY += gravityUp;
+            } else {
+                // Falling DOWN
+                velocityY += gravityDown;
+            }
+        }
+
+        duckView.setLayoutY(duckView.getLayoutY() + velocityY);
+
+        // Ground collision
+        if (duckView.getLayoutY() >= groundLine) {
+            duckView.setLayoutY(groundLine);
+            velocityY = 0;
+        }
 
         double currentHeight = crouching ? CROUCH_HEIGHT : NORMAL_HEIGHT;
 
