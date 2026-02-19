@@ -128,5 +128,5 @@
 /* Overlay for dimming background */
 .overlay {
     -fx-background-color: rgba(0, 0, 0, 0.75);
-    -fx-effect: blur(10px);
+    -fx-effect: gaussian-blur(10px);
 }

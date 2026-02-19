@@ -12,23 +12,17 @@ import javafx.scene.input.KeyCode;
 public class GameScene {
 
     private Pane root;
-    private Pane world;
     private Scene scene;
 
     private Duck duck;
 
     private AnimationTimer gameLoop;
 
-    // ===== Background =====
+    // Background
     private ImageView bg1;
     private ImageView bg2;
 
-    private static final double WORLD_SPEED = 3;
-    private double worldOffset = 0;
-
-    // 2.5 minutes = 150 seconds
-    private static final double LEVEL_DURATION_SECONDS = 150;
-    private double totalDistanceAllowed;
+    private static final double WORLD_SPEED = 5;
 
     public GameScene(String backgroundPath) {
         initialize(backgroundPath);
@@ -39,88 +33,77 @@ public class GameScene {
         root = new Pane();
         root.setPrefSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
 
-        world = new Pane();
-
         createBackground(backgroundPath);
-        createGround();
         createPlayer();
 
-        root.getChildren().addAll(bg1, bg2, world, duck.getNode());
+        root.getChildren().addAll(bg1, bg2, duck.getNode());
 
         scene = new Scene(root);
 
         setupControls();
-        calculateLevelDistance();
         startGameLoop();
     }
 
     private void createBackground(String path) {
 
-        Image bgImage = new Image(
-                getClass().getResource(path).toExternalForm()
-        );
+        var resource = getClass().getResource(path);
+
+        if (resource == null) {
+            throw new RuntimeException("Background not found: " + path);
+        }
+
+        Image bgImage = new Image(resource.toExternalForm());
 
         bg1 = new ImageView(bgImage);
         bg2 = new ImageView(bgImage);
 
-        bg1.setFitWidth(MainApp.WINDOW_WIDTH*3);
+        bg1.setFitWidth(MainApp.WINDOW_WIDTH);
         bg1.setFitHeight(MainApp.WINDOW_HEIGHT);
 
-        bg2.setFitWidth(MainApp.WINDOW_WIDTH*3);
+        bg2.setFitWidth(MainApp.WINDOW_WIDTH);
         bg2.setFitHeight(MainApp.WINDOW_HEIGHT);
 
         bg1.setLayoutX(0);
         bg2.setLayoutX(MainApp.WINDOW_WIDTH);
     }
 
-    private void createGround() {
-        double groundLine = MainApp.WINDOW_HEIGHT - 100;
-        duck = new Duck(200, groundLine + 15);
-    }
-
     private void createPlayer() {
-        // already handled above
+
+        double groundLine = MainApp.WINDOW_HEIGHT - 120;
+
+        duck = new Duck(200, groundLine);
+
+        // 🔥 Example gravity tuning (change per level)
+        duck.setGravity(0.6, 1.5);
+        duck.setJumpForce(-15);
     }
 
     private void setupControls() {
 
         scene.setOnKeyPressed(event -> {
 
-            if (event.getCode() == KeyCode.SPACE
-                    || event.getCode() == KeyCode.W
-                    || event.getCode() == KeyCode.UP) {
+            if (event.getCode() == KeyCode.SPACE ||
+                    event.getCode() == KeyCode.W ||
+                    event.getCode() == KeyCode.UP) {
 
                 duck.jump();
             }
 
-            if (event.getCode() == KeyCode.S
-                    || event.getCode() == KeyCode.DOWN) {
+            if (event.getCode() == KeyCode.S ||
+                    event.getCode() == KeyCode.DOWN) {
 
                 duck.setCrouching(true);
-            }
-
-            if (event.getCode() == KeyCode.ESCAPE) {
-                stop();
-                MainApp.switchScene(
-                        new MenuScene(MainApp.getPrimaryStage()).createScene()
-                );
             }
         });
 
         scene.setOnKeyReleased(event -> {
-            if (event.getCode() == KeyCode.S
-                    || event.getCode() == KeyCode.DOWN) {
+
+            if (event.getCode() == KeyCode.S ||
+                    event.getCode() == KeyCode.DOWN) {
 
                 duck.setCrouching(false);
             }
         });
-    }
-
-    private void calculateLevelDistance() {
-
-        // distance = speed * frames * seconds
-        // assuming ~60 FPS
-        totalDistanceAllowed = WORLD_SPEED * 60 * LEVEL_DURATION_SECONDS;
     }
 
     private void startGameLoop() {
@@ -129,16 +112,8 @@ public class GameScene {
             @Override
             public void handle(long now) {
 
-                if (Math.abs(worldOffset) < totalDistanceAllowed) {
-
-                    updateBackground();
-                    updateWorld();
-                    duck.update();
-
-                } else {
-                    stop();
-                    System.out.println("LEVEL COMPLETE!");
-                }
+                updateBackground();
+                duck.update();
             }
         };
 
@@ -156,17 +131,6 @@ public class GameScene {
 
         if (bg2.getLayoutX() + MainApp.WINDOW_WIDTH <= 0) {
             bg2.setLayoutX(bg1.getLayoutX() + MainApp.WINDOW_WIDTH);
-        }
-    }
-
-    private void updateWorld() {
-        worldOffset -= WORLD_SPEED;
-        world.setLayoutX(worldOffset);
-    }
-
-    public void stop() {
-        if (gameLoop != null) {
-            gameLoop.stop();
         }
     }
 
