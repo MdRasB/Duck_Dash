@@ -42,13 +42,12 @@ public class MenuScene {
         background.setPreserveRatio(false);
 
         //title
-        Image gameTitle = new Image(getClass().getResourceAsStream("/images/ui/menu/title.png"));
+        Image gameTitle = new Image(getClass().getResourceAsStream("/images/ui/menu/title2.png"));
         ImageView titleView = new ImageView(gameTitle);
 
-        titleView.setFitWidth(295);
+        titleView.setFitWidth(472);
         titleView.setPreserveRatio(true);
-
-        VBox.setMargin(titleView, new javafx.geometry.Insets(-110, 0, 5, -65));
+        VBox.setMargin(titleView, new javafx.geometry.Insets(-175, 0, 0, -105));
 
         //buttons
         Button btnNewGame = createMenuButton("New Game");
@@ -73,7 +72,7 @@ public class MenuScene {
 
         //alignment of buttons
         menuBox.setAlignment(Pos.CENTER_LEFT);
-        menuBox.setStyle("-fx-padding: 50 0 0 100;");
+        menuBox.setStyle("-fx-padding: 80 0 0 160;");
 
         //final assembly
         root.getChildren().addAll(background, menuBox);

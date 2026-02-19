@@ -1,27 +1,33 @@
-/*default state*/
+/* default state */
 .menu-button {
     -fx-background-color: #F4EBD0;
     -fx-border-color: #C67F2F;
-    -fx-border-width: 3.5px;
-    -fx-border-radius: 6px;
-    -fx-background-radius: 10px;
 
-    /* Sizing */
-    -fx-pref-width: 140px;
-    -fx-pref-height: 30px;
+    /* Scaled borders: 3.5px -> 5px */
+    -fx-border-width: 5px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 15px;
 
-    
+    /* Scaled Sizing: 140x30 -> 224x48 */
+    -fx-pref-width: 224px;
+    -fx-pref-height: 48px;
 
-    /*box shadow*/
-    -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.5), 0, 0, 3, 2);
+    /* Scaled Box Shadow */
+    -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.5), 0, 0, 5, 4);
 }
 
 .menu-button .text {
     -fx-fill: #ab691e;
     -fx-font-family: "Press Start 2P";
-    -fx-font-size: 12px;
+
+    /* Scaled Font: 12px -> 20px */
+    -fx-font-size: 20px;
+
+    /* Added Text Stroke for clarity at larger size */
+    -fx-effect: dropshadow(one-pass-box, black, 0, 0, 1, 1);
 }
-/*hover state*/
+
+/* hover state */
 .menu-button:hover {
     -fx-background-color: #FFF5DC;
     -fx-scale-x: 1.1;
@@ -29,7 +35,7 @@
     -fx-cursor: hand;
 }
 
-/*click state*/
+/* click state */
 .menu-button:pressed {
     -fx-scale-x: 0.99;
     -fx-scale-y: 0.99;
