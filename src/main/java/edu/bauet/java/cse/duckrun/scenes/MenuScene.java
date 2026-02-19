@@ -2,6 +2,8 @@ package edu.bauet.java.cse.duckrun.scenes;
 
 import edu.bauet.java.cse.duckrun.MainApp;
 
+import edu.bauet.java.cse.duckrun.levels.Level1;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -60,8 +62,8 @@ public class MenuScene {
         btnExit.setOnAction(e -> stage.close());
         btnNewGame.setOnAction(e -> {
 
-            GameScene gameScene = new GameScene();
-            MainApp.switchScene(gameScene.getScene());
+            Level1 level1 = new Level1();
+            MainApp.switchScene(level1.createLevel());
 
         });
 

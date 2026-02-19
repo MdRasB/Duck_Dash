@@ -23,7 +23,7 @@ public class GameScene {
     private ImageView bg1;
     private ImageView bg2;
 
-    private static final double WORLD_SPEED = 5;
+    private static final double WORLD_SPEED = 3;
     private double worldOffset = 0;
 
     // 2.5 minutes = 150 seconds
@@ -63,10 +63,10 @@ public class GameScene {
         bg1 = new ImageView(bgImage);
         bg2 = new ImageView(bgImage);
 
-        bg1.setFitWidth(MainApp.WINDOW_WIDTH);
+        bg1.setFitWidth(MainApp.WINDOW_WIDTH*3);
         bg1.setFitHeight(MainApp.WINDOW_HEIGHT);
 
-        bg2.setFitWidth(MainApp.WINDOW_WIDTH);
+        bg2.setFitWidth(MainApp.WINDOW_WIDTH*3);
         bg2.setFitHeight(MainApp.WINDOW_HEIGHT);
 
         bg1.setLayoutX(0);
