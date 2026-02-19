@@ -22,7 +22,7 @@ public class GameScene {
     private ImageView bg1;
     private ImageView bg2;
 
-    private static final double WORLD_SPEED = 5;
+    private static final double WORLD_SPEED = 3;
 
     public GameScene(String backgroundPath) {
         initialize(backgroundPath);
@@ -57,11 +57,14 @@ public class GameScene {
         bg1 = new ImageView(bgImage);
         bg2 = new ImageView(bgImage);
 
-        bg1.setFitWidth(MainApp.WINDOW_WIDTH);
-        bg1.setFitHeight(MainApp.WINDOW_HEIGHT);
+        bg1.setPreserveRatio(false);
+        bg2.setPreserveRatio(false);
 
-        bg2.setFitWidth(MainApp.WINDOW_WIDTH);
-        bg2.setFitHeight(MainApp.WINDOW_HEIGHT);
+        bg1.setFitWidth(1280*2.5);
+        bg1.setFitHeight(720);
+
+        bg2.setFitWidth(1280*2.5);
+        bg2.setFitHeight(720);
 
         bg1.setLayoutX(0);
         bg2.setLayoutX(MainApp.WINDOW_WIDTH);
@@ -69,7 +72,7 @@ public class GameScene {
 
     private void createPlayer() {
 
-        double groundLine = MainApp.WINDOW_HEIGHT - 120;
+        double groundLine = MainApp.WINDOW_HEIGHT - 180;
 
         duck = new Duck(200, groundLine);
 

@@ -7,14 +7,16 @@ import javafx.scene.image.ImageView;
 public class Duck {
 
     private ImageView duckView;
+    private Image runningImage;
+    private Image crouchingImage;
 
     private double velocityY = 0;
     private double groundLine;
 
     // Configurable physics
-    private double gravityUp = 0.6;
-    private double gravityDown = 1.4;
-    private double jumpForce = -15;
+    private double gravityUp = 1.2;
+    private double gravityDown = 0.05; // Adjusted for slower fall
+    private double jumpForce = -16;
 
     private boolean crouching = false;
 
@@ -22,11 +24,18 @@ public class Duck {
 
         this.groundLine = groundLine;
 
-        Image duckImage = new Image(
+        runningImage = new Image(
                 getClass().getResource("/images/duck/running.png").toExternalForm()
         );
+        
+        crouchingImage = new Image(
+                getClass().getResource("/images/duck/ducking.png").toExternalForm()
+        );
 
-        duckView = new ImageView(duckImage);
+        duckView = new ImageView(runningImage);
+        duckView.setFitHeight(80);
+        duckView.setFitWidth(80);
+        duckView.setPreserveRatio(false);
         duckView.setLayoutX(x);
         duckView.setLayoutY(groundLine);
     }
@@ -36,10 +45,10 @@ public class Duck {
         // Apply gravity only if not on ground
         if (!isOnGround()) {
 
-            if (velocityY < 0) {
+            if (velocityY <= 0) {
                 velocityY += gravityUp;      // Going up
             } else {
-                velocityY += gravityDown;    // Falling down
+                velocityY = gravityDown;    // Falling down
             }
         }
 
@@ -64,7 +73,14 @@ public class Duck {
 
     public void setCrouching(boolean crouch) {
         this.crouching = crouch;
-        duckView.setScaleY(crouch ? 0.7 : 1.0);
+        if (crouch) {
+            duckView.setImage(crouchingImage);
+            // Adjust height if needed, or keep it same but change image
+            // duckView.setFitHeight(60); // Example if crouching image is shorter
+        } else {
+            duckView.setImage(runningImage);
+            // duckView.setFitHeight(80);
+        }
     }
 
     // 🔥 Physics setters (very important)
