@@ -1,6 +1,6 @@
 package edu.bauet.java.cse.duckrun.entities;
 
-import edu.bauet.java.cse.duckrun.MainApp;
+import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -17,10 +17,10 @@ public class Duck {
     private final Image normalImage;
     private final Image crouchImage;
 
-    // Physics (NOW configurable)
-    private double gravityUp = 0.6;
-    private double gravityDown = 1.4;
-    private double jumpForce = -15;
+    // --- UPDATED: Renamed physics variables for clarity ---
+    private double jumpGravity = 0.6; // Gravity applied when moving UP (weaker for higher jump)
+    private double fallGravity = 1.4; // Gravity applied when moving DOWN (stronger for faster fall)
+    private double jumpForce = -15;   // Initial upward velocity
 
     private double velocityY = 0;
     private boolean onGround = true;
@@ -60,34 +60,34 @@ public class Duck {
 
         container = new StackPane(sprite, hitbox);
 
-        StackPane.setAlignment(sprite, javafx.geometry.Pos.BOTTOM_CENTER);
-        StackPane.setAlignment(hitbox, javafx.geometry.Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(sprite, Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(hitbox, Pos.BOTTOM_CENTER);
 
         container.setLayoutX(startX);
         container.setLayoutY(groundLevel - NORMAL_HEIGHT);
     }
 
 
-    // =========================
+    // =======================================
     // Jump
-    // =========================
+    // =======================================
     public void jump() {
-
+        // Can only jump if on the ground and not crouching
         if (onGround && !crouching) {
-            velocityY = jumpForce;
+            velocityY = jumpForce; // Apply initial upward force
             onGround = false;
         }
     }
 
-    // =========================
+    // =======================================
     // Crouch
-    // =========================
+    // =======================================
     public void setCrouching(boolean state) {
-
         if (!onGround) return;
 
-        if (state && !crouching) {
+        double previousHeight = crouching ? CROUCH_HEIGHT : NORMAL_HEIGHT;
 
+        if (state && !crouching) {
             crouching = true;
             sprite.setImage(crouchImage);
 
@@ -98,7 +98,6 @@ public class Duck {
             hitbox.setHeight(CROUCH_HEIGHT - 10);
 
         } else if (!state && crouching) {
-
             crouching = false;
             sprite.setImage(normalImage);
 
@@ -108,26 +107,36 @@ public class Duck {
             hitbox.setWidth(NORMAL_WIDTH);
             hitbox.setHeight(NORMAL_HEIGHT - 5);
         }
+
+        // Adjust container Y to keep bottom on ground
+        double newHeight = crouching ? CROUCH_HEIGHT : NORMAL_HEIGHT;
+        container.setLayoutY(groundLevel - newHeight);
     }
 
 
-    // =========================
+
+    // =======================================
     // Physics Update
-    // =========================
+    // =======================================
     public void update() {
 
-        // Different gravity for up and down
+        // Apply gravity only when in the air
         if (!onGround) {
 
+            // --- UPDATED: Use new variable names for clarity ---
             if (velocityY < 0) {
-                velocityY += gravityUp;      // Going UP
+                // Duck is moving UP
+                velocityY += jumpGravity;
             } else {
-                velocityY += gravityDown;    // Falling DOWN
+                // Duck is moving DOWN
+                velocityY += fallGravity;
             }
         }
 
+        // Apply velocity to position
         container.setLayoutY(container.getLayoutY() + velocityY);
 
+        // Check for ground collision
         double currentHeight = crouching ? CROUCH_HEIGHT : NORMAL_HEIGHT;
         double groundTop = groundLevel - currentHeight;
 
@@ -139,12 +148,12 @@ public class Duck {
     }
 
 
-    // =========================
-    // Gravity Controls (NEW)
-    // =========================
-    public void setGravity(double up, double down) {
-        this.gravityUp = up;
-        this.gravityDown = down;
+    // =======================================
+    // Gravity Controls
+    // =======================================
+    public void setGravity(double jumpGravity, double fallGravity) {
+        this.jumpGravity = jumpGravity;
+        this.fallGravity = fallGravity;
     }
 
     public void setJumpForce(double force) {
@@ -152,9 +161,9 @@ public class Duck {
     }
 
 
-    // =========================
+    // =======================================
     // Getters
-    // =========================
+    // =======================================
     public StackPane getNode() {
         return container;
     }

@@ -42,7 +42,7 @@ public class GameScene {
         world = new Pane();
 
         createBackground(backgroundPath);
-        createGround();
+        //createGround();
         createPlayer();
 
         root.getChildren().addAll(bg1, bg2, world, duck.getNode());
@@ -66,16 +66,17 @@ public class GameScene {
         bg1 = new ImageView(bgImage);
         bg2 = new ImageView(bgImage);
 
-        bg1.setFitWidth(MainApp.WINDOW_WIDTH);
+        bg1.setFitWidth(MainApp.WINDOW_WIDTH*3);
         bg1.setFitHeight(MainApp.WINDOW_HEIGHT);
 
-        bg2.setFitWidth(MainApp.WINDOW_WIDTH);
+        bg2.setFitWidth(MainApp.WINDOW_WIDTH*3);
         bg2.setFitHeight(MainApp.WINDOW_HEIGHT);
 
         bg1.setLayoutX(0);
         bg2.setLayoutX(MainApp.WINDOW_WIDTH);
     }
 
+    /*
     private void createGround() {
 
         Rectangle ground = new Rectangle(
@@ -87,6 +88,8 @@ public class GameScene {
         ground.setLayoutY(MainApp.WINDOW_HEIGHT - 100);
         world.getChildren().add(ground);
     }
+
+     */
 
     private void createPlayer() {
 
