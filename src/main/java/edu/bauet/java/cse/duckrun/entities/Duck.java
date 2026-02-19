@@ -18,7 +18,7 @@ public class Duck {
     private boolean comingDown = false;
 
     private double jumpHeight = 200;
-    private double jumpSpeed = 20;
+    private double jumpSpeed= 30 ;
     private double fallSpeed = 4;
 
     private double maxY;
@@ -45,25 +45,19 @@ public class Duck {
         duckView.setPreserveRatio(true);
         duckView.setLayoutX(x);
 
-
         // Lock feet to ground
         duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
     }
 
     public void update() {
-
         if (goingUp) {
-
             duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed);
 
             if (duckView.getLayoutY() <= maxY) {
                 goingUp = false;
                 comingDown = true;
             }
-        }
-
-        else if (comingDown) {
-
+        } else if (comingDown) {
             duckView.setLayoutY(duckView.getLayoutY() + fallSpeed);
 
             if (duckView.getLayoutY() >= groundLine - DISPLAY_HEIGHT) {
@@ -75,18 +69,22 @@ public class Duck {
     }
 
     public void jump() {
-
-        if (!jumping) {
-
+        if (!jumping && !comingDown) {
             jumping = true;
             goingUp = true;
-
             maxY = duckView.getLayoutY() - jumpHeight;
         }
     }
 
-    public void setCrouching(boolean crouch) {
+    public void forceLand() {
+        // Force the duck to land immediately (for debug purposes)
+        goingUp = false;
+        comingDown = false;
+        jumping = false;
+        duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
+    }
 
+    public void setCrouching(boolean crouch) {
         if (this.crouching == crouch) return;
 
         this.crouching = crouch;
@@ -105,7 +103,45 @@ public class Duck {
         duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
     }
 
-    // ---- TUNING ----
+    // ---- GETTERS (for debug) ----
+
+    public double getX() {
+        return duckView.getLayoutX();
+    }
+
+    public double getY() {
+        return duckView.getLayoutY();
+    }
+
+    public boolean isJumping() {
+        return jumping;
+    }
+
+    public boolean isGoingUp() {
+        return goingUp;
+    }
+
+    public boolean isComingDown() {
+        return comingDown;
+    }
+
+    public boolean isCrouching() {
+        return crouching;
+    }
+
+    public double getJumpHeight() {
+        return jumpHeight;
+    }
+
+    public double getJumpSpeed() {
+        return jumpSpeed;
+    }
+
+    public double getFallSpeed() {
+        return fallSpeed;
+    }
+
+    // ---- SETTERS (for tuning) ----
 
     public void setJumpHeight(double height) {
         this.jumpHeight = height;
