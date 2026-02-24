@@ -1,16 +1,16 @@
 package edu.bauet.java.cse.duckrun.entities;
 
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
 
 public class Duck {
 
     private ImageView duckView;
     private Image runningImage;
-    private Image crouchingImage;
+    private Image runningMidPointImage;
+    private Image duckingImage;
+    private Image duckingMidPointImage;
 
     private double groundLine;
 
@@ -26,6 +26,10 @@ public class Duck {
     private double maxY;
 
     private boolean crouching = false;
+    
+    // Animation
+    private int frameCounter = 0;
+    private boolean toggleFrame = false;
 
     // SAME visual height always (no distortion)
     private final double DISPLAY_HEIGHT = 90;
@@ -37,10 +41,17 @@ public class Duck {
         runningImage = new Image(
                 getClass().getResource("/images/duck/running.png").toExternalForm()
         );
+        
+        runningMidPointImage = new Image(
+                getClass().getResource("/images/duck/running_mid_point.png").toExternalForm()
+        );
 
-        crouchingImage = new Image(
+        duckingImage = new Image(
                 getClass().getResource("/images/duck/ducking.png").toExternalForm()
-
+        );
+        
+        duckingMidPointImage = new Image(
+                getClass().getResource("/images/duck/ducking_mid_point.png").toExternalForm()
         );
 
         duckView = new ImageView(runningImage);
@@ -53,6 +64,7 @@ public class Duck {
     }
 
     public void update() {
+        // Handle jumping physics
         if (goingUp) {
             duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed);
 
@@ -68,6 +80,28 @@ public class Duck {
                 comingDown = false;
                 jumping = false;
             }
+        }
+        
+        // Handle animation
+        animate();
+    }
+    
+    private void animate() {
+        frameCounter++;
+        if (frameCounter >= 35) { // Animation speed
+            toggleFrame = !toggleFrame;
+            frameCounter = 0;
+        }
+        
+        if (crouching) {
+            duckView.setImage(toggleFrame ? duckingImage : duckingMidPointImage);
+            // Adjust Y position for crouching if needed
+            duckView.setLayoutY(groundLine - duckView.getFitHeight() + 15);
+        } else if (!jumping) {
+            // Animate running only when on the ground
+            duckView.setImage(toggleFrame ? runningImage : runningMidPointImage);
+            // Reset to normal ground line
+            duckView.setLayoutY(groundLine - duckView.getFitHeight());
         }
     }
 
@@ -89,15 +123,6 @@ public class Duck {
 
     public void setCrouching(boolean crouch) {
         this.crouching = crouch;
-        if (crouch) {
-            duckView.setImage(crouchingImage);
-            // Move down slightly when crouching
-            duckView.setLayoutY(groundLine - duckView.getFitHeight() + 15);
-        } else {
-            duckView.setImage(runningImage);
-            // Reset to normal ground line
-            duckView.setLayoutY(groundLine - duckView.getFitHeight());
-        }
     }
 
     // ---- GETTERS (for debug) ----
