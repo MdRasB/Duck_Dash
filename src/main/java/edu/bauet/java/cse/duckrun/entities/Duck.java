@@ -1,8 +1,10 @@
 package edu.bauet.java.cse.duckrun.entities;
 
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 
 public class Duck {
 
@@ -17,9 +19,9 @@ public class Duck {
     private boolean goingUp = false;
     private boolean comingDown = false;
 
-    private double jumpHeight = 200;
-    private double jumpSpeed= 30 ;
-    private double fallSpeed = 4;
+    private double jumpHeight = 250;
+    private double jumpSpeed= 15 ;
+    private double fallSpeed = 3;
 
     private double maxY;
 
@@ -38,6 +40,7 @@ public class Duck {
 
         crouchingImage = new Image(
                 getClass().getResource("/images/duck/ducking.png").toExternalForm()
+
         );
 
         duckView = new ImageView(runningImage);
@@ -85,22 +88,16 @@ public class Duck {
     }
 
     public void setCrouching(boolean crouch) {
-        if (this.crouching == crouch) return;
-
         this.crouching = crouch;
-
         if (crouch) {
             duckView.setImage(crouchingImage);
+            // Move down slightly when crouching
+            duckView.setLayoutY(groundLine - duckView.getFitHeight() + 15);
         } else {
             duckView.setImage(runningImage);
+            // Reset to normal ground line
+            duckView.setLayoutY(groundLine - duckView.getFitHeight());
         }
-
-        // Keep same height always
-        duckView.setFitHeight(DISPLAY_HEIGHT);
-        duckView.setPreserveRatio(true);
-
-        // Always force bottom alignment
-        duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
     }
 
     // ---- GETTERS (for debug) ----

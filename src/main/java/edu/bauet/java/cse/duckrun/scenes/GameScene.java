@@ -21,7 +21,7 @@ public class GameScene {
 
     // This must match your actual image width (1280 * 2 = 2560)
     private double bgImageWidth;
-    private static final double WORLD_SPEED = 5;
+    private static final double WORLD_SPEED = 4;
 
     public GameScene(String backgroundPath) {
         initialize(backgroundPath);
