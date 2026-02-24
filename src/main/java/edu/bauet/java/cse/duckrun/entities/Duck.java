@@ -28,7 +28,7 @@ public class Duck {
     private boolean crouching = false;
 
     // SAME visual height always (no distortion)
-    private final double DISPLAY_HEIGHT = 80;
+    private final double DISPLAY_HEIGHT = 90;
 
     public Duck(double x, double groundLine) {
 

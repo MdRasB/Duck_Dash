@@ -85,7 +85,7 @@ public class GameScene {
 
     // ... (rest of your methods: createPlayer, setupControls, startGameLoop, etc.)
     private void createPlayer() {
-        double groundLine = MainApp.WINDOW_HEIGHT - 120;
+        double groundLine = MainApp.WINDOW_HEIGHT - 130;
         duck = new Duck(200, groundLine);
     }
 
