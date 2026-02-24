@@ -33,27 +33,15 @@
 
 /* Settings Box Styling */
 .settings-box {
-    -fx-background-color: #F4EBD0;
-    -fx-border-color: #C67F2F;
-    -fx-border-width: 20px;
-    -fx-border-radius: 35px;
-    -fx-background-radius: 45px;
-    -fx-padding: 0;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, 0, 0);
-    -fx-min-width: 869px;
-    -fx-min-height: 469px;
-    -fx-max-width: 869px;
-    -fx-max-height: 469px;
+    -fx-background-color: transparent;
 }
 
 /* Settings title */
 .settings-title {
     -fx-font-family: "Press Start 2P";
     -fx-font-size: 36px;
-    -fx-text-fill: #ab691e;
+    -fx-text-fill: #AE6819;
     -fx-effect: dropshadow(one-pass-box, black, 2, 0, 2, 2);
-    -fx-alignment: center;
-    -fx-padding: 30px 0 0 0;
 }
 
 /* Settings labels */
