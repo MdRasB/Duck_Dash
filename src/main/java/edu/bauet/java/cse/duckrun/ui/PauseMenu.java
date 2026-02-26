@@ -3,10 +3,12 @@ package edu.bauet.java.cse.duckrun.ui;
 import edu.bauet.java.cse.duckrun.MainApp;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.effect.GaussianBlur;
 import javafx.geometry.Insets;
@@ -30,22 +32,30 @@ public class PauseMenu {
         pauseRoot = new StackPane();
         pauseRoot.setVisible(false);
 
-        // 1. Background blurry Overlay
+        // Dark Dimming Overlay
         overlay = new Rectangle(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
         overlay.getStyleClass().add("pause-overlay");
 
-        // 2. Pause Menu Frame
+        // Pause Menu Frame
         Image frameImg = new Image(getClass().getResourceAsStream("/images/pause_menu/pause_menu_frame.png"));
         frame = new ImageView(frameImg);
         frame.setPreserveRatio(true);
-        frame.setFitWidth(500); // Adjust based on your frame resolution
 
-        // 3. Button Grid (2x2)
+        // Content Layout (The VBox that holds EVERYTHING)
+        VBox contentLayout = new VBox(10);
+        contentLayout.setAlignment(Pos.TOP_CENTER);
+        contentLayout.setPadding(new Insets(150, 0, 0, 0));
+
+        // Title Label
+        Label titleLabel = new Label("GAME PAUSED");
+        titleLabel.getStyleClass().add("pause-title");
+
+        // Button Grid
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
-        grid.setHgap(30);
-        grid.setVgap(20);
-        grid.setPadding(new Insets(40, 0, 0, 0)); // Offset to center buttons in the frame
+        grid.setHgap(50);
+        grid.setVgap(15);
+        grid.setPadding(new Insets(40, 0, 0, 0)); // Space between title and buttons
 
         // Create Buttons
         Button btnRestart = createButton("/images/pause_menu/restart_button.png", onRestart);
@@ -54,16 +64,20 @@ public class PauseMenu {
         Button btnSettings = createButton("/images/pause_menu/settings_button.png", onSettings);
 
         grid.add(btnRestart, 0, 0);
-        grid.add(btnPlay, 1, 0);
+        grid.add(btnPlay, 2, 0);
         grid.add(btnExit, 0, 1);
-        grid.add(btnSettings, 1, 1);
+        grid.add(btnSettings, 2, 1);
 
-        pauseRoot.getChildren().addAll(overlay, frame, grid);
+        contentLayout.getChildren().addAll(titleLabel, grid);
+
+        pauseRoot.getChildren().clear();
+        pauseRoot.getChildren().addAll(overlay, frame, contentLayout);
+
     }
 
     private Button createButton(String path, Runnable action) {
         ImageView iv = new ImageView(new Image(getClass().getResourceAsStream(path)));
-        iv.setFitWidth(80);
+        iv.setFitWidth(150);
         iv.setPreserveRatio(true);
 
         Button btn = new Button();
@@ -77,12 +91,12 @@ public class PauseMenu {
         return pauseRoot;
     }
 
-    public void setVisible(boolean visible, ImageView backgroundToBlur) {
+    // Blurred background method
+    public void setVisible(boolean visible, ImageView... backgroundsToBlur) {
         pauseRoot.setVisible(visible);
-        if (visible) {
-            backgroundToBlur.setEffect(new GaussianBlur(10));
-        } else {
-            backgroundToBlur.setEffect(null);
+        GaussianBlur blur = visible ? new GaussianBlur(10) : null;
+        for (ImageView bg : backgroundsToBlur) {
+            bg.setEffect(blur);
         }
     }
 }

@@ -10,15 +10,12 @@ import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import javafx.geometry.Insets;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.effect.GaussianBlur;
 
@@ -40,11 +37,6 @@ public class MenuScene {
     public Scene createScene() {
         //menu options text font
         Font pixelFont = Font.loadFont(getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"), 14);
-        if (pixelFont != null) {
-            System.out.println("Font loaded: " + pixelFont.getFamily());
-        } else {
-            System.out.println("Font file not found at path!");
-        }
 
         root = new StackPane(); //root layout
 
@@ -140,6 +132,7 @@ public class MenuScene {
         background.setEffect(null);
     }
 
+    //create style class
     private Button createMenuButton(String text) {
         Button btn = new Button(text);
         btn.getStyleClass().add("menu-button");
