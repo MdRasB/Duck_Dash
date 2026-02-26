@@ -2,12 +2,18 @@ package edu.bauet.java.cse.duckrun.scenes;
 
 import edu.bauet.java.cse.duckrun.MainApp;
 import edu.bauet.java.cse.duckrun.entities.Duck;
+import edu.bauet.java.cse.duckrun.ui.PauseMenu;
+import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.input.KeyCode;
+import javafx.scene.control.Button;
+
+import java.awt.*;
 
 public class GameScene {
 
@@ -16,6 +22,7 @@ public class GameScene {
     private Duck duck;
     private AnimationTimer gameLoop;
 
+    ///for background image
     private ImageView bg1;
     private ImageView bg2;
 
@@ -23,8 +30,49 @@ public class GameScene {
     private double bgImageWidth;
     private static final double WORLD_SPEED = 4;
 
+    ///for pause menu
+    private boolean isPaused = false;
+    private Button pauseButton;
+    private PauseMenu pauseMenu;
+
+    private SettingsMenu settingsMenu;
+
     public GameScene(String backgroundPath) {
+        //pause menu actions
+        pauseMenu = new PauseMenu(
+                () -> resumeGame(),
+                () -> restartGame(),
+                () -> openSettings(),
+                () -> exitToMenu()
+        );
+
+        settingsMenu = new SettingsMenu(() -> {
+            settingsMenu.setVisible(false);
+            pauseMenu.getRoot().setVisible(true);
+        });
+        settingsMenu.setVisible(false);
+
+        //setup pause button
+        Button btnPause = new Button();
+
+        Image pauseBtnImg = new Image(getClass().getResourceAsStream("/images/pause_menu/pause_button.png"));
+        ImageView pauseIconView = new ImageView(pauseBtnImg);
+        pauseIconView.setFitWidth(60);
+        pauseIconView.setPreserveRatio(true);
+        btnPause.setGraphic(pauseIconView);
+
+        btnPause.getStyleClass().add("pause-icon-button");
+        //position top right
+        btnPause.setLayoutX(MainApp.WINDOW_WIDTH - 80);
+        btnPause.setLayoutY(15);
+
+        //pause the game
+        btnPause.setOnMouseClicked(e -> pauseGame());
+        btnPause.setCursor(javafx.scene.Cursor.HAND);
+        this.pauseButton = btnPause;
+
         initialize(backgroundPath);
+
     }
 
     private void initialize(String backgroundPath) {
@@ -34,8 +82,9 @@ public class GameScene {
         createBackground(backgroundPath);
         createPlayer();
 
-        root.getChildren().addAll(bg1, bg2, duck.getNode());
+        root.getChildren().addAll(bg1, bg2, duck.getNode(), pauseButton, pauseMenu.getRoot(),settingsMenu);
         scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/styles/pause_menu.css").toExternalForm());
 
         setupControls();
         startGameLoop();
@@ -91,29 +140,94 @@ public class GameScene {
 
     private void setupControls() {
         scene.setOnKeyPressed(event -> {
+            //pause game
+            if (event.getCode() == KeyCode.ESCAPE) {
+                if (isPaused) {
+                    resumeGame();
+                } else {
+                    pauseGame();
+                }
+                return;
+            }
+            if (isPaused) return;
+
+            //duck controls
             if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.W || event.getCode() == KeyCode.UP) {
                 duck.jump();
             }
             if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
                 duck.setCrouching(true);
             }
+
         });
         scene.setOnKeyReleased(event -> {
+            if (isPaused) return;
+
             if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
                 duck.setCrouching(false);
             }
         });
+
+
     }
 
     private void startGameLoop() {
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                updateBackground();
-                duck.update();
+                //game pause logic
+                if (!isPaused) {
+                    updateBackground();
+                    duck.update();
+                }
             }
         };
         gameLoop.start();
+    }
+
+    private void pauseGame() {
+        if (isPaused) return;
+        isPaused = true;
+
+        pauseMenu.setVisible(true, bg1, bg2);
+
+        pauseButton.setVisible(false);
+    }
+
+    private void resumeGame() {
+        if (!isPaused) return;
+        isPaused = false;
+
+        pauseMenu.setVisible(false, bg1, bg2);
+
+        pauseButton.setVisible(true);
+    }
+
+    private void restartGame() {
+        resumeGame();
+
+        //reset duck
+        double groundLine = MainApp.WINDOW_HEIGHT - 130;
+        duck.getNode().setLayoutY(groundLine);
+
+        //reset background
+        bg1.setLayoutX(0);
+        bg2.setLayoutX(bgImageWidth);
+    }
+
+    private void openSettings() {
+        //hide pause menu
+        pauseMenu.getRoot().setVisible(false);
+
+        settingsMenu.setAlignment(Pos.CENTER);
+        settingsMenu.setVisible(true);
+    }
+
+    private void exitToMenu() {
+        gameLoop.stop();
+
+        MenuScene menuScene = new MenuScene(MainApp.getPrimaryStage());
+        MainApp.switchScene(menuScene.createScene());
     }
 
     public Scene getScene() {
