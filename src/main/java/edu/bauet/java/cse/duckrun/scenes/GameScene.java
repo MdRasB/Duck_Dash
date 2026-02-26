@@ -48,7 +48,8 @@ public class GameScene {
 
         settingsMenu = new SettingsMenu(() -> {
             settingsMenu.setVisible(false);
-            pauseMenu.getRoot().setVisible(true);
+
+            pauseMenu.getRoot().getChildren().forEach(node -> node.setVisible(true));
         });
         settingsMenu.setVisible(false);
 
@@ -217,9 +218,14 @@ public class GameScene {
 
     private void openSettings() {
         //hide pause menu
-        pauseMenu.getRoot().setVisible(false);
+        pauseMenu.getRoot().getChildren().forEach(node -> {
+            if (!(node instanceof javafx.scene.shape.Rectangle)) {
+                node.setVisible(false);
+            }
+        });
 
-        settingsMenu.setAlignment(Pos.CENTER);
+        settingsMenu.setLayoutX((MainApp.WINDOW_WIDTH - 925) / 2.0);
+        settingsMenu.setLayoutY((MainApp.WINDOW_HEIGHT - 546) / 2.0);
         settingsMenu.setVisible(true);
     }
 
