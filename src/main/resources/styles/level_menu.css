@@ -1,0 +1,39 @@
+.level-box {
+    -fx-background-color: transparent;
+}
+
+.level-title {
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 36px;
+    -fx-text-fill: #AE6819;
+    -fx-effect: dropshadow(one-pass-box, black, 2, 2, 0, 0);
+}
+
+.level-info {
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 18px;
+    -fx-text-fill: #ab691e;
+}
+
+.level-close {
+    -fx-background-color: transparent;
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 32px;
+    -fx-text-fill: #ab691e;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+}
+
+.level-close:hover {
+    -fx-font-size: 36px;
+    -fx-text-fill: #C67F2F;
+}
+
+/* Additional hover effects for interactive elements */
+.level-close:hover,
+.music-toggle:hover {
+    -fx-cursor: hand;
+}

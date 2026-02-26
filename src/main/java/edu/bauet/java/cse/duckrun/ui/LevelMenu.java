@@ -19,6 +19,8 @@ public class LevelMenu extends StackPane {
     }
 
     private void initialize() {
+        //initially hidden
+        this.setVisible(false);
         //set style class
         this.getStyleClass().add("level-box");
 
@@ -37,6 +39,12 @@ public class LevelMenu extends StackPane {
         Label titleLabel = new Label("LEVELS");
         titleLabel.getStyleClass().add("level-title");
         VBox.setMargin(titleLabel, new Insets(60, 0, 0, 0));
+
+        // Placeholder for future Leaderboard data
+        Label infoLabel = new Label("Levels Coming Soon!");
+        infoLabel.getStyleClass().add("level-info");
+        contentLayout.getChildren().addAll(titleLabel,infoLabel);
+
 
         // Close Button (X)
         Button closeButton = new Button("X");

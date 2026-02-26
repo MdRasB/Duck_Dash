@@ -3,8 +3,10 @@ package edu.bauet.java.cse.duckrun.scenes;
 import edu.bauet.java.cse.duckrun.MainApp;
 
 import edu.bauet.java.cse.duckrun.levels.Level1;
-
+import edu.bauet.java.cse.duckrun.ui.LevelMenu;
+import edu.bauet.java.cse.duckrun.ui.HighScoreMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -28,6 +30,8 @@ public class MenuScene {
     private VBox menuBox;
     private Rectangle overlay;
     private SettingsMenu settingsMenu;
+    private LevelMenu levelMenu;
+    private HighScoreMenu highScoreMenu;
 
     public MenuScene(Stage stage) {
         this.stage = stage;
@@ -73,19 +77,21 @@ public class MenuScene {
         Button btnSettings = createMenuButton("Settings");
         Button btnExit = createMenuButton("Exit");
 
-        //button action
-        btnExit.setOnAction(e -> stage.close());
-        btnNewGame.setOnAction(e -> {
+        //settings,level and high score menu initialize
+        levelMenu = new LevelMenu(this::closeMenu);
+        highScoreMenu = new HighScoreMenu(this::closeMenu);
+        settingsMenu = new SettingsMenu(this::closeMenu);
 
+        //button actions
+        btnNewGame.setOnAction(e -> {
             Level1 level1 = new Level1();
             MainApp.switchScene(level1.createLevel());
-
         });
 
-        // Settings button action
-        settingsMenu = new SettingsMenu(this::toggleSettingsBox);
-        btnSettings.setOnAction(e -> toggleSettingsBox());
-        settingsMenu.setVisible(false);
+        btnLevels.setOnAction(e -> showMenu(levelMenu));
+        btnScore.setOnAction(e -> showMenu(highScoreMenu));
+        btnSettings.setOnAction(e -> showMenu(settingsMenu));
+        btnExit.setOnAction(e -> stage.close());
 
         //organize buttons
         menuBox = new VBox(10); //spacing between buttons
@@ -96,7 +102,7 @@ public class MenuScene {
         menuBox.setStyle("-fx-padding: 80 0 0 160;");
 
         //final assembly
-        root.getChildren().addAll(background, overlay, menuBox, settingsMenu);
+        root.getChildren().addAll(background, overlay, menuBox, levelMenu, highScoreMenu, settingsMenu);
 
         //create scene and link CSS
         Scene scene = new Scene(root, MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
@@ -105,23 +111,33 @@ public class MenuScene {
         return scene;
     }
 
-    private void toggleSettingsBox() {
-        if (settingsMenu != null) {
-            boolean isVisible = !settingsMenu.isVisible();
-            settingsMenu.setVisible(isVisible);
-            overlay.setVisible(isVisible);
+    private void showMenu(StackPane menuToShow) {
+        //initially hidden
+        levelMenu.setVisible(false);
+        highScoreMenu.setVisible(false);
+        settingsMenu.setVisible(false);
 
-            // Disabled menu buttons when settings is open
-            menuBox.setVisible(!isVisible);
-            menuBox.setOpacity(isVisible ? 0.3 : 1.0);
+        //show menus when clicked
+        menuToShow.setVisible(true);
+        overlay.setVisible(true);
 
-            //bg blur when settings box on
-            if (isVisible) {
-                background.setEffect(new GaussianBlur(10));
-            } else {
-                background.setEffect(null);
-            }
-        }
+        //background
+        menuBox.setDisable(true);
+        menuBox.setOpacity(0.3);
+        background.setEffect(new GaussianBlur(10));
+    }
+
+    private void closeMenu() {
+        //close menus
+        levelMenu.setVisible(false);
+        highScoreMenu.setVisible(false);
+        settingsMenu.setVisible(false);
+
+        //reset background and buttons
+        overlay.setVisible(false);
+        menuBox.setDisable(false);
+        menuBox.setOpacity(1.0);
+        background.setEffect(null);
     }
 
     private Button createMenuButton(String text) {
