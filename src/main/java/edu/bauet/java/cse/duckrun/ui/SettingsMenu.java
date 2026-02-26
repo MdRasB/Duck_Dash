@@ -22,6 +22,9 @@ public class SettingsMenu extends StackPane {
     }
 
     private void initialize() {
+        //initially hidden
+        this.setVisible(false);
+        //set style class
         this.getStyleClass().add("settings-box");
         this.setPrefSize(925, 546);
         this.setMaxSize(925, 546);
