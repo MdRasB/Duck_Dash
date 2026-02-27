@@ -28,7 +28,7 @@ public class GameScene {
 
     // This must match your actual image width (1280 * 2 = 2560)
     private double bgImageWidth;
-    private static final double WORLD_SPEED = 4;
+    private static final double WORLD_SPEED = 7;
 
     ///for pause menu
     private boolean isPaused = false;

@@ -11,6 +11,7 @@ public class Duck {
     private Image runningMidPointImage;
     private Image duckingImage;
     private Image duckingMidPointImage;
+    private Image jumpingImage;
 
     private double groundLine;
 
@@ -22,6 +23,10 @@ public class Duck {
     private double jumpHeight = 250;
     private double jumpSpeed= 15 ;
     private double fallSpeed = 3;
+    
+    // Configurable size for jumping image
+    private double jumpImageWidth = 100;
+    private double jumpImageHeight = 100;
 
     private double maxY;
 
@@ -53,6 +58,10 @@ public class Duck {
         duckingMidPointImage = new Image(
                 getClass().getResource("/images/duck/ducking_mid_point.png").toExternalForm()
         );
+        
+        jumpingImage = new Image(
+                getClass().getResource("/images/duck/jumping.png").toExternalForm()
+        );
 
         duckView = new ImageView(runningImage);
         duckView.setFitHeight(DISPLAY_HEIGHT);
@@ -71,6 +80,10 @@ public class Duck {
             if (duckView.getLayoutY() <= maxY) {
                 goingUp = false;
                 comingDown = true;
+                // Switch to falling image and apply custom size
+                duckView.setImage(jumpingImage);
+                duckView.setFitWidth(jumpImageWidth);
+                duckView.setFitHeight(jumpImageHeight);
             }
         } else if (comingDown) {
             duckView.setLayoutY(duckView.getLayoutY() + fallSpeed);
@@ -79,6 +92,9 @@ public class Duck {
                 duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
                 comingDown = false;
                 jumping = false;
+                // Reset to default size
+                duckView.setFitWidth(0); // Reset to use preserve ratio
+                duckView.setFitHeight(DISPLAY_HEIGHT);
             }
         }
         
@@ -88,7 +104,7 @@ public class Duck {
     
     private void animate() {
         frameCounter++;
-        if (frameCounter >= 35) { // Animation speed
+        if (frameCounter >= 13) { // Animation speed
             toggleFrame = !toggleFrame;
             frameCounter = 0;
         }
@@ -110,6 +126,8 @@ public class Duck {
             jumping = true;
             goingUp = true;
             maxY = duckView.getLayoutY() - jumpHeight;
+            // You might want a specific "going up" image here too
+            // For now, it will use the last running frame until it starts falling
         }
     }
 
@@ -175,6 +193,11 @@ public class Duck {
 
     public void setFallSpeed(double speed) {
         this.fallSpeed = speed;
+    }
+    
+    public void setJumpImageSize(double width, double height) {
+        this.jumpImageWidth = width;
+        this.jumpImageHeight = height;
     }
 
     public Node getNode() {
