@@ -21,7 +21,7 @@ public class Eagle {
     private boolean active = true;
     private boolean hasCollided = false;
 
-    private static final double DISPLAY_HEIGHT = 80;
+    private static final double DISPLAY_HEIGHT = 100;
 
     public Eagle(double startX, double startY) {
 
@@ -33,7 +33,7 @@ public class Eagle {
         eagleView.setPreserveRatio(true);
 
         eagleView.setLayoutX(startX);
-        eagleView.setLayoutY(startY);
+        eagleView.setLayoutY(startY-25);
     }
 
     public void update() {
