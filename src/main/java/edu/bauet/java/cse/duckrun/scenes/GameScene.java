@@ -5,6 +5,12 @@ import edu.bauet.java.cse.duckrun.entities.Duck;
 import edu.bauet.java.cse.duckrun.ui.PauseMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
+import edu.bauet.java.cse.duckrun.entities.Eagle;
+import edu.bauet.java.cse.duckrun.utils.CollisionUtil;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -37,6 +43,10 @@ public class GameScene {
     private PauseMenu pauseMenu;
 
     private SettingsMenu settingsMenu;
+
+    // Eagle system
+    private List<Eagle> eagles = new ArrayList<>();
+    private long nextSpawnTime = 0;
 
     public GameScene(String backgroundPath) {
         //pause menu actions
@@ -177,14 +187,66 @@ public class GameScene {
 
     }
 
+    private void spawnEagle(long now) {
+
+        if (now < nextSpawnTime) return;
+
+        double spawnX = MainApp.WINDOW_WIDTH + 150;
+
+        // Spawn slightly above ground
+        double spawnY = MainApp.WINDOW_HEIGHT - 250;
+
+        Eagle eagle = new Eagle(spawnX, spawnY);
+
+        eagles.add(eagle);
+        root.getChildren().add(eagle.getNode());
+
+        // Random interval between 1.5 to 3.5 seconds
+        long randomDelay = (long)((1.5 + Math.random() * 2.0) * 1_000_000_000);
+
+        nextSpawnTime = now + randomDelay;
+    }
+
+    private void updateEagles() {
+
+        Iterator<Eagle> iterator = eagles.iterator();
+
+        while (iterator.hasNext()) {
+
+            Eagle eagle = iterator.next();
+            eagle.update();
+
+            // Remove inactive
+            if (!eagle.isActive()) {
+                root.getChildren().remove(eagle.getNode());
+                iterator.remove();
+                continue;
+            }
+
+            // Collision check (only once per eagle)
+            if (!eagle.hasCollided() &&
+                    CollisionUtil.isColliding(
+                            duck.getHitBox(),
+                            eagle.getHitBox()
+                    )) {
+
+                eagle.markCollided();
+
+                System.out.println("Duck HIT by Eagle!");
+            }
+        }
+    }
+
     private void startGameLoop() {
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                //game pause logic
                 if (!isPaused) {
                     updateBackground();
                     duck.update();
+
+                    spawnEagle(now);
+                    updateEagles();
                 }
             }
         };

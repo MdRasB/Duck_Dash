@@ -187,6 +187,23 @@ public class Duck {
         this.jumpImageHeight = height;
     }
 
+    //Collision Behavior:::
+    //Hitbox updates:::
+    public javafx.geometry.Bounds getHitBox() {
+
+        javafx.geometry.Bounds bounds = duckView.getBoundsInParent();
+
+        double shrinkX = bounds.getWidth() * 0.2;
+        double shrinkY = bounds.getHeight() * 0.15;
+
+        return new javafx.geometry.BoundingBox(
+                bounds.getMinX() + shrinkX,
+                bounds.getMinY() + shrinkY,
+                bounds.getWidth() - shrinkX * 2,
+                bounds.getHeight() - shrinkY * 2
+        );
+    }
+
     public Node getNode() {
         return duckView;
     }
