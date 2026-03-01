@@ -7,6 +7,7 @@ import edu.bauet.java.cse.duckrun.ui.LevelMenu;
 import edu.bauet.java.cse.duckrun.ui.HighScoreMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 
+import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -41,7 +42,7 @@ public class MenuScene {
         root = new StackPane(); //root layout
 
         //background image
-        Image bgImage = new Image(getClass().getResourceAsStream("/images/ui/menu/menu_bg.png"));
+        Image bgImage = AssetLoader.getImage("/images/ui/menu/menu_bg.png");
         background = new ImageView(bgImage);
 
         //background size

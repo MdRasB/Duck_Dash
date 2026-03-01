@@ -4,6 +4,7 @@ import edu.bauet.java.cse.duckrun.MainApp;
 import edu.bauet.java.cse.duckrun.entities.Duck;
 import edu.bauet.java.cse.duckrun.ui.PauseMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
+import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -87,6 +88,10 @@ public class GameScene {
         scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/styles/pause_menu.css").toExternalForm());
 
+        //Neutral Focus..
+        root.setFocusTraversable(true);
+        root.requestFocus();
+
         setupControls();
         startGameLoop();
     }
@@ -97,7 +102,7 @@ public class GameScene {
             throw new RuntimeException("Background not found: " + path);
         }
 
-        Image bgImage = new Image(resource.toExternalForm());
+        Image bgImage = AssetLoader.getImage(path);
 
         // 1. Get the actual width (2560)
         bgImageWidth = bgImage.getWidth();
@@ -196,6 +201,9 @@ public class GameScene {
     }
 
     private void resumeGame() {
+        //Neutraling Focus...
+        root.requestFocus();
+
         if (!isPaused) return;
         isPaused = false;
 

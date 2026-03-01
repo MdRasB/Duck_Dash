@@ -1,6 +1,7 @@
 package edu.bauet.java.cse.duckrun;
 
 import edu.bauet.java.cse.duckrun.scenes.StoryScene;
+import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -18,6 +19,8 @@ public class MainApp extends Application {
 
         stage.setTitle("Duck Dash");
         stage.setResizable(false);
+
+        AssetLoader.preloadAssets();
 
         // Show the story scene first
         StoryScene story = new StoryScene();

@@ -1,5 +1,6 @@
 package edu.bauet.java.cse.duckrun.entities;
 
+import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -43,25 +44,11 @@ public class Duck {
 
         this.groundLine = groundLine;
 
-        runningImage = new Image(
-                getClass().getResource("/images/duck/running.png").toExternalForm()
-        );
-        
-        runningMidPointImage = new Image(
-                getClass().getResource("/images/duck/running_mid_point.png").toExternalForm()
-        );
-
-        duckingImage = new Image(
-                getClass().getResource("/images/duck/ducking.png").toExternalForm()
-        );
-        
-        duckingMidPointImage = new Image(
-                getClass().getResource("/images/duck/ducking_mid_point.png").toExternalForm()
-        );
-        
-        jumpingImage = new Image(
-                getClass().getResource("/images/duck/jumping.png").toExternalForm()
-        );
+        runningImage = AssetLoader.getImage("/images/duck/running.png");
+        runningMidPointImage = AssetLoader.getImage("/images/duck/running_mid_point.png");
+        duckingImage = AssetLoader.getImage("/images/duck/ducking.png");
+        duckingMidPointImage = AssetLoader.getImage("/images/duck/ducking_mid_point.png");
+        jumpingImage = AssetLoader.getImage("/images/duck/jumping.png");
 
         duckView = new ImageView(runningImage);
         duckView.setFitHeight(DISPLAY_HEIGHT);
