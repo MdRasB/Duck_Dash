@@ -12,7 +12,13 @@ public class Level1 {
     private GameScene gameScene;
 
     public Level1() {
-        gameScene = new GameScene(BACKGROUND_PATH);
+
+        gameScene = new GameScene(
+                "/images/backgrounds/level1.png",
+                true,   // spawnCats
+                false,  // spawnEagles
+                5       // worldSpeed
+        );
     }
 
     /**

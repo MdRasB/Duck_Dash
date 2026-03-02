@@ -1,5 +1,6 @@
 package edu.bauet.java.cse.duckrun.entities;
 
+import edu.bauet.java.cse.duckrun.MainApp;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -7,14 +8,14 @@ import javafx.scene.image.ImageView;
 
 public class Duck {
 
-    private ImageView duckView;
-    private Image runningImage;
-    private Image runningMidPointImage;
-    private Image duckingImage;
-    private Image duckingMidPointImage;
-    private Image jumpingImage;
+    private final ImageView duckView;
+    private final Image runningImage;
+    private final Image runningMidPointImage;
+    private final Image duckingImage;
+    private final Image duckingMidPointImage;
+    private final Image jumpingImage;
 
-    private double groundLine;
+    private final double groundLine;
 
     // Jump system (constant speed, no acceleration)
     private boolean jumping = false;
@@ -62,6 +63,8 @@ public class Duck {
     public void update() {
         // Handle jumping physics
         if (goingUp) {
+            duckView.setImage(runningImage);
+            //duckView.setFitWidth(DISPLAY_HEIGHT);
             duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed);
 
             if (duckView.getLayoutY() <= maxY) {
@@ -109,7 +112,7 @@ public class Duck {
     }
 
     public void jump() {
-        if (!jumping && !comingDown) {
+        if (!jumping && !comingDown && !crouching) {
             jumping = true;
             goingUp = true;
             maxY = duckView.getLayoutY() - jumpHeight;
@@ -127,7 +130,17 @@ public class Duck {
     }
 
     public void setCrouching(boolean crouch) {
-        this.crouching = crouch;
+        if(!jumping && !comingDown && !goingUp){
+            this.crouching = crouch;
+        }
+        //this.crouching = crouch;
+    }
+
+    public void resetState() {
+        setCrouching(false);
+        jumping = false;
+        getNode().setLayoutX(200);  // starting X
+        getNode().setLayoutY(MainApp.WINDOW_HEIGHT - 130); // ground
     }
 
     // ---- GETTERS (for debug) ----
