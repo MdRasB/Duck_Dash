@@ -119,8 +119,8 @@ public class GameScene {
         // Load pause image
         Image pauseImage = AssetLoader.getImage("/images/pause_menu/pause_button.png");
         ImageView pauseIcon = new ImageView(pauseImage);
-        pauseIcon.setFitWidth(40);  // adjust size as needed
-        pauseIcon.setFitHeight(40);
+        pauseIcon.setFitWidth(60);  // adjust size as needed
+        pauseIcon.setFitHeight(60);
         pauseIcon.setPreserveRatio(true);
 
         // Pause Button with image
