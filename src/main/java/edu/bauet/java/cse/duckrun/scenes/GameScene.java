@@ -22,6 +22,7 @@ import javafx.scene.control.Button;
 
 import java.awt.*;
 
+
 public class GameScene {
 
     private Pane root;
@@ -171,7 +172,7 @@ public class GameScene {
             if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.W || event.getCode() == KeyCode.UP) {
                 duck.jump();
             }
-            if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
+            if (onground()&&(event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C)) {
                 duck.setCrouching(true);
             }
 
@@ -185,6 +186,11 @@ public class GameScene {
         });
 
 
+    }
+
+    private boolean onground() {
+        boolean jumping=Duck.jumping;
+        return !jumping;
     }
 
     private void spawnEagle(long now) {

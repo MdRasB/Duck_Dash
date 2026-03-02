@@ -14,10 +14,10 @@ public class Duck {
     private Image duckingMidPointImage;
     private Image jumpingImage;
 
-    private double groundLine;
+    public double groundLine;
 
     // Jump system (constant speed, no acceleration)
-    private boolean jumping = false;
+    public static boolean jumping = false;
     private boolean goingUp = false;
     private boolean comingDown = false;
 
