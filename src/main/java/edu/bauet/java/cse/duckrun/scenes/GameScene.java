@@ -226,7 +226,7 @@ public class GameScene {
             if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.W || event.getCode() == KeyCode.UP) {
                 duck.jump();
             }
-            if (onground()&&(event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C)) {
+            if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
                 duck.setCrouching(true);
             }
 
