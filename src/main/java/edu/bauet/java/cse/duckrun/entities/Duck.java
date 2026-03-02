@@ -18,7 +18,7 @@ public class Duck {
     private final double groundLine;
 
     // Jump system (constant speed, no acceleration)
-    private boolean jumping = false;
+    public static boolean jumping = false;
     private boolean goingUp = false;
     private boolean comingDown = false;
 
