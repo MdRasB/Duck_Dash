@@ -85,7 +85,7 @@ public class Duck {
         if (jumping) {
             duckShadow.setImage(jumpShadowImage);
             duckShadow.setLayoutY(groundLine - DISPLAY_HEIGHT + 52.5);
-            duckShadow.setLayoutX(27);
+            duckShadow.setLayoutX(20);
             duckShadow.setOpacity(0.6);
             duckShadow.setFitHeight(30);
             duckShadow.setFitWidth(30);
@@ -95,6 +95,7 @@ public class Duck {
             duckShadow.setFitHeight(60);
             duckShadow.setFitWidth(80);
             duckShadow.setLayoutX(5);
+            duckShadow.setOpacity(0.8);
         }
 
         if (goingUp) {
