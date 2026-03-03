@@ -1,6 +1,7 @@
 package edu.bauet.java.cse.duckrun.scenes;
 
 import edu.bauet.java.cse.duckrun.MainApp;
+import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -8,13 +9,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.io.InputStream;
-
 public class StoryScene {
 
     public Scene createScene(Stage stage) {
-        // Load image
-        Image i = loadImage("/Story/startstory.png");
+        // Load image using robust AssetLoader
+        Image i = AssetLoader.loadImage("/Story/startstory.png");
+        
         ImageView iv = new ImageView(i);
         iv.setFitHeight(MainApp.WINDOW_HEIGHT);
         iv.setFitWidth(MainApp.WINDOW_WIDTH);
@@ -34,15 +34,5 @@ public class StoryScene {
         });
 
         return scene;
-    }
-
-    private Image loadImage(String path) {
-        InputStream is = getClass().getResourceAsStream(path);
-        if (is == null) {
-            System.err.println("Could not load image: " + path);
-            // Return a placeholder to prevent crash
-            return new Image("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
-        }
-        return new Image(is);
     }
 }

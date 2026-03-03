@@ -60,7 +60,7 @@ public class AssetLoader {
         return image;
     }
 
-    private static Image loadImage(String path){
+    public static Image loadImage(String path){
         try{
             InputStream is = AssetLoader.class.getResourceAsStream(path);
             if (is == null) {

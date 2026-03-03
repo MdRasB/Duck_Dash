@@ -1,7 +1,6 @@
 package edu.bauet.java.cse.duckrun;
 
-import edu.bauet.java.cse.duckrun.scenes.GameScene;
-import edu.bauet.java.cse.duckrun.scenes.MenuScene;
+import edu.bauet.java.cse.duckrun.scenes.StoryScene;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -22,9 +21,9 @@ public class MainApp extends Application {
         // Preload all game assets
         AssetLoader.preloadAssets();
 
-        // Start with the Menu Scene
-        MenuScene menuScene = new MenuScene(stage);
-        Scene scene = menuScene.createScene();
+        // Start with the Story Scene
+        StoryScene storyScene = new StoryScene();
+        Scene scene = storyScene.createScene(stage);
         
         primaryStage.setScene(scene);
         primaryStage.show();
