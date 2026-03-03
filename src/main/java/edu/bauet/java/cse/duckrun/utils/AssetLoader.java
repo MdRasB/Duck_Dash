@@ -1,118 +1,81 @@
 package edu.bauet.java.cse.duckrun.utils;
 
 import javafx.scene.image.Image;
-import javafx.scene.media.AudioClip;
-
-import java.net.URL;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Centralized Asset Manager for the entire game.
- * Loads and caches images and audio files.
- *
- * Professional game architecture approach.
- */
 public class AssetLoader {
-
-    // ==============================
-    // CACHES
-    // ==============================
 
     private static final Map<String, Image> imageCache = new HashMap<>();
 
-    //for audio loader
-    private static final Map<String, AudioClip> audioCache = new HashMap<>();
+    private static final String[] ASSETS_TO_LOAD = {
+        // Duck
+        "/images/duck/running.png",
+        "/images/duck/running_mid_point.png",
+        "/images/duck/ducking.png",
+        "/images/duck/ducking_mid_point.png",
+        "/images/duck/jumping.png",
+        // Shadow
+        "/images/shadow/Shadow(normal).png",
+        "/images/shadow/Shadow(small).png",
+        // Enemies
+        "/images/enemies/cat.png",
+        "/images/enemies/Eagle_state_1.png",
+        "/images/enemies/Eagle_state_2.png",
+        // UI
+        "/images/ui/menu/menu_bg.png",
+        "/images/ui/menu/title2.png",
+        "/images/pause_menu/pause_button.png",
+        "/images/pause_menu/pause_menu_frame.png",
+        "/images/pause_menu/restart_button.png",
+        "/images/pause_menu/play_button.png",
+        "/images/pause_menu/exit_button.png",
+        "/images/pause_menu/settings_button.png",
+        "/images/indicator/heart_full.png",
+        "/images/indicator/heart_empty.png",
+        // Backgrounds
+        "/images/ui/hall_ui_1200x600.png",
+        "/images/backgrounds/level1.png"
+    };
 
-    // Prevent instantiation
-    private AssetLoader() {}
+    private AssetLoader(){}
 
-    // ==============================
-    // IMAGE LOADING
-    // ==============================
+    public static void preloadAssets() {
+        System.out.println("Preloading assets...");
+        for (String path : ASSETS_TO_LOAD) {
+            getImage(path); // This will load and cache the image
+        }
+        System.out.println("Asset preloading complete.");
+    }
 
-    /**
-     * Load image from resources and cache it.
-     * Example usage:
-     * AssetLoader.getImage("/images/duck/duck_run.png");
-     */
-    public static Image getImage(String path) {
-
+    public static Image getImage(String path){
         if (imageCache.containsKey(path)) {
             return imageCache.get(path);
         }
-
-        URL resource = AssetLoader.class.getResource(path);
-
-        if (resource == null) {
-            throw new RuntimeException("Image not found: " + path);
+        Image image = loadImage(path);
+        if (image != null) {
+            imageCache.put(path, image);
         }
-
-        Image image = new Image(resource.toExternalForm());
-        imageCache.put(path, image);
-
         return image;
     }
 
-    // ==============================
-    // AUDIO LOADING
-    // ==============================
-
-    /**
-     * Load audio clip from resources and cache it.
-     * Example:
-     * AssetLoader.getAudio("/audio/sfx/jump.wav");
-     */
-
-    /**
-    public static AudioClip getAudio(String path) {
-
-        if (audioCache.containsKey(path)) {
-            return audioCache.get(path);
+    private static Image loadImage(String path){
+        try{
+            InputStream is = AssetLoader.class.getResourceAsStream(path);
+            if (is == null) {
+                System.err.println("FATAL: Could not load image: " + path);
+                return createPlaceholder();
+            }
+            return new Image(is);
+        }catch(Exception e){
+            System.err.println("FATAL: Exception while loading image: " + path);
+            e.printStackTrace();
+            return createPlaceholder();
         }
-
-        URL resource = AssetLoader.class.getResource(path);
-
-        if (resource == null) {
-            throw new RuntimeException("Audio not found: " + path);
-        }
-
-        AudioClip clip = new AudioClip(resource.toExternalForm());
-        audioCache.put(path, clip);
-
-        return clip;
     }
-     **/
-
-    // ==============================
-    // PRELOAD METHOD (Optional)
-    // ==============================
-
-    /**
-     * Call this once in MainApp if you want
-     * to preload important assets.
-     */
-    public static void preloadAssets() {
-
-        // Duck sprites
-        getImage("/images/duck/running.png");
-        getImage("/images/duck/running_mid_point.png");
-        getImage("/images/duck/ducking.png");
-        getImage("/images/duck/ducking_mid_point.png");
-        getImage("/images/duck/jumping.png");
-
-        // Menu UI
-        getImage("/images/ui/menu/menu_bg.png");
-        getImage("/images/ui/menu/title2.png");
-
-    }
-
-    // ==============================
-    // CLEAR CACHE (Optional)
-    // ==============================
-
-    public static void clearAll() {
-        imageCache.clear();
-        //audioCache.clear();
+    
+    private static Image createPlaceholder() {
+        return new Image("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
     }
 }

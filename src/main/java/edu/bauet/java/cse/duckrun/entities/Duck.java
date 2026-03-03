@@ -2,43 +2,46 @@ package edu.bauet.java.cse.duckrun.entities;
 
 import edu.bauet.java.cse.duckrun.MainApp;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class Duck {
 
+    private final Group duckGroup;
     private final ImageView duckView;
+    private final ImageView duckShadow;
+    private final Rectangle debugHitbox; // Visible hitbox
+
     private final Image runningImage;
     private final Image runningMidPointImage;
     private final Image duckingImage;
     private final Image duckingMidPointImage;
     private final Image jumpingImage;
+    private final Image normalShadowImage;
+    private final Image jumpShadowImage;
 
     private final double groundLine;
 
-    // Jump system (constant speed, no acceleration)
     public static boolean jumping = false;
     private boolean goingUp = false;
     private boolean comingDown = false;
 
     private double jumpHeight = 250;
-    private double jumpSpeed= 15 ;
-    private double fallSpeed = 3;
-    
-    // Configurable size for jumping image
-    private double jumpImageWidth = 100;
-    private double jumpImageHeight = 100;
+    private double jumpSpeed = 15;
+    private double fallSpeed = 5;
 
     private double maxY;
-
     private boolean crouching = false;
-    
-    // Animation
+
     private int frameCounter = 0;
     private boolean toggleFrame = false;
 
-    // SAME visual height always (no distortion)
     private final double DISPLAY_HEIGHT = 90;
 
     public Duck(double x, double groundLine) {
@@ -51,173 +54,144 @@ public class Duck {
         duckingMidPointImage = AssetLoader.getImage("/images/duck/ducking_mid_point.png");
         jumpingImage = AssetLoader.getImage("/images/duck/jumping.png");
 
+        normalShadowImage = AssetLoader.getImage("/images/shadow/Shadow(normal).png");
+        jumpShadowImage = AssetLoader.getImage("/images/shadow/Shadow(small).png");
+
         duckView = new ImageView(runningImage);
         duckView.setFitHeight(DISPLAY_HEIGHT);
         duckView.setPreserveRatio(true);
-        duckView.setLayoutX(x);
-
-        // Lock feet to ground
         duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
+
+        duckShadow = new ImageView(normalShadowImage);
+        duckShadow.setFitHeight(55);
+        duckShadow.setFitWidth(DISPLAY_HEIGHT);
+        duckShadow.setPreserveRatio(false);
+        duckShadow.setLayoutY(groundLine - DISPLAY_HEIGHT);
+        
+        // Debug Hitbox (Invisible)
+        debugHitbox = new Rectangle();
+        debugHitbox.setFill(Color.TRANSPARENT);
+        debugHitbox.setStroke(Color.TRANSPARENT); // Made invisible
+        debugHitbox.setStrokeWidth(0);
+
+        duckGroup = new Group(duckShadow, duckView, debugHitbox);
+        duckGroup.setLayoutX(x);
     }
 
     public void update() {
-        // Handle jumping physics
-        if (goingUp) {
-            duckView.setImage(runningImage);
-            //duckView.setFitWidth(DISPLAY_HEIGHT);
-            duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed);
 
+        duckShadow.setLayoutY(groundLine - DISPLAY_HEIGHT + 40);
+
+        if (jumping) {
+            duckShadow.setImage(jumpShadowImage);
+            duckShadow.setLayoutY(groundLine - DISPLAY_HEIGHT + 52.5);
+            duckShadow.setLayoutX(27);
+            duckShadow.setOpacity(0.6);
+            duckShadow.setFitHeight(30);
+            duckShadow.setFitWidth(30);
+        } else {
+            duckShadow.setImage(normalShadowImage);
+            duckShadow.setOpacity(1.0);
+            duckShadow.setFitHeight(60);
+            duckShadow.setFitWidth(80);
+            duckShadow.setLayoutX(5);
+        }
+
+        if (goingUp) {
+            duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed);
             if (duckView.getLayoutY() <= maxY) {
                 goingUp = false;
                 comingDown = true;
-                // Switch to falling image and apply custom size
                 duckView.setImage(jumpingImage);
-                duckView.setFitWidth(jumpImageWidth);
-                duckView.setFitHeight(jumpImageHeight);
             }
         } else if (comingDown) {
             duckView.setLayoutY(duckView.getLayoutY() + fallSpeed);
-
             if (duckView.getLayoutY() >= groundLine - DISPLAY_HEIGHT) {
                 duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
                 comingDown = false;
                 jumping = false;
-                // Reset to default size
-                duckView.setFitWidth(0); // Reset to use preserve ratio
-                duckView.setFitHeight(DISPLAY_HEIGHT);
             }
         }
-        
-        // Handle animation
+
         animate();
+        updateDebugHitbox();
     }
-    
+
     private void animate() {
+
         frameCounter++;
-        if (frameCounter >= 13) { // Animation speed
+        if (frameCounter >= 12) {
             toggleFrame = !toggleFrame;
             frameCounter = 0;
         }
-        
-        if (crouching) {
+
+        if (crouching && !jumping) {
             duckView.setImage(toggleFrame ? duckingImage : duckingMidPointImage);
-            // Adjust Y position for crouching if needed
-            duckView.setLayoutY(groundLine - duckView.getFitHeight() + 15);
+            duckView.setLayoutY(groundLine - DISPLAY_HEIGHT + 20);
         } else if (!jumping) {
-            // Animate running only when on the ground
             duckView.setImage(toggleFrame ? runningImage : runningMidPointImage);
-            // Reset to normal ground line
-            duckView.setLayoutY(groundLine - duckView.getFitHeight());
+            duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
         }
+    }
+    
+    private void updateDebugHitbox() {
+        Bounds localBounds = getLocalHitbox();
+        debugHitbox.setX(localBounds.getMinX());
+        debugHitbox.setY(localBounds.getMinY());
+        debugHitbox.setWidth(localBounds.getWidth());
+        debugHitbox.setHeight(localBounds.getHeight());
     }
 
     public void jump() {
-        if (!jumping && !comingDown && !crouching) {
+        if (!jumping && !crouching) {
             jumping = true;
             goingUp = true;
             maxY = duckView.getLayoutY() - jumpHeight;
-            // You might want a specific "going up" image here too
-            // For now, it will use the last running frame until it starts falling
         }
-    }
-
-    public void forceLand() {
-        // Force the duck to land immediately (for debug purposes)
-        goingUp = false;
-        comingDown = false;
-        jumping = false;
-        duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
     }
 
     public void setCrouching(boolean crouch) {
-        if(!jumping && !comingDown && !goingUp){
+        if (!jumping) {
             this.crouching = crouch;
         }
-        //this.crouching = crouch;
     }
 
     public void resetState() {
-        setCrouching(false);
         jumping = false;
-        getNode().setLayoutX(200);  // starting X
-        getNode().setLayoutY(MainApp.WINDOW_HEIGHT - 130); // ground
-    }
-
-    // ---- GETTERS (for debug) ----
-
-    public double getX() {
-        return duckView.getLayoutX();
-    }
-
-    public double getY() {
-        return duckView.getLayoutY();
-    }
-
-    public boolean isJumping() {
-        return jumping;
-    }
-
-    public boolean isGoingUp() {
-        return goingUp;
-    }
-
-    public boolean isComingDown() {
-        return comingDown;
-    }
-
-    public boolean isCrouching() {
-        return crouching;
-    }
-
-    public double getJumpHeight() {
-        return jumpHeight;
-    }
-
-    public double getJumpSpeed() {
-        return jumpSpeed;
-    }
-
-    public double getFallSpeed() {
-        return fallSpeed;
-    }
-
-    // ---- SETTERS (for tuning) ----
-
-    public void setJumpHeight(double height) {
-        this.jumpHeight = height;
-    }
-
-    public void setJumpSpeed(double speed) {
-        this.jumpSpeed = speed;
-    }
-
-    public void setFallSpeed(double speed) {
-        this.fallSpeed = speed;
-    }
-    
-    public void setJumpImageSize(double width, double height) {
-        this.jumpImageWidth = width;
-        this.jumpImageHeight = height;
-    }
-
-    //Collision Behavior:::
-    //Hitbox updates:::
-    public javafx.geometry.Bounds getHitBox() {
-
-        javafx.geometry.Bounds bounds = duckView.getBoundsInParent();
-
-        double shrinkX = bounds.getWidth() * 0.2;
-        double shrinkY = bounds.getHeight() * 0.15;
-
-        return new javafx.geometry.BoundingBox(
-                bounds.getMinX() + shrinkX,
-                bounds.getMinY() + shrinkY,
-                bounds.getWidth() - shrinkX * 2,
-                bounds.getHeight() - shrinkY * 2
-        );
+        crouching = false;
+        goingUp = false;
+        comingDown = false;
+        duckGroup.setLayoutX(200);
+        duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
     }
 
     public Node getNode() {
-        return duckView;
+        return duckGroup;
+    }
+
+    // Returns hitbox in LOCAL coordinates (relative to the duckGroup)
+    private Bounds getLocalHitbox() {
+        Bounds b = duckView.getBoundsInParent();
+
+        double shrinkX = b.getWidth() * 0.3;
+        double shrinkY;
+
+        if (jumping) {
+            shrinkY = b.getHeight() * 0.5;
+        } else {
+            shrinkY = b.getHeight() * 0.3;
+        }
+
+        return new BoundingBox(
+                b.getMinX() + shrinkX,
+                b.getMinY() + shrinkY,
+                b.getWidth() - shrinkX * 2,
+                b.getHeight() - shrinkY
+        );
+    }
+
+    // Returns hitbox in GLOBAL (scene) coordinates
+    public Bounds getHitBox() {
+        return debugHitbox.localToScene(debugHitbox.getBoundsInLocal());
     }
 }

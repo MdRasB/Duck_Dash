@@ -7,7 +7,6 @@ import edu.bauet.java.cse.duckrun.entities.Enemy;
 import edu.bauet.java.cse.duckrun.ui.PauseMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
-//import edu.bauet.java.cse.duckrun.entities.Eagle;    //Eagle is not needed right now...
 import edu.bauet.java.cse.duckrun.entities.Cat;
 import edu.bauet.java.cse.duckrun.utils.CollisionUtil;
 import edu.bauet.java.cse.duckrun.ui.HealthBar;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javafx.animation.AnimationTimer;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -25,87 +23,67 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 
-import java.awt.*;
-
-
 public class GameScene {
 
     private Pane root;
     private Scene scene;
     private Duck duck;
     private AnimationTimer gameLoop;
-    // In GameScene.java
-    private StackPane menuLayer;  // a new layer for menus
+    private StackPane menuLayer;
 
-    ///for background image
     private ImageView background1;
     private ImageView background2;
 
-    // This must match your actual image width (1280 * 2 = 2560)
-    private double bgImageWidth;
-    private static final double WORLD_SPEED = 7;
-
-    ///for pause menu
     private boolean isPaused = false;
     private Button pauseButton;
     private PauseMenu pauseMenu;
-
     private SettingsMenu settingsMenu;
 
-    //Enemy creation
     private final List<Enemy> enemies = new ArrayList<>();
     private long nextSpawnTime = 0;
 
     private final boolean spawnCats;
     private final boolean spawnEagles;
+    private double worldSpeed = 7;
 
-    private double worldSpeed = 5;   // shared speed
-
-    //HealthBar
     private HealthBar healthBar;
 
-    public GameScene(String backgroundPath,
-                     boolean spawnCats,
-                     boolean spawnEagles,
-                     double worldSpeed) {
-
+    // Constructor with parameters for level configuration
+    public GameScene(String backgroundPath, boolean spawnCats, boolean spawnEagles, double worldSpeed) {
         this.spawnCats = spawnCats;
         this.spawnEagles = spawnEagles;
         this.worldSpeed = worldSpeed;
-
         initialize(backgroundPath);
+    }
+
+    // Default constructor for quick testing/default level
+    public GameScene() {
+        this("/images/ui/hall_ui_1200x600.png", true, true, 7);
     }
 
     private void initialize(String backgroundPath) {
         root = new Pane();
         root.setPrefSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
 
-        // Layer for menus
         menuLayer = new StackPane();
         menuLayer.setPrefSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
-        menuLayer.setPickOnBounds(false); // clicks pass through when menu not visible
+        menuLayer.setPickOnBounds(false);
 
         scene = new Scene(root, MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/styles/pause_menu.css").toExternalForm());
 
-        // Background
         createBackground(backgroundPath);
-
-        // Player
         createPlayer();
 
-        // Health Bar
         healthBar = new HealthBar(3);
         healthBar.getView().setLayoutX(20);
         healthBar.getView().setLayoutY(20);
 
-        // Pause & Settings
         createPauseSystem();
 
-        // Add layers in correct order
+        // Add layers: Background -> Duck -> Enemies (added dynamically) -> UI
         root.getChildren().addAll(background1, background2, duck.getNode(), healthBar.getView(), pauseButton, menuLayer);
 
-        // Menus go inside menuLayer
         menuLayer.getChildren().addAll(pauseMenu.getRoot(), settingsMenu);
 
         root.setFocusTraversable(true);
@@ -116,166 +94,141 @@ public class GameScene {
     }
 
     private void createPauseSystem() {
-
-        // Load pause image
         Image pauseImage = AssetLoader.getImage("/images/pause_menu/pause_button.png");
         ImageView pauseIcon = new ImageView(pauseImage);
-        pauseIcon.setFitWidth(60);  // adjust size as needed
+        pauseIcon.setFitWidth(60);
         pauseIcon.setFitHeight(60);
         pauseIcon.setPreserveRatio(true);
 
-        // Pause Button with image
         pauseButton = new Button();
-        pauseButton.setGraphic(pauseIcon);  // set image instead of text
-        pauseButton.setStyle("-fx-background-color: transparent;"); // optional: make button background transparent
+        pauseButton.setGraphic(pauseIcon);
+        pauseButton.setStyle("-fx-background-color: transparent;");
         pauseButton.setLayoutX(MainApp.WINDOW_WIDTH - 80);
         pauseButton.setLayoutY(20);
 
         pauseButton.setOnAction(e -> {
-            if (isPaused) {
-                resumeGame();
-            } else {
-                pauseGame();
-            }
+            if (isPaused) resumeGame();
+            else pauseGame();
         });
 
-        // Pause Menu
-        pauseMenu = new PauseMenu(
-                this::resumeGame,
-                this::restartGame,
-                this::openSettings,
-                this::exitToMenu
-        );
-
+        pauseMenu = new PauseMenu(this::resumeGame, this::restartGame, this::openSettings, this::exitToMenu);
         pauseMenu.getRoot().setVisible(false);
 
-        // Settings Menu
         settingsMenu = new SettingsMenu(() -> {
             settingsMenu.setVisible(false);
             pauseMenu.getRoot().setVisible(true);
-            pauseMenu.getRoot().toFront();  // restore pause menu on top
+            pauseMenu.getRoot().toFront();
             pauseButton.setVisible(true);
             root.requestFocus();
         });
-
         settingsMenu.setVisible(false);
     }
 
     private void createBackground(String path) {
-
         Image bgImage = AssetLoader.getImage(path);
-
         background1 = new ImageView(bgImage);
         background2 = new ImageView(bgImage);
 
-        // DO NOT stretch vertically
         background1.setFitHeight(MainApp.WINDOW_HEIGHT);
         background1.setPreserveRatio(true);
-
         background2.setFitHeight(MainApp.WINDOW_HEIGHT);
         background2.setPreserveRatio(true);
 
-        double width = bgImage.getWidth();
+        double width = bgImage.getWidth() * (MainApp.WINDOW_HEIGHT / bgImage.getHeight());
 
         background1.setLayoutX(0);
         background2.setLayoutX(width);
-
-        background1.setLayoutY(0);
-        background2.setLayoutY(0);
-
-        //root.getChildren().addAll(background1, background2);
     }
 
     private void updateBackground() {
-
         background1.setLayoutX(background1.getLayoutX() - worldSpeed);
         background2.setLayoutX(background2.getLayoutX() - worldSpeed);
 
-        double width = background1.getImage().getWidth();
+        double width = background1.getBoundsInLocal().getWidth();
 
         if (background1.getLayoutX() <= -width) {
             background1.setLayoutX(background2.getLayoutX() + width);
         }
-
         if (background2.getLayoutX() <= -width) {
             background2.setLayoutX(background1.getLayoutX() + width);
         }
     }
 
-    // ... (rest of your methods: createPlayer, setupControls, startGameLoop, etc.)
     private void createPlayer() {
         double groundLine = MainApp.WINDOW_HEIGHT - 130;
         duck = new Duck(200, groundLine);
-        //root.getChildren().add(duck.getNode());
     }
 
     private void setupControls() {
         scene.setOnKeyPressed(event -> {
-            //pause game
             if (event.getCode() == KeyCode.ESCAPE) {
-                if (isPaused) {
-                    resumeGame();
-                } else {
-                    pauseGame();
-                }
+                if (isPaused) resumeGame();
+                else pauseGame();
                 return;
             }
             if (isPaused) return;
 
-            //duck controls
             if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.W || event.getCode() == KeyCode.UP) {
                 duck.jump();
             }
             if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
                 duck.setCrouching(true);
             }
-
         });
         scene.setOnKeyReleased(event -> {
             if (isPaused) return;
-
             if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
                 duck.setCrouching(false);
             }
         });
-
     }
 
-    //Enemy Spawn Method::
     private void spawnEnemy(long now) {
-
         if (now < nextSpawnTime) return;
 
         double spawnX = MainApp.WINDOW_WIDTH + 100;
         Enemy enemy = null;
 
-        if (spawnCats) {
-
-            double groundY = MainApp.WINDOW_HEIGHT - 150;
+        // Simple random choice between Cat and Eagle
+        if (spawnCats && spawnEagles) {
+            if (Math.random() > 0.5) {
+                double groundY = MainApp.WINDOW_HEIGHT - 130; // Adjusted to match duck ground
+                enemy = new Cat(spawnX, groundY, worldSpeed);
+                System.out.println("Spawning Cat at " + spawnX);
+            } else {
+                double airY = MainApp.WINDOW_HEIGHT - 350;
+                enemy = new Eagle(spawnX, airY, worldSpeed);
+                System.out.println("Spawning Eagle at " + spawnX);
+            }
+        } else if (spawnCats) {
+            double groundY = MainApp.WINDOW_HEIGHT - 130;
             enemy = new Cat(spawnX, groundY, worldSpeed);
-
+            System.out.println("Spawning Cat at " + spawnX);
         } else if (spawnEagles) {
-
-            double airY = MainApp.WINDOW_HEIGHT - 250;
+            double airY = MainApp.WINDOW_HEIGHT - 350;
             enemy = new Eagle(spawnX, airY, worldSpeed);
         }
 
         if (enemy != null) {
             enemies.add(enemy);
-            root.getChildren().add(root.getChildren().size() - 1, enemy.getNode());
+            // Add enemy to root, but ensure it's behind UI (pause button, menuLayer)
+            // Find index of pauseButton to insert before it
+            int uiIndex = root.getChildren().indexOf(pauseButton);
+            if (uiIndex != -1) {
+                root.getChildren().add(uiIndex, enemy.getNode());
+            } else {
+                root.getChildren().add(enemy.getNode());
+            }
         }
 
+        // Random delay between 2 and 4 seconds
         long delay = (long)((2 + Math.random() * 2) * 1_000_000_000);
         nextSpawnTime = now + delay;
     }
 
-    //Spawn Update Method::
     private void updateEnemies() {
-
         Iterator<Enemy> iterator = enemies.iterator();
-
         while (iterator.hasNext()) {
-
             Enemy enemy = iterator.next();
             enemy.update();
 
@@ -285,22 +238,17 @@ public class GameScene {
                 continue;
             }
 
-            if (!enemy.hasCollided() &&
-                    CollisionUtil.isColliding(
-                            duck.getHitBox(),
-                            enemy.getHitBox()
-                    )) {
-
+            if (!enemy.hasCollided() && CollisionUtil.isColliding(duck.getHitBox(), enemy.getHitBox())) {
                 enemy.markCollided();
                 healthBar.decreaseHealth();
-
+                System.out.println("Collision detected!");
                 if (healthBar.isDead()) {
                     System.out.println("GAME OVER");
+                    // Handle game over logic here
                 }
             }
         }
     }
-
 
     private void startGameLoop() {
         gameLoop = new AnimationTimer() {
@@ -309,7 +257,6 @@ public class GameScene {
                 if (!isPaused) {
                     updateBackground();
                     duck.update();
-
                     spawnEnemy(now);
                     updateEnemies();
                 }
@@ -321,64 +268,47 @@ public class GameScene {
     private void pauseGame() {
         if (isPaused) return;
         isPaused = true;
-        pauseMenu.setVisible(true);
-        menuLayer.toFront();            // make sure menu layer is top
-        pauseMenu.getRoot().toFront();  // pause menu visible
+        pauseMenu.setVisible(true, background1, background2);
+        menuLayer.toFront();
+        pauseMenu.getRoot().toFront();
         pauseButton.setVisible(false);
     }
 
     private void resumeGame() {
         if (!isPaused) return;
-
         isPaused = false;
-
-        pauseMenu.setVisible(false);
+        pauseMenu.setVisible(false, background1, background2);
         pauseButton.setVisible(true);
         root.requestFocus();
     }
 
     private void restartGame() {
-        // Resume if paused
         resumeGame();
-
-        // Reset Duck
         duck.resetState();
-
-        // Reset Background
         background1.setLayoutX(0);
-        background2.setLayoutX(background1.getImage().getWidth());
+        background2.setLayoutX(background1.getBoundsInLocal().getWidth());
 
-        // Clear enemies
         for (Enemy e : enemies) {
             root.getChildren().remove(e.getNode());
         }
         enemies.clear();
         nextSpawnTime = 0;
-
-        // Reset Health Bar
         healthBar.reset();
-
-        // Optionally reset other game states: score, time, etc.
     }
 
     private void openSettings() {
         pauseMenu.getRoot().setVisible(false);
-
-        // Center settings menu
-        settingsMenu.setLayoutX((MainApp.WINDOW_WIDTH - settingsMenu.getPrefWidth()) / 2.0);
-        settingsMenu.setLayoutY((MainApp.WINDOW_HEIGHT - settingsMenu.getPrefHeight()) / 2.0);
-
+        settingsMenu.setLayoutX((MainApp.WINDOW_WIDTH - 925) / 2.0);
+        settingsMenu.setLayoutY((MainApp.WINDOW_HEIGHT - 546) / 2.0);
         settingsMenu.setVisible(true);
         settingsMenu.toFront();
         menuLayer.toFront();
-
         isPaused = true;
         root.requestFocus();
     }
 
     private void exitToMenu() {
         gameLoop.stop();
-
         MenuScene menuScene = new MenuScene(MainApp.getPrimaryStage());
         MainApp.switchScene(menuScene.createScene());
     }
