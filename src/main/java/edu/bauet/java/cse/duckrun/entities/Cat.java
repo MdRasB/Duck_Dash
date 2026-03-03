@@ -16,6 +16,9 @@ public class Cat extends Enemy {
         state2 = AssetLoader.getImage("/images/enemies/Cat_state_2.png");
 
         view.setImage(state1);
+        view.setFitHeight(100);
+        view.setFitWidth(100);
+        view.setLayoutY(groundY-80);
     }
 
     @Override
