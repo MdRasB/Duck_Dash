@@ -13,7 +13,7 @@ public class StoryScene {
 
     public Scene createScene(Stage stage) {
         // Load image using robust AssetLoader
-        Image i = AssetLoader.loadImage("/Story/startstory.png");
+        Image i = AssetLoader.getImage("/Story/startstory.png");
         
         ImageView iv = new ImageView(i);
         iv.setFitHeight(MainApp.WINDOW_HEIGHT);

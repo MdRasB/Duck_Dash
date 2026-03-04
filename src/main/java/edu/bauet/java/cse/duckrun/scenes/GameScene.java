@@ -14,6 +14,8 @@ import edu.bauet.java.cse.duckrun.ui.HealthBar;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -49,16 +51,15 @@ public class GameScene {
     private HealthBar healthBar;
 
     // Constructor with parameters for level configuration
-    public GameScene(String backgroundPath, boolean spawnCats, boolean spawnEagles, double worldSpeed) {
+    public GameScene(String backgroundPath,
+                     boolean spawnCats,
+                     boolean spawnEagles,
+                     double worldSpeed) {
+
         this.spawnCats = spawnCats;
         this.spawnEagles = spawnEagles;
         this.worldSpeed = worldSpeed;
         initialize(backgroundPath);
-    }
-
-    // Default constructor for quick testing/default level
-    public GameScene() {
-        this("/images/ui/hall_ui_1200x600.png", true, true, 7);
     }
 
     private void initialize(String backgroundPath) {
@@ -70,7 +71,7 @@ public class GameScene {
         menuLayer.setPickOnBounds(false);
 
         scene = new Scene(root, MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
-        scene.getStylesheets().add(getClass().getResource("/styles/pause_menu.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/pause_menu.css")).toExternalForm());
 
         createBackground(backgroundPath);
         createPlayer();
@@ -82,8 +83,18 @@ public class GameScene {
         createPauseSystem();
 
         // Add layers: Background -> Duck -> Enemies (added dynamically) -> UI
-        root.getChildren().addAll(background1, background2, duck.getNode(), healthBar.getView(), pauseButton, menuLayer);
+        assert root != null;
+        assert duck != null;
+        root.getChildren().addAll(background1,
+                background2,
+                duck.getNode(),
+                healthBar.getView(),
+                pauseButton,
+                menuLayer
+        );
 
+        assert menuLayer != null;
+        assert pauseMenu != null;
         menuLayer.getChildren().addAll(pauseMenu.getRoot(), settingsMenu);
 
         root.setFocusTraversable(true);
@@ -111,7 +122,12 @@ public class GameScene {
             else pauseGame();
         });
 
-        pauseMenu = new PauseMenu(this::resumeGame, this::restartGame, this::openSettings, this::exitToMenu);
+        pauseMenu = new PauseMenu(this::resumeGame,
+                this::restartGame,
+                this::openSettings,
+                this::exitToMenu
+        );
+
         pauseMenu.getRoot().setVisible(false);
 
         settingsMenu = new SettingsMenu(() -> {
@@ -238,7 +254,11 @@ public class GameScene {
                 continue;
             }
 
-            if (!enemy.hasCollided() && CollisionUtil.isColliding(duck.getHitBox(), enemy.getHitBox())) {
+            if (!enemy.hasCollided() &&
+                    CollisionUtil.isColliding(duck.getHitBox(),
+                            enemy.getHitBox()
+                    )) {
+
                 enemy.markCollided();
                 healthBar.decreaseHealth();
                 System.out.println("Collision detected!");

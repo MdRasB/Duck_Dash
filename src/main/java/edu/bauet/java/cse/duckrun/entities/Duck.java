@@ -99,6 +99,7 @@ public class Duck {
         }
 
         if (goingUp) {
+            duckView.setImage(runningImage);
             duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed);
             if (duckView.getLayoutY() <= maxY) {
                 goingUp = false;
