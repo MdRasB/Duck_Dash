@@ -2,6 +2,7 @@ package edu.bauet.java.cse.duckrun.utils;
 
 import javafx.scene.image.Image;
 import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -28,6 +29,29 @@ public final class AssetLoader {
 
     private AssetLoader() {}
 
+
+    //load video
+
+    private static final Map<String, Media> videoCache = new HashMap<>();
+
+    public static Media loadVideo(String resourcePath) {
+        if (videoCache.containsKey(resourcePath)) {
+            return  videoCache.get(resourcePath);
+        }
+        try {
+            // handles finding the file folders
+            var resource = AssetLoader.class.getResource(resourcePath);
+            if (resource == null) {
+                throw new RuntimeException("Video file not found at: " + resourcePath);
+            }
+            Media media = new Media(resource.toExternalForm());
+            videoCache.put(resourcePath, media);
+            return media;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     // =========================================================
     // IMAGE LOADING
     // =========================================================
