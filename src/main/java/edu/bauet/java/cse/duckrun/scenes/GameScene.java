@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javafx.animation.AnimationTimer;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -112,10 +113,12 @@ public class GameScene {
         pauseIcon.setPreserveRatio(true);
 
         pauseButton = new Button();
-        pauseButton.setGraphic(pauseIcon);
+        pauseButton.setGraphic(pauseIcon);  // set image instead of text
         pauseButton.setStyle("-fx-background-color: transparent;");
         pauseButton.setLayoutX(MainApp.WINDOW_WIDTH - 80);
         pauseButton.setLayoutY(20);
+        pauseButton.setCursor(Cursor.HAND);
+        pauseButton.getStyleClass().add("pause-button");
 
         pauseButton.setOnAction(e -> {
             if (isPaused) resumeGame();
@@ -132,11 +135,11 @@ public class GameScene {
 
         settingsMenu = new SettingsMenu(() -> {
             settingsMenu.setVisible(false);
-            pauseMenu.getRoot().setVisible(true);
+            pauseMenu.getRoot().getChildren().forEach(node -> node.setVisible(true));
             pauseMenu.getRoot().toFront();
-            pauseButton.setVisible(true);
             root.requestFocus();
         });
+
         settingsMenu.setVisible(false);
     }
 
@@ -317,14 +320,16 @@ public class GameScene {
     }
 
     private void openSettings() {
-        pauseMenu.getRoot().setVisible(false);
-        settingsMenu.setLayoutX((MainApp.WINDOW_WIDTH - 925) / 2.0);
-        settingsMenu.setLayoutY((MainApp.WINDOW_HEIGHT - 546) / 2.0);
+        pauseMenu.getRoot().getChildren().forEach(node -> {
+            if (!(node instanceof javafx.scene.shape.Rectangle)) {
+                node.setVisible(false);
+            }
+        });
+
         settingsMenu.setVisible(true);
         settingsMenu.toFront();
         menuLayer.toFront();
         isPaused = true;
-        root.requestFocus();
     }
 
     private void exitToMenu() {
