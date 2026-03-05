@@ -189,21 +189,17 @@ public class GameScene {
         double spawnX = MainApp.WINDOW_WIDTH + 100;
         Enemy enemy = null;
 
-        // Simple random choice between Cat and Eagle
         if (spawnCats && spawnEagles) {
             if (Math.random() > 0.5) {
-                double groundY = MainApp.WINDOW_HEIGHT - 130; // Adjusted to match duck ground
+                double groundY = MainApp.WINDOW_HEIGHT - 130;
                 enemy = new Cat(spawnX, groundY, worldSpeed);
-                System.out.println("Spawning Cat at " + spawnX);
             } else {
                 double airY = MainApp.WINDOW_HEIGHT - 350;
                 enemy = new Eagle(spawnX, airY, worldSpeed);
-                System.out.println("Spawning Eagle at " + spawnX);
             }
         } else if (spawnCats) {
             double groundY = MainApp.WINDOW_HEIGHT - 130;
             enemy = new Cat(spawnX, groundY, worldSpeed);
-            System.out.println("Spawning Cat at " + spawnX);
         } else if (spawnEagles) {
             double airY = MainApp.WINDOW_HEIGHT - 350;
             enemy = new Eagle(spawnX, airY, worldSpeed);
@@ -211,8 +207,6 @@ public class GameScene {
 
         if (enemy != null) {
             enemies.add(enemy);
-            // Add enemy to root, but ensure it's behind UI (pause button, menuLayer)
-            // Find index of pauseButton to insert before it
             int uiIndex = root.getChildren().indexOf(pauseButton);
             if (uiIndex != -1) {
                 root.getChildren().add(uiIndex, enemy.getNode());
@@ -221,7 +215,6 @@ public class GameScene {
             }
         }
 
-        // Random delay between 2 and 4 seconds
         long delay = (long)((2 + Math.random() * 2) * 1_000_000_000);
         nextSpawnTime = now + delay;
     }
@@ -241,10 +234,9 @@ public class GameScene {
             if (!enemy.hasCollided() && CollisionUtil.isColliding(duck.getHitBox(), enemy.getHitBox())) {
                 enemy.markCollided();
                 healthBar.decreaseHealth();
-                System.out.println("Collision detected!");
+                duck.hit(); // Call the hit method for visual feedback
                 if (healthBar.isDead()) {
                     System.out.println("GAME OVER");
-                    // Handle game over logic here
                 }
             }
         }
