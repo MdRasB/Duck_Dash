@@ -15,7 +15,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) {
         primaryStage = stage;
-        primaryStage.setTitle("Duck Run");
+        primaryStage.setTitle("Duck Dash");
         primaryStage.setResizable(false);
         
         // Preload all game assets

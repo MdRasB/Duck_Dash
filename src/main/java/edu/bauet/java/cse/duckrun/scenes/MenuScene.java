@@ -116,7 +116,7 @@ public class MenuScene {
 
         //background
         menuBox.setDisable(true);
-        menuBox.setOpacity(0.3);
+        menuBox.setVisible(false);
         background.setEffect(new GaussianBlur(10));
     }
 
@@ -129,7 +129,7 @@ public class MenuScene {
         //reset background and buttons
         overlay.setVisible(false);
         menuBox.setDisable(false);
-        menuBox.setOpacity(1.0);
+        menuBox.setVisible(true);
         background.setEffect(null);
     }
 
