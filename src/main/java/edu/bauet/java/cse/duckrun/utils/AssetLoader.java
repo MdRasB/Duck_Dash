@@ -35,22 +35,28 @@ public final class AssetLoader {
     private static final Map<String, Media> videoCache = new HashMap<>();
 
     public static Media loadVideo(String resourcePath) {
+
         if (videoCache.containsKey(resourcePath)) {
-            return  videoCache.get(resourcePath);
+            return videoCache.get(resourcePath);
         }
+
+        URL resource = AssetLoader.class.getResource(resourcePath);
+
+        if (resource == null) {
+            throw new RuntimeException("Video not found: " + resourcePath);
+        }
+
+        Media media;
+
         try {
-            // handles finding the file folders
-            var resource = AssetLoader.class.getResource(resourcePath);
-            if (resource == null) {
-                throw new RuntimeException("Video file not found at: " + resourcePath);
-            }
-            Media media = new Media(resource.toExternalForm());
-            videoCache.put(resourcePath, media);
-            return media;
+            media = new Media(resource.toExternalForm());
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Failed to load video: " + resourcePath, e);
         }
+
+        videoCache.put(resourcePath, media);
+
+        return media;
     }
     // =========================================================
     // IMAGE LOADING
