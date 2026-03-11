@@ -77,8 +77,12 @@ public class MenuScene {
 
         //button actions
         btnNewGame.setOnAction(e -> {
-            Level1 level1 = new Level1();
-            MainApp.switchScene(level1.createLevel());
+            // --- CHANGED: Updated worldSpeed to 5.0 ---
+            GameScene gameScene = new GameScene(
+                    "/images/backgrounds/level1.png", // Default background for a new game
+                    5.0     // worldSpeed (changed from 7.0 to 5.0)
+            );
+            MainApp.switchScene(gameScene.getScene());
         });
 
         btnLevels.setOnAction(e -> showMenu(levelMenu));

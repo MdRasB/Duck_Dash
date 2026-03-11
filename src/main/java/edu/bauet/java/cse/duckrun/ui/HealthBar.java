@@ -7,15 +7,15 @@ import javafx.scene.layout.HBox;
 
 public class HealthBar {
 
-    private HBox container = new HBox(5);
+    private final HBox container = new HBox(5);
 
-    private Image fullHeart;
-    private Image emptyHeart;
+    private final Image fullHeart;
+    private final Image emptyHeart;
 
-    private int maxHealth;
+    private final int maxHealth;
     private int currentHealth;
 
-    private ImageView[] hearts;
+    private final ImageView[] hearts;
 
     public HealthBar(int maxHealth) {
 
@@ -28,38 +28,43 @@ public class HealthBar {
         hearts = new ImageView[maxHealth];
 
         for (int i = 0; i < maxHealth; i++) {
+
             hearts[i] = new ImageView(fullHeart);
             hearts[i].setFitHeight(35);
             hearts[i].setPreserveRatio(true);
+
             container.getChildren().add(hearts[i]);
         }
     }
 
     public void decreaseHealth() {
+
         if (currentHealth <= 0) return;
 
         currentHealth--;
         updateHearts();
     }
-    
+
     public void increaseHealth() {
+
         if (currentHealth >= maxHealth) return;
-        
+
         currentHealth++;
         updateHearts();
     }
-    
+
     public boolean isFull() {
         return currentHealth >= maxHealth;
     }
 
     private void updateHearts() {
+
         for (int i = 0; i < maxHealth; i++) {
-            if (i < currentHealth) {
+
+            if (i < currentHealth)
                 hearts[i].setImage(fullHeart);
-            } else {
+            else
                 hearts[i].setImage(emptyHeart);
-            }
         }
     }
 
@@ -72,6 +77,7 @@ public class HealthBar {
     }
 
     public void reset() {
+
         currentHealth = maxHealth;
         updateHearts();
     }

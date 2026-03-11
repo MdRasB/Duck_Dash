@@ -5,7 +5,8 @@ import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 public class Cat extends Enemy {
 
     public Cat(double startX, double groundLine, double worldSpeed) {
-        super(startX, groundLine - 80, worldSpeed, 4, 80);
+
+        super(startX, groundLine - 80, worldSpeed, 3.2, 80);
 
         state1 = AssetLoader.getImage("/images/enemies/Cat_state_1.png");
         state2 = AssetLoader.getImage("/images/enemies/Cat_state_2.png");
@@ -15,16 +16,16 @@ public class Cat extends Enemy {
 
     @Override
     protected double getHitboxShrinkX() {
-        return 0.2; // Shrink width slightly
+        return 0.2;
     }
 
     @Override
     protected double getHitboxShrinkYTop() {
-        return 0.6; // Cut off the top 60% of the hitbox (makes it easy to jump over)
+        return 0.6;
     }
 
     @Override
     protected double getHitboxShrinkYBottom() {
-        return 0.0; // Keep the bottom flush with the ground
+        return 0.0;
     }
 }
