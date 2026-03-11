@@ -38,11 +38,11 @@ public class Duck {
 
     private double jumpHeight = 250;
     private double jumpSpeed = 15;
-    private double fallSpeed = 2.5;
+    private double fallSpeed = 2.75;
 
     private double effectDuration = 0.5;
     private double hitIntensity = 3; // Default hit intensity
-    private double powerUpIntensity = 3; // Default power-up intensity
+    private double powerUpIntensity = 3   ; // Default power-up intensity
 
     private double maxY;
     private boolean crouching = false;
@@ -170,7 +170,7 @@ public class Duck {
     }
     
     public void powerUp() {
-        applyEffect(Color.GREEN, powerUpIntensity);
+        applyEffect(Color.LIMEGREEN, powerUpIntensity);
     }
     
     private void applyEffect(Color color, double intensity) {
