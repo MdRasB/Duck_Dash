@@ -17,7 +17,7 @@ import javafx.util.Duration;
 
 public class StoryScene {
 
-    private Label skipLabel;
+   private Label skipLabel;
 
     public Scene createScene(Stage stage) {
         // Load video
