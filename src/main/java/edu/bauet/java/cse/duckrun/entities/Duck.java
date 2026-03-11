@@ -38,7 +38,7 @@ public class Duck {
 
     private double jumpHeight = 250;
     private double jumpSpeed = 15;
-    private double fallSpeed = 4;
+    private double fallSpeed = 2.5;
 
     private double hitDuration = 0.75; // Default hit duration in seconds
 
@@ -132,7 +132,7 @@ public class Duck {
     private void animate() {
 
         frameCounter++;
-        if (frameCounter >= 12) {
+        if (frameCounter >= 25) {
             toggleFrame = !toggleFrame;
             frameCounter = 0;
         }

@@ -4,8 +4,10 @@ import edu.bauet.java.cse.duckrun.MainApp;
 import edu.bauet.java.cse.duckrun.entities.Duck;
 import edu.bauet.java.cse.duckrun.entities.Eagle;
 import edu.bauet.java.cse.duckrun.entities.Enemy;
+import edu.bauet.java.cse.duckrun.entities.Bread;
 import edu.bauet.java.cse.duckrun.ui.PauseMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
+import edu.bauet.java.cse.duckrun.ui.SleepBar;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import edu.bauet.java.cse.duckrun.entities.Cat;
 import edu.bauet.java.cse.duckrun.utils.CollisionUtil;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.Cursor;
@@ -43,22 +46,28 @@ public class GameScene {
     private SettingsMenu settingsMenu;
 
     private final List<Enemy> enemies = new ArrayList<>();
+    private final List<Bread> breads = new ArrayList<>();
     private long nextSpawnTime = 0;
 
     private final boolean spawnCats;
     private final boolean spawnEagles;
+    private final boolean spawnBread;
     private double worldSpeed = 7;
 
     private HealthBar healthBar;
+    private SleepBar sleepBar;
+    
+    private final Random random = new Random();
 
-    // Constructor with parameters for level configuration
     public GameScene(String backgroundPath,
                      boolean spawnCats,
                      boolean spawnEagles,
+                     boolean spawnBread,
                      double worldSpeed) {
 
         this.spawnCats = spawnCats;
         this.spawnEagles = spawnEagles;
+        this.spawnBread = spawnBread;
         this.worldSpeed = worldSpeed;
         initialize(backgroundPath);
     }
@@ -80,22 +89,22 @@ public class GameScene {
         healthBar = new HealthBar(3);
         healthBar.getView().setLayoutX(20);
         healthBar.getView().setLayoutY(20);
+        
+        sleepBar = new SleepBar();
+        sleepBar.getView().setLayoutX(20);
+        sleepBar.getView().setLayoutY(60); // Position below health bar
 
         createPauseSystem();
 
-        // Add layers: Background -> Duck -> Enemies (added dynamically) -> UI
-        assert root != null;
-        assert duck != null;
         root.getChildren().addAll(background1,
                 background2,
                 duck.getNode(),
                 healthBar.getView(),
+                sleepBar.getView(),
                 pauseButton,
                 menuLayer
         );
 
-        assert menuLayer != null;
-        assert pauseMenu != null;
         menuLayer.getChildren().addAll(pauseMenu.getRoot(), settingsMenu);
 
         root.setFocusTraversable(true);
@@ -113,7 +122,7 @@ public class GameScene {
         pauseIcon.setPreserveRatio(true);
 
         pauseButton = new Button();
-        pauseButton.setGraphic(pauseIcon);  // set image instead of text
+        pauseButton.setGraphic(pauseIcon);
         pauseButton.setStyle("-fx-background-color: transparent;");
         pauseButton.setLayoutX(MainApp.WINDOW_WIDTH - 80);
         pauseButton.setLayoutY(20);
@@ -202,54 +211,56 @@ public class GameScene {
         });
     }
 
-    private void spawnEnemy(long now) {
+    private void spawnEntities(long now) {
         if (now < nextSpawnTime) return;
 
         double spawnX = MainApp.WINDOW_WIDTH + 100;
-        Enemy enemy = null;
-
-        // Simple random choice between Cat and Eagle
-        if (spawnCats && spawnEagles) {
-            if (Math.random() > 0.5) {
-                double groundY = MainApp.WINDOW_HEIGHT - 130; // Adjusted to match duck ground
-                enemy = new Cat(spawnX, groundY, worldSpeed);
-                System.out.println("Spawning Cat at " + spawnX);
-            } else {
+        double groundY = MainApp.WINDOW_HEIGHT - 130;
+        
+        List<String> spawnOptions = new ArrayList<>();
+        if (spawnCats) spawnOptions.add("CAT");
+        if (spawnEagles) spawnOptions.add("EAGLE");
+        if (spawnBread) spawnOptions.add("BREAD");
+        
+        if (spawnOptions.isEmpty()) return;
+        
+        String choice = spawnOptions.get(random.nextInt(spawnOptions.size()));
+        
+        switch (choice) {
+            case "CAT":
+                Enemy cat = new Cat(spawnX, groundY, worldSpeed);
+                enemies.add(cat);
+                addNodeToScene(cat.getNode());
+                break;
+            case "EAGLE":
                 double airY = MainApp.WINDOW_HEIGHT - 350;
-                enemy = new Eagle(spawnX, airY, worldSpeed);
-                System.out.println("Spawning Eagle at " + spawnX);
-            }
-        } else if (spawnCats) {
-            double groundY = MainApp.WINDOW_HEIGHT - 130;
-            enemy = new Cat(spawnX, groundY, worldSpeed);
-            System.out.println("Spawning Cat at " + spawnX);
-        } else if (spawnEagles) {
-            double airY = MainApp.WINDOW_HEIGHT - 350;
-            enemy = new Eagle(spawnX, airY, worldSpeed);
+                Enemy eagle = new Eagle(spawnX, airY, worldSpeed);
+                enemies.add(eagle);
+                addNodeToScene(eagle.getNode());
+                break;
+            case "BREAD":
+                Bread bread = new Bread(spawnX, groundY, worldSpeed);
+                breads.add(bread);
+                addNodeToScene(bread.getNode());
+                break;
         }
 
-        if (enemy != null) {
-            enemies.add(enemy);
-            // Add enemy to root, but ensure it's behind UI (pause button, menuLayer)
-            // Find index of pauseButton to insert before it
-            int uiIndex = root.getChildren().indexOf(pauseButton);
-            if (uiIndex != -1) {
-                root.getChildren().add(uiIndex, enemy.getNode());
-            } else {
-                root.getChildren().add(enemy.getNode());
-            }
-        }
-
-        // Random delay between 2 and 4 seconds
-        long delay = (long)((2 + Math.random() * 2) * 1_000_000_000);
+        long delay = (long)((1.5 + Math.random() * 2.5) * 1_000_000_000);
         nextSpawnTime = now + delay;
+    }
+    
+    private void addNodeToScene(javafx.scene.Node node) {
+        int uiIndex = root.getChildren().indexOf(pauseButton);
+        if (uiIndex != -1) {
+            root.getChildren().add(uiIndex, node);
+        } else {
+            root.getChildren().add(node);
+        }
     }
 
     private void updateEnemies() {
         Iterator<Enemy> iterator = enemies.iterator();
-
         while (iterator.hasNext()) {
-
             Enemy enemy = iterator.next();
             enemy.update();
 
@@ -259,25 +270,40 @@ public class GameScene {
                 continue;
             }
 
-            if (!enemy.hasCollided() &&
-                    CollisionUtil.isColliding(
-                            duck.getHitBox(),
-                            enemy.getHitBox()
-                    )) {
-
+            if (!enemy.hasCollided() && CollisionUtil.isColliding(duck.getHitBox(), enemy.getHitBox())) {
                 enemy.markCollided();
-
-                // DAMAGE + RED FLASH
                 duck.hit();
-
                 healthBar.decreaseHealth();
-
-                System.out.println("Collision detected!");
-
                 if (healthBar.isDead()) {
                     System.out.println("GAME OVER");
-                    // Handle game over logic here
                 }
+            }
+        }
+    }
+    
+    private void updateBreads() {
+        Iterator<Bread> iterator = breads.iterator();
+        while (iterator.hasNext()) {
+            Bread bread = iterator.next();
+            bread.update();
+
+            if (!bread.isActive()) {
+                root.getChildren().remove(bread.getNode());
+                iterator.remove();
+                continue;
+            }
+
+            if (CollisionUtil.isColliding(duck.getHitBox(), bread.getHitBox())) {
+                bread.deactivate();
+                
+                // Restore health if not full
+                if (!healthBar.isFull()) {
+                    healthBar.increaseHealth();
+                }
+                
+                // Always add to sleep meter
+                sleepBar.addSegment();
+                System.out.println("Ate bread!");
             }
         }
     }
@@ -289,8 +315,9 @@ public class GameScene {
                 if (!isPaused) {
                     updateBackground();
                     duck.update();
-                    spawnEnemy(now);
+                    spawnEntities(now);
                     updateEnemies();
+                    updateBreads();
                 }
             }
         };
@@ -324,8 +351,15 @@ public class GameScene {
             root.getChildren().remove(e.getNode());
         }
         enemies.clear();
+        
+        for (Bread b : breads) {
+            root.getChildren().remove(b.getNode());
+        }
+        breads.clear();
+        
         nextSpawnTime = 0;
         healthBar.reset();
+        sleepBar.reset();
     }
 
     private void openSettings() {

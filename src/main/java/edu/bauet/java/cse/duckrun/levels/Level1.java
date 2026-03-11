@@ -6,18 +6,18 @@ import javafx.scene.Scene;
 public class Level1 {
 
     // Background image path for Level 1
-    private static final String BACKGROUND_PATH =
-            "/images/backgrounds/level1.png";
+    private static final String BACKGROUND_PATH = "/images/backgrounds/level1.png";
 
     private GameScene gameScene;
 
     public Level1() {
 
         gameScene = new GameScene(
-                "/images/backgrounds/level1.png",
+                BACKGROUND_PATH,
                 true,   // spawnCats
                 false,  // spawnEagles
-                5       // worldSpeed
+                true,   // spawnBread (Set to false to disable bread)
+                2.5     // worldSpeed
         );
     }
 

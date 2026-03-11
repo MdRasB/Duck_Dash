@@ -41,6 +41,17 @@ public class HealthBar {
         currentHealth--;
         updateHearts();
     }
+    
+    public void increaseHealth() {
+        if (currentHealth >= maxHealth) return;
+        
+        currentHealth++;
+        updateHearts();
+    }
+    
+    public boolean isFull() {
+        return currentHealth >= maxHealth;
+    }
 
     private void updateHearts() {
         for (int i = 0; i < maxHealth; i++) {
