@@ -38,7 +38,7 @@ public class Duck {
 
     private double jumpHeight = 250;
     private double jumpSpeed = 15;
-    private double fallSpeed = 2.5;
+    private double fallSpeed = 4;
 
     private double effectDuration = 0.5;
     private double hitIntensity = 3; // Default hit intensity
@@ -129,7 +129,7 @@ public class Duck {
     private void animate() {
 
         frameCounter++;
-        if (frameCounter >= 12) {
+        if (frameCounter >= 18) {
             toggleFrame = !toggleFrame;
             frameCounter = 0;
         }
