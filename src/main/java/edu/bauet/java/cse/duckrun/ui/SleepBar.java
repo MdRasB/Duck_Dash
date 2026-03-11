@@ -7,31 +7,35 @@ import javafx.scene.layout.HBox;
 
 public class SleepBar {
 
-    private HBox container = new HBox(5);
+    private final HBox container = new HBox(5);
 
-    private Image fullBar;
-    private Image emptyBar;
+    private final Image fullBar;
+    private final Image emptyBar;
 
-    private int maxSegments = 3;
+    private final int maxSegments = 3;
     private int currentSegments = 0;
 
-    private ImageView[] segments;
+    private final ImageView[] segments;
 
     public SleepBar() {
+
         fullBar = AssetLoader.getImage("/images/indicator/sleep_bar_full.png");
         emptyBar = AssetLoader.getImage("/images/indicator/sleep_bar_empty.png");
 
         segments = new ImageView[maxSegments];
 
         for (int i = 0; i < maxSegments; i++) {
+
             segments[i] = new ImageView(emptyBar);
-            segments[i].setFitHeight(35); // Smaller than hearts
+            segments[i].setFitHeight(35);
             segments[i].setPreserveRatio(true);
+
             container.getChildren().add(segments[i]);
         }
     }
 
     public void addSegment() {
+
         if (currentSegments >= maxSegments) return;
 
         currentSegments++;
@@ -39,12 +43,13 @@ public class SleepBar {
     }
 
     private void updateSegments() {
+
         for (int i = 0; i < maxSegments; i++) {
-            if (i < currentSegments) {
+
+            if (i < currentSegments)
                 segments[i].setImage(fullBar);
-            } else {
+            else
                 segments[i].setImage(emptyBar);
-            }
         }
     }
 
@@ -57,6 +62,7 @@ public class SleepBar {
     }
 
     public void reset() {
+
         currentSegments = 0;
         updateSegments();
     }

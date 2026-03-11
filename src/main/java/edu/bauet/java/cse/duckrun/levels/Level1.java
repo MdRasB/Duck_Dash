@@ -1,30 +1,28 @@
 package edu.bauet.java.cse.duckrun.levels;
 
-import edu.bauet.java.cse.duckrun.scenes.GameScene;
-import javafx.scene.Scene;
+import edu.bauet.java.cse.duckrun.entities.*;
 
-public class Level1 {
+public class Level1 extends Level {
 
-    // Background image path for Level 1
-    private static final String BACKGROUND_PATH = "/images/backgrounds/level1.png";
-
-    private GameScene gameScene;
-
-    public Level1() {
-
-        gameScene = new GameScene(
-                BACKGROUND_PATH,
-                true,   // spawnCats
-                false,  // spawnEagles
-                true,   // spawnBread (Set to false to disable bread)
-                4     // worldSpeed
-        );
+    public Level1(double worldSpeed, double groundY) {
+        super(worldSpeed, groundY);
     }
 
-    /**
-     * Returns the scene for this level
-     */
-    public Scene createLevel() {
-        return gameScene.getScene();
+    @Override
+    public Enemy spawnEnemy(double spawnX) {
+        // For Level 1, only Cat will be spawned.
+        return new Cat(spawnX, groundY, worldSpeed);
+    }
+
+    @Override
+    public Food spawnFood(double spawnX) {
+        // For Level 1, only Bread will be spawned.
+        return new Bread(spawnX, groundY, worldSpeed);
+    }
+
+    @Override
+    public Obstacle spawnObstacle(double spawnX) {
+        // For Level 1, only Bottle will be spawned.
+        return new Bottle(spawnX, groundY, worldSpeed);
     }
 }

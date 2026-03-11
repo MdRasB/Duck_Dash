@@ -6,11 +6,13 @@ public class Eagle extends Enemy {
 
     public Eagle(double startX, double startY, double worldSpeed) {
 
-        super(startX,
+        super(
+                startX,
                 startY,
                 worldSpeed,
                 1.5,
-                80);
+                80
+        );
 
         state1 = AssetLoader.getImage("/images/enemies/Eagle_state_1.png");
         state2 = AssetLoader.getImage("/images/enemies/Eagle_state_2.png");
@@ -23,7 +25,14 @@ public class Eagle extends Enemy {
         return 0.25;
     }
 
-    protected double getHitboxShrinkY() {
+    // --- CHANGED: Overriding correct methods from Enemy ---
+    @Override
+    protected double getHitboxShrinkYTop() {
+        return 0.2;
+    }
+
+    @Override
+    protected double getHitboxShrinkYBottom() {
         return 0.2;
     }
 
