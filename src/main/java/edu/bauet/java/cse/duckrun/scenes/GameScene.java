@@ -296,14 +296,12 @@ public class GameScene {
             if (CollisionUtil.isColliding(duck.getHitBox(), bread.getHitBox())) {
                 bread.deactivate();
                 
-                // Restore health if not full
                 if (!healthBar.isFull()) {
                     healthBar.increaseHealth();
                 }
                 
-                // Always add to sleep meter
                 sleepBar.addSegment();
-                System.out.println("Ate bread!");
+                duck.powerUp(); // Call the powerUp method for visual feedback
             }
         }
     }

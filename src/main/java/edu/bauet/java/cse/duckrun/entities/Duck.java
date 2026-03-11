@@ -7,7 +7,8 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
@@ -19,8 +20,7 @@ public class Duck {
     private final Group duckGroup;
     private final ImageView duckView;
     private final ImageView duckShadow;
-    private final Rectangle debugHitbox; // Visible hitbox
-    private final ColorAdjust hitEffect;
+    private final Rectangle debugHitbox;
 
     private final Image runningImage;
     private final Image runningMidPointImage;
@@ -40,7 +40,9 @@ public class Duck {
     private double jumpSpeed = 15;
     private double fallSpeed = 2.5;
 
-    private double hitDuration = 0.75; // Default hit duration in seconds
+    private double effectDuration = 0.5;
+    private double hitIntensity = 3; // Default hit intensity
+    private double powerUpIntensity = 3; // Default power-up intensity
 
     private double maxY;
     private boolean crouching = false;
@@ -68,20 +70,15 @@ public class Duck {
         duckView.setPreserveRatio(true);
         duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
 
-        // Hit Effect
-        hitEffect = new ColorAdjust();
-        duckView.setEffect(hitEffect);
-
         duckShadow = new ImageView(normalShadowImage);
         duckShadow.setFitHeight(55);
         duckShadow.setFitWidth(DISPLAY_HEIGHT);
         duckShadow.setPreserveRatio(false);
         duckShadow.setLayoutY(groundLine - DISPLAY_HEIGHT);
 
-        // Debug Hitbox (Invisible)
         debugHitbox = new Rectangle();
         debugHitbox.setFill(Color.TRANSPARENT);
-        debugHitbox.setStroke(Color.TRANSPARENT); // Made invisible
+        debugHitbox.setStroke(Color.TRANSPARENT);
         debugHitbox.setStrokeWidth(0);
 
         duckGroup = new Group(duckShadow, duckView, debugHitbox);
@@ -132,7 +129,7 @@ public class Duck {
     private void animate() {
 
         frameCounter++;
-        if (frameCounter >= 25) {
+        if (frameCounter >= 12) {
             toggleFrame = !toggleFrame;
             frameCounter = 0;
         }
@@ -169,15 +166,27 @@ public class Duck {
     }
 
     public void hit() {
-        hitEffect.setHue(-0.27);
-        hitEffect.setSaturation(1.0);
+        applyEffect(Color.RED, hitIntensity);
+    }
+    
+    public void powerUp() {
+        applyEffect(Color.GREEN, powerUpIntensity);
+    }
+    
+    private void applyEffect(Color color, double intensity) {
+        Lighting lighting = new Lighting();
+        lighting.setSurfaceScale(0.0);
+        lighting.setSpecularConstant(intensity); // Use intensity
+        lighting.setDiffuseConstant(intensity);  // Use intensity
+        
+        Light.Distant light = new Light.Distant();
+        light.setColor(color);
+        lighting.setLight(light);
+        
+        duckView.setEffect(lighting);
 
-        PauseTransition pause = new PauseTransition(Duration.seconds(hitDuration));
-        pause.setOnFinished(e -> {
-            hitEffect.setHue(0);
-            hitEffect.setSaturation(0);
-            hitEffect.setBrightness(0);
-        });
+        PauseTransition pause = new PauseTransition(Duration.seconds(effectDuration));
+        pause.setOnFinished(e -> duckView.setEffect(null)); // Remove effect completely
         pause.play();
     }
 
@@ -188,18 +197,13 @@ public class Duck {
         comingDown = false;
         duckGroup.setLayoutX(200);
         duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
-
-        // Reset effects
-        hitEffect.setHue(0);
-        hitEffect.setSaturation(0);
-        hitEffect.setBrightness(0);
+        duckView.setEffect(null);
     }
 
     public Node getNode() {
         return duckGroup;
     }
 
-    // Returns hitbox in LOCAL coordinates (relative to the duckGroup)
     private Bounds getLocalHitbox() {
         Bounds b = duckView.getBoundsInParent();
 
@@ -220,13 +224,19 @@ public class Duck {
         );
     }
 
-    // Returns hitbox in GLOBAL (scene) coordinates
     public Bounds getHitBox() {
         return debugHitbox.localToScene(debugHitbox.getBoundsInLocal());
     }
 
-    // Setters
-    public void setHitDuration(double seconds) {
-        this.hitDuration = seconds;
+    public void setEffectDuration(double seconds) {
+        this.effectDuration = seconds;
+    }
+    
+    public void setHitIntensity(double intensity) {
+        this.hitIntensity = intensity;
+    }
+    
+    public void setPowerUpIntensity(double intensity) {
+        this.powerUpIntensity = intensity;
     }
 }
