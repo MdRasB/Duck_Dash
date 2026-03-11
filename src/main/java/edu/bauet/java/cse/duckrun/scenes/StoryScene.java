@@ -1,7 +1,6 @@
 package edu.bauet.java.cse.duckrun.scenes;
 
 import edu.bauet.java.cse.duckrun.MainApp;
-import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,55 +14,76 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.net.URL;
+
 public class StoryScene {
 
-   private Label skipLabel;
+    private Label skipLabel;
 
     public Scene createScene(Stage stage) {
-        // Load video
-        Media va = AssetLoader.loadVideo("/Story/opening.mp4");
-        MediaPlayer mp = new MediaPlayer(va);
-        mp.setAutoPlay(true);
 
-        MediaView mv = new MediaView(mp);
-        mv.setFitWidth(MainApp.WINDOW_WIDTH);
-        mv.setPreserveRatio(true);
+        StackPane root = new StackPane();
+        root.setStyle("-fx-background-color: black;");
+
+        MediaPlayer mp = null;
+
+        try {
+
+            URL videoUrl = getClass().getResource("/Story/opening.mp4");
+
+            if (videoUrl == null) {
+                throw new RuntimeException("Video not found!");
+            }
+
+            Media video = new Media(videoUrl.toExternalForm());
+            mp = new MediaPlayer(video);
+
+            MediaView mv = new MediaView(mp);
+            mv.setFitWidth(MainApp.WINDOW_WIDTH);
+            mv.setPreserveRatio(true);
+
+            root.getChildren().add(mv);
+
+            mp.setAutoPlay(true);
+
+            final MediaPlayer finalMp = mp;
+            mp.setOnEndOfMedia(() -> navigateToMenu(stage, finalMp));
+
+        } catch (Exception e) {
+
+            System.out.println("Video failed. Skipping intro.");
+            navigateToMenu(stage, mp);
+        }
 
         skipLabel = new Label("Press SPACE to Skip");
-        Font pixelFont = Font.loadFont(getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"), 12);
+
+        Font pixelFont = Font.loadFont(
+                getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"), 12);
+
         if (pixelFont != null) {
             skipLabel.setFont(pixelFont);
         }
 
         skipLabel.setTextFill(Color.WHITE);
-        skipLabel.setStyle ("-fx-background-color: rgba(0, 0, 0, 1); -fx-padding: 5 10 5 10; -fx-background-radius: 5;");
+        skipLabel.setStyle("-fx-background-color: rgba(0,0,0,1); -fx-padding:5 10 5 10; -fx-background-radius:5;");
+        skipLabel.setVisible(false);
 
-        skipLabel.setVisible(false); // Start invisible
-        PauseTransition In = new PauseTransition(Duration.seconds(3));
-        In.setOnFinished(event -> skipLabel.setVisible(true)); // Wait 2 second before showing
-        In.play();
+        PauseTransition delay = new PauseTransition(Duration.seconds(3));
+        delay.setOnFinished(e -> skipLabel.setVisible(true));
+        delay.play();
 
-        StackPane root = new StackPane();
-        root.setStyle("-fx-background-color: black;");
-        root.getChildren().addAll(mv, skipLabel);
+        root.getChildren().add(skipLabel);
 
-        // Align label to bottom right
         StackPane.setAlignment(skipLabel, Pos.BOTTOM_RIGHT);
-        StackPane.setMargin(skipLabel, new Insets(0, 20, 20, 0));
+        StackPane.setMargin(skipLabel, new Insets(0,20,20,0));
 
-        //go to main menu after video ends
-        mp.setOnEndOfMedia(() -> navigateToMenu(stage, mp));
-
-        mp.play();
-
-        // Create scene
         Scene scene = new Scene(root, MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
 
-        // Add key event handler
+        MediaPlayer finalMp = mp;
+
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.SPACE) {
-                // Transition to MenuScene
-                navigateToMenu(stage, mp);
+                navigateToMenu(stage, finalMp);
             }
         });
 
@@ -71,7 +91,11 @@ public class StoryScene {
     }
 
     private void navigateToMenu(Stage stage, MediaPlayer mp) {
-        mp.stop();
+
+        if (mp != null) {
+            mp.stop();
+        }
+
         MenuScene menuScene = new MenuScene(stage);
         MainApp.switchScene(menuScene.createScene());
     }

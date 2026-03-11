@@ -17,7 +17,7 @@ public class Level1 {
                 true,   // spawnCats
                 false,  // spawnEagles
                 true,   // spawnBread (Set to false to disable bread)
-                2.5     // worldSpeed
+                4     // worldSpeed
         );
     }
 
