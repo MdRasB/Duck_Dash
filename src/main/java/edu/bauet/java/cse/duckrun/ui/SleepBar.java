@@ -25,7 +25,7 @@ public class SleepBar {
 
         for (int i = 0; i < maxSegments; i++) {
             segments[i] = new ImageView(emptyBar);
-            segments[i].setFitHeight(20); // Smaller than hearts
+            segments[i].setFitHeight(35); // Smaller than hearts
             segments[i].setPreserveRatio(true);
             container.getChildren().add(segments[i]);
         }

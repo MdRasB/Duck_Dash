@@ -29,7 +29,7 @@ public class HealthBar {
 
         for (int i = 0; i < maxHealth; i++) {
             hearts[i] = new ImageView(fullHeart);
-            hearts[i].setFitHeight(30);
+            hearts[i].setFitHeight(35);
             hearts[i].setPreserveRatio(true);
             container.getChildren().add(hearts[i]);
         }
