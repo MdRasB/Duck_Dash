@@ -6,19 +6,22 @@ import edu.bauet.java.cse.duckrun.entities.Obstacle;
 
 public abstract class Level {
 
-    protected double worldSpeed;
     protected double groundY;
 
-    public Level(double worldSpeed, double groundY) {
-        this.worldSpeed = worldSpeed;
+    public Level(double groundY) {
         this.groundY = groundY;
     }
+
+    // --- Abstract methods to be implemented by each level ---
+    
+    public abstract String getBackgroundPath();
+    
+    public abstract double getWorldSpeed();
 
     public abstract Enemy spawnEnemy(double spawnX);
 
     public abstract Food spawnFood(double spawnX);
 
-    // --- ADDED: Abstract method for spawning obstacles ---
     public abstract Obstacle spawnObstacle(double spawnX);
 
 }

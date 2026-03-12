@@ -8,7 +8,7 @@ public class Bread extends Food {
 
         super(
                 startX,
-                groundLine - 50,
+                groundLine - 57,
                 worldSpeed,
                 0,
                 60

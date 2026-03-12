@@ -78,7 +78,7 @@ public abstract class Enemy {
     protected void animate() {
         frameCounter++;
 
-        if (frameCounter >= 25) {
+        if (frameCounter >= 30) {
             toggleFrame = !toggleFrame;
             frameCounter = 0;
         }

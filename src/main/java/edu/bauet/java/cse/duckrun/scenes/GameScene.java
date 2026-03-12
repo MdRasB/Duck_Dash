@@ -3,7 +3,6 @@ package edu.bauet.java.cse.duckrun.scenes;
 import edu.bauet.java.cse.duckrun.MainApp;
 import edu.bauet.java.cse.duckrun.entities.*;
 import edu.bauet.java.cse.duckrun.levels.Level;
-import edu.bauet.java.cse.duckrun.levels.Level1;
 import edu.bauet.java.cse.duckrun.ui.PauseMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 import edu.bauet.java.cse.duckrun.ui.SleepBar;
@@ -58,12 +57,12 @@ public class GameScene {
 
     private final double groundY = MainApp.WINDOW_HEIGHT - 130;
     private final Random random = new Random();
-    private final List<Integer> spawnHistory = new ArrayList<>(); // For tracking last spawns
+    private final List<Integer> spawnHistory = new ArrayList<>();
 
-    public GameScene(String backgroundPath, double worldSpeed) {
-        this.worldSpeed = worldSpeed;
-        this.currentLevel = new Level1(worldSpeed, groundY);
-        initialize(backgroundPath);
+    public GameScene(Level level) {
+        this.currentLevel = level;
+        this.worldSpeed = level.getWorldSpeed();
+        initialize(level.getBackgroundPath());
     }
 
     private void initialize(String backgroundPath) {
@@ -204,26 +203,21 @@ public class GameScene {
         });
     }
 
-    // --- MODIFIED: spawnEntities now prevents 3 consecutive spawns of the same type ---
     private void spawnEntities(long now) {
         if (now < nextSpawnTime) return;
 
         double spawnX = MainApp.WINDOW_WIDTH + 100;
         int entityType;
 
-        // Check if the last two spawns were the same
         if (spawnHistory.size() == 2 && spawnHistory.get(0).equals(spawnHistory.get(1))) {
             int lastSpawnedType = spawnHistory.get(0);
-            // Create a list of possible types, excluding the repetitive one
             List<Integer> possibleTypes = IntStream.range(0, 3)
                                                    .filter(i -> i != lastSpawnedType)
                                                    .boxed()
                                                    .collect(Collectors.toList());
-            // Select a random type from the filtered list
             entityType = possibleTypes.get(random.nextInt(possibleTypes.size()));
         } else {
-            // Default random selection among all types
-            entityType = random.nextInt(3); // 0 for Enemy, 1 for Food, 2 for Obstacle
+            entityType = random.nextInt(3);
         }
 
         switch (entityType) {
@@ -250,10 +244,9 @@ public class GameScene {
                 break;
         }
 
-        // Update spawn history
         spawnHistory.add(entityType);
         if (spawnHistory.size() > 2) {
-            spawnHistory.remove(0); // Keep the history size to 2
+            spawnHistory.remove(0);
         }
 
         long delay = (long)((1.5 + Math.random() * 2.5) * 1_000_000_000);
@@ -390,7 +383,7 @@ public class GameScene {
         nextSpawnTime = 0;
         healthBar.reset();
         sleepBar.reset();
-        spawnHistory.clear(); // Clear spawn history on restart
+        spawnHistory.clear();
     }
 
     private void openSettings() {

@@ -5,7 +5,7 @@ import edu.bauet.java.cse.duckrun.utils.AssetLoader; // Import AssetLoader
 public class Bottle extends Obstacle {
 
     public Bottle(double startX, double startY, double worldSpeed) {
-        super(startX, startY-50, worldSpeed, 1.0, 70); // extraSpeed and displayHeight are passed to Obstacle constructor
+        super(startX, startY-65, worldSpeed, 0.0, 70); // extraSpeed and displayHeight are passed to Obstacle constructor
 
         // Load and set the image for the bottle
         view.setImage(AssetLoader.getImage("/images/obstacles/bottle.png"));

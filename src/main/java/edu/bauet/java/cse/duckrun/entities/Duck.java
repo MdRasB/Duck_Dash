@@ -178,7 +178,7 @@ public class Duck {
         lighting.setSurfaceScale(0.0);
         lighting.setSpecularConstant(intensity); // Use intensity
         lighting.setDiffuseConstant(intensity);  // Use intensity
-        
+
         Light.Distant light = new Light.Distant();
         light.setColor(color);
         lighting.setLight(light);
