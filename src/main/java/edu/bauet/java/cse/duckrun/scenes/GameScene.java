@@ -353,6 +353,10 @@ public class GameScene {
                     updateEnemies();
                     updateFoods();
                     updateObstacles();
+                    
+                    if (sleepBar.isFull()) {
+                        gameOver();
+                    }
                 }
             }
         };
@@ -408,11 +412,13 @@ public class GameScene {
     }
     
     private void gameOver() {
-        isPaused = true;
-        gameLoop.stop();
-        timeUtil.stop();
-        // You can add a proper game over screen here
+        if (gameLoop == null) return; // Prevent multiple calls
+        
         System.out.println("GAME OVER");
+        gameLoop.stop();
+        gameLoop = null; // Ensure it can't be restarted
+        
+        exitToMenu();
     }
 
     private void openSettings() {
@@ -429,7 +435,9 @@ public class GameScene {
     }
 
     private void exitToMenu() {
-        gameLoop.stop();
+        if (gameLoop != null) {
+            gameLoop.stop();
+        }
         MenuScene menuScene = new MenuScene(MainApp.getPrimaryStage());
         MainApp.switchScene(menuScene.createScene());
     }
