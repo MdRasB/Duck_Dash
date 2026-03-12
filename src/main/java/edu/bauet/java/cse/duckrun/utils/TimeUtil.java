@@ -21,9 +21,9 @@ public class TimeUtil {
         updateTimeProperty();
 
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
-            timeSeconds--;
+            timeSeconds++;
             updateTimeProperty();
-            if (timeSeconds <= 0) {
+            if (timeSeconds <= -1) {
                 stop();
                 if (onTimeEnd != null) {
                     onTimeEnd.run();
@@ -47,8 +47,8 @@ public class TimeUtil {
         timeline.stop();
     }
 
-    public void decreaseTime(int seconds) {
-        timeSeconds = Math.max(0, timeSeconds - seconds);
+    public void increaseTime(int seconds) {
+        timeSeconds = Math.max(0, timeSeconds + seconds);
         updateTimeProperty();
     }
 

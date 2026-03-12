@@ -7,7 +7,7 @@ public class Level1 extends Level {
     // --- Level-specific configuration ---
     private static final double LEVEL_SPEED = 4.0;
     private static final String BACKGROUND_PATH = "/images/backgrounds/level1.png";
-    private static final int INITIAL_TIME = 180; // 3 minutes
+    private static final int INITIAL_TIME = 0; // 3 minutes
 
     public Level1(double groundY) {
         super(groundY);

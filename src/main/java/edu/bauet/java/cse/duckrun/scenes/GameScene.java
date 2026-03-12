@@ -87,11 +87,11 @@ public class GameScene {
         healthBar = new HealthBar(3);
         healthBar.getView().setLayoutX(20);
         healthBar.getView().setLayoutY(20);
-        
+
         sleepBar = new SleepBar();
         sleepBar.getView().setLayoutX(20);
         sleepBar.getView().setLayoutY(60);
-        
+
         timeUtil = new TimeUtil(currentLevel.getInitialTime(), this::gameOver);
         Label timerLabel = new Label();
         timerLabel.textProperty().bind(timeUtil.timeProperty());
@@ -226,9 +226,9 @@ public class GameScene {
         if (spawnHistory.size() == 2 && spawnHistory.get(0).equals(spawnHistory.get(1))) {
             int lastSpawnedType = spawnHistory.get(0);
             List<Integer> possibleTypes = IntStream.range(0, 3)
-                                                   .filter(i -> i != lastSpawnedType)
-                                                   .boxed()
-                                                   .collect(Collectors.toList());
+                    .filter(i -> i != lastSpawnedType)
+                    .boxed()
+                    .collect(Collectors.toList());
             entityType = possibleTypes.get(random.nextInt(possibleTypes.size()));
         } else {
             entityType = random.nextInt(3);
@@ -266,7 +266,7 @@ public class GameScene {
         long delay = (long)((1.5 + Math.random() * 2.5) * 1_000_000_000);
         nextSpawnTime = now + delay;
     }
-    
+
     private void addNodeToScene(javafx.scene.Node node) {
         int uiIndex = root.getChildren().indexOf(pauseButton);
         if (uiIndex != -1) {
@@ -290,7 +290,8 @@ public class GameScene {
                 enemy.markCollided();
                 duck.hit();
                 healthBar.decreaseHealth();
-                timeUtil.decreaseTime(5);
+                sleepBar.reduceSegment();
+                timeUtil.increaseTime(5);
                 if (healthBar.isDead()) {
                     gameOver();
                 }
@@ -315,7 +316,7 @@ public class GameScene {
                 }
                 sleepBar.addSegment();
                 duck.powerUp();
-                timeUtil.decreaseTime(5);
+                timeUtil.increaseTime(10);
             }
         }
     }
@@ -334,7 +335,8 @@ public class GameScene {
                 obstacle.markCollided();
                 duck.hit();
                 healthBar.decreaseHealth();
-                timeUtil.decreaseTime(5);
+                sleepBar.reduceSegment();
+                timeUtil.increaseTime(5);
                 if (healthBar.isDead()) {
                     gameOver();
                 }
@@ -353,7 +355,7 @@ public class GameScene {
                     updateEnemies();
                     updateFoods();
                     updateObstacles();
-                    
+
                     if (sleepBar.isFull()) {
                         gameOver();
                     }
@@ -398,26 +400,26 @@ public class GameScene {
             root.getChildren().remove(f.getNode());
         }
         foods.clear();
-        
+
         for (Obstacle o : obstacles) {
             root.getChildren().remove(o.getNode());
         }
         obstacles.clear();
-        
+
         nextSpawnTime = 0;
         healthBar.reset();
         sleepBar.reset();
         timeUtil.reset();
         spawnHistory.clear();
     }
-    
+
     private void gameOver() {
         if (gameLoop == null) return; // Prevent multiple calls
-        
+
         System.out.println("GAME OVER");
         gameLoop.stop();
         gameLoop = null; // Ensure it can't be restarted
-        
+
         exitToMenu();
     }
 
