@@ -9,6 +9,7 @@ import edu.bauet.java.cse.duckrun.ui.SleepBar;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import edu.bauet.java.cse.duckrun.utils.CollisionUtil;
 import edu.bauet.java.cse.duckrun.ui.HealthBar;
+import edu.bauet.java.cse.duckrun.utils.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,12 +22,15 @@ import java.util.stream.IntStream;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 public class GameScene {
 
@@ -54,6 +58,7 @@ public class GameScene {
 
     private HealthBar healthBar;
     private SleepBar sleepBar;
+    private TimeUtil timeUtil;
 
     private final double groundY = MainApp.WINDOW_HEIGHT - 130;
     private final Random random = new Random();
@@ -86,6 +91,14 @@ public class GameScene {
         sleepBar = new SleepBar();
         sleepBar.getView().setLayoutX(20);
         sleepBar.getView().setLayoutY(60);
+        
+        timeUtil = new TimeUtil(currentLevel.getInitialTime(), this::gameOver);
+        Label timerLabel = new Label();
+        timerLabel.textProperty().bind(timeUtil.timeProperty());
+        timerLabel.setFont(Font.font("Arial", 24));
+        timerLabel.setTextFill(Color.WHITE);
+        timerLabel.setLayoutX((MainApp.WINDOW_WIDTH - 100) / 2.0);
+        timerLabel.setLayoutY(20);
 
         createPauseSystem();
 
@@ -94,6 +107,7 @@ public class GameScene {
                 duck.getNode(),
                 healthBar.getView(),
                 sleepBar.getView(),
+                timerLabel,
                 pauseButton,
                 menuLayer
         );
@@ -276,8 +290,9 @@ public class GameScene {
                 enemy.markCollided();
                 duck.hit();
                 healthBar.decreaseHealth();
+                timeUtil.decreaseTime(5);
                 if (healthBar.isDead()) {
-                    System.out.println("GAME OVER");
+                    gameOver();
                 }
             }
         }
@@ -300,6 +315,7 @@ public class GameScene {
                 }
                 sleepBar.addSegment();
                 duck.powerUp();
+                timeUtil.decreaseTime(5);
             }
         }
     }
@@ -318,8 +334,9 @@ public class GameScene {
                 obstacle.markCollided();
                 duck.hit();
                 healthBar.decreaseHealth();
+                timeUtil.decreaseTime(5);
                 if (healthBar.isDead()) {
-                    System.out.println("GAME OVER");
+                    gameOver();
                 }
             }
         }
@@ -339,12 +356,14 @@ public class GameScene {
                 }
             }
         };
+        timeUtil.start();
         gameLoop.start();
     }
 
     private void pauseGame() {
         if (isPaused) return;
         isPaused = true;
+        timeUtil.stop();
         pauseMenu.setVisible(true, background1, background2);
         menuLayer.toFront();
         pauseMenu.getRoot().toFront();
@@ -354,6 +373,7 @@ public class GameScene {
     private void resumeGame() {
         if (!isPaused) return;
         isPaused = false;
+        timeUtil.start();
         pauseMenu.setVisible(false, background1, background2);
         pauseButton.setVisible(true);
         root.requestFocus();
@@ -383,7 +403,16 @@ public class GameScene {
         nextSpawnTime = 0;
         healthBar.reset();
         sleepBar.reset();
+        timeUtil.reset();
         spawnHistory.clear();
+    }
+    
+    private void gameOver() {
+        isPaused = true;
+        gameLoop.stop();
+        timeUtil.stop();
+        // You can add a proper game over screen here
+        System.out.println("GAME OVER");
     }
 
     private void openSettings() {

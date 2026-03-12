@@ -17,6 +17,8 @@ public abstract class Level {
     public abstract String getBackgroundPath();
     
     public abstract double getWorldSpeed();
+    
+    public abstract int getInitialTime(); // Time in seconds
 
     public abstract Enemy spawnEnemy(double spawnX);
 
