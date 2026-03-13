@@ -41,13 +41,6 @@ public class SleepBar {
         currentSegments++;
         updateSegments();
     }
-    public void reduceSegment() {
-
-        if (currentSegments <= 0) return;
-
-        currentSegments--;
-        updateSegments();
-    }
 
     private void updateSegments() {
 
@@ -74,4 +67,10 @@ public class SleepBar {
         updateSegments();
     }
 
+    public void decreaseSegment() {
+        if (currentSegments > 0) {
+            currentSegments--;
+            updateSegments();
+        }
+    }
 }

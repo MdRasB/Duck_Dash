@@ -5,9 +5,8 @@ import edu.bauet.java.cse.duckrun.entities.*;
 public class Level1 extends Level {
 
     // --- Level-specific configuration ---
-    private static final double LEVEL_SPEED = 4.0;
+    private static final double LEVEL_SPEED = 5.5;
     private static final String BACKGROUND_PATH = "/images/backgrounds/level1.png";
-    private static final int INITIAL_TIME = 0; // 3 minutes
 
     public Level1(double groundY) {
         super(groundY);
@@ -21,11 +20,6 @@ public class Level1 extends Level {
     @Override
     public double getWorldSpeed() {
         return LEVEL_SPEED;
-    }
-
-    @Override
-    public int getInitialTime() {
-        return INITIAL_TIME;
     }
 
     @Override
