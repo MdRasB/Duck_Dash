@@ -15,7 +15,7 @@ public abstract class Obstacle {
 
     protected double speed;
     protected boolean active = true;
-    protected boolean hasCollided = false; // --- ADDED: Flag to track collision ---
+    protected boolean hasCollided = false;
 
     public Obstacle(double startX,
                     double startY,
@@ -23,7 +23,7 @@ public abstract class Obstacle {
                     double extraSpeed,
                     double displayHeight) {
 
-        this.speed = worldSpeed + extraSpeed;
+        this.speed = worldSpeed; // Ignore extraSpeed for stationary items
 
         view = new ImageView();
         view.setFitHeight(displayHeight);
@@ -39,10 +39,11 @@ public abstract class Obstacle {
         root.setLayoutY(startY);
     }
 
-    public void update() {
+    public void update(double deltaTime) {
         if (!active) return;
 
-        root.setLayoutX(root.getLayoutX() - speed);
+        double effectiveSpeed = speed * 60; // Convert speed to pixels per second
+        root.setLayoutX(root.getLayoutX() - effectiveSpeed * deltaTime);
         updateHitbox();
 
         if (root.getLayoutX() + view.getBoundsInParent().getWidth() < 0) {

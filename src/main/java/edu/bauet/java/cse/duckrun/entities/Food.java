@@ -1,6 +1,5 @@
 package edu.bauet.java.cse.duckrun.entities;
 
-import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -23,7 +22,7 @@ public abstract class Food {
                 double extraSpeed,
                 double displayHeight) {
 
-        this.speed = worldSpeed + extraSpeed;
+        this.speed = worldSpeed; // Ignore extraSpeed for stationary items
 
         view = new ImageView();
         view.setFitHeight(displayHeight);
@@ -39,10 +38,11 @@ public abstract class Food {
         root.setLayoutY(startY);
     }
 
-    public void update() {
+    public void update(double deltaTime) {
         if (!active) return;
 
-        root.setLayoutX(root.getLayoutX() - speed);
+        double effectiveSpeed = speed * 60;
+        root.setLayoutX(root.getLayoutX() - effectiveSpeed * deltaTime);
         updateHitbox();
 
         if (root.getLayoutX() + view.getBoundsInParent().getWidth() < 0) {

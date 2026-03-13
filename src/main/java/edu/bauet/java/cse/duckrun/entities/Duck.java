@@ -37,12 +37,12 @@ public class Duck {
     private boolean comingDown = false;
 
     private double jumpHeight = 250;
-    private double jumpSpeed = 15;
-    private double fallSpeed = 2.75;
+    private double jumpSpeed = 900; // pixels per second
+    private double fallSpeed = 400; // pixels per second
 
     private double effectDuration = 0.5;
-    private double hitIntensity = 3; // Default hit intensity
-    private double powerUpIntensity = 3   ; // Default power-up intensity
+    private double hitIntensity = 3; 
+    private double powerUpIntensity = 3;
 
     private double maxY;
     private boolean crouching = false;
@@ -85,7 +85,7 @@ public class Duck {
         duckGroup.setLayoutX(x);
     }
 
-    public void update() {
+    public void update(double deltaTime) {
 
         duckShadow.setLayoutY(groundLine - DISPLAY_HEIGHT + 40);
 
@@ -107,14 +107,14 @@ public class Duck {
 
         if (goingUp) {
             duckView.setImage(runningImage);
-            duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed);
+            duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed * deltaTime);
             if (duckView.getLayoutY() <= maxY) {
                 goingUp = false;
                 comingDown = true;
                 duckView.setImage(jumpingImage);
             }
         } else if (comingDown) {
-            duckView.setLayoutY(duckView.getLayoutY() + fallSpeed);
+            duckView.setLayoutY(duckView.getLayoutY() + fallSpeed * deltaTime);
             if (duckView.getLayoutY() >= groundLine - DISPLAY_HEIGHT) {
                 duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
                 comingDown = false;
@@ -129,7 +129,7 @@ public class Duck {
     private void animate() {
 
         frameCounter++;
-        if (frameCounter >= 12) {
+        if (frameCounter >= 25) {
             toggleFrame = !toggleFrame;
             frameCounter = 0;
         }
@@ -176,9 +176,9 @@ public class Duck {
     private void applyEffect(Color color, double intensity) {
         Lighting lighting = new Lighting();
         lighting.setSurfaceScale(0.0);
-        lighting.setSpecularConstant(intensity); // Use intensity
-        lighting.setDiffuseConstant(intensity);  // Use intensity
-
+        lighting.setSpecularConstant(intensity);
+        lighting.setDiffuseConstant(intensity);
+        
         Light.Distant light = new Light.Distant();
         light.setColor(color);
         lighting.setLight(light);
@@ -186,7 +186,7 @@ public class Duck {
         duckView.setEffect(lighting);
 
         PauseTransition pause = new PauseTransition(Duration.seconds(effectDuration));
-        pause.setOnFinished(e -> duckView.setEffect(null)); // Remove effect completely
+        pause.setOnFinished(e -> duckView.setEffect(null));
         pause.play();
     }
 
