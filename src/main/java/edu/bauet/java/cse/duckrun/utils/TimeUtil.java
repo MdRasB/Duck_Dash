@@ -9,33 +9,22 @@ import javafx.util.Duration;
 public class TimeUtil {
 
     private Timeline timeline;
-    private int initialTime;
-    private int timeSeconds;
+    private int currentTimeSeconds = 0;
     private final StringProperty timeProperty = new SimpleStringProperty();
-    private Runnable onTimeEnd;
 
-    public TimeUtil(int initialTime, Runnable onTimeEnd) {
-        this.initialTime = initialTime;
-        this.timeSeconds = initialTime;
-        this.onTimeEnd = onTimeEnd;
+    public TimeUtil() {
         updateTimeProperty();
 
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
-            timeSeconds++;
+            currentTimeSeconds++;
             updateTimeProperty();
-            if (timeSeconds <= -1) {
-                stop();
-                if (onTimeEnd != null) {
-                    onTimeEnd.run();
-                }
-            }
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
     }
 
     private void updateTimeProperty() {
-        int minutes = timeSeconds / 60;
-        int seconds = timeSeconds % 60;
+        int minutes = currentTimeSeconds / 60;
+        int seconds = currentTimeSeconds % 60;
         timeProperty.set(String.format("%02d:%02d", minutes, seconds));
     }
 
@@ -48,7 +37,7 @@ public class TimeUtil {
     }
 
     public void increaseTime(int seconds) {
-        timeSeconds = Math.max(0, timeSeconds + seconds);
+        currentTimeSeconds += seconds;
         updateTimeProperty();
     }
 
@@ -57,7 +46,7 @@ public class TimeUtil {
     }
     
     public void reset() {
-        timeSeconds = initialTime;
+        currentTimeSeconds = 0;
         updateTimeProperty();
     }
 }

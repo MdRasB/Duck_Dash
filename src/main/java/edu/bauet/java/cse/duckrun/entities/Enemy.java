@@ -50,10 +50,11 @@ public abstract class Enemy {
         root.setLayoutY(startY);
     }
 
-    public void update() {
+    public void update(double deltaTime) {
         if (!active) return;
 
-        root.setLayoutX(root.getLayoutX() - speed);
+        double effectiveSpeed = speed * 60;
+        root.setLayoutX(root.getLayoutX() - effectiveSpeed * deltaTime);
         animate();
         updateDebugHitbox();
 

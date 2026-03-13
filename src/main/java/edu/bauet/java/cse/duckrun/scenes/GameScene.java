@@ -63,6 +63,8 @@ public class GameScene {
     private final double groundY = MainApp.WINDOW_HEIGHT - 130;
     private final Random random = new Random();
     private final List<Integer> spawnHistory = new ArrayList<>();
+    
+    private long lastFrameTime = 0;
 
     public GameScene(Level level) {
         this.currentLevel = level;
@@ -87,12 +89,12 @@ public class GameScene {
         healthBar = new HealthBar(3);
         healthBar.getView().setLayoutX(20);
         healthBar.getView().setLayoutY(20);
-
+        
         sleepBar = new SleepBar();
         sleepBar.getView().setLayoutX(20);
         sleepBar.getView().setLayoutY(60);
-
-        timeUtil = new TimeUtil(currentLevel.getInitialTime(), this::gameOver);
+        
+        timeUtil = new TimeUtil();
         Label timerLabel = new Label();
         timerLabel.textProperty().bind(timeUtil.timeProperty());
         timerLabel.setFont(Font.font("Arial", 24));
@@ -175,9 +177,10 @@ public class GameScene {
         background2.setLayoutX(width);
     }
 
-    private void updateBackground() {
-        background1.setLayoutX(background1.getLayoutX() - worldSpeed);
-        background2.setLayoutX(background2.getLayoutX() - worldSpeed);
+    private void updateBackground(double deltaTime) {
+        double speed = worldSpeed * 60; // Speed in pixels per second
+        background1.setLayoutX(background1.getLayoutX() - speed * deltaTime);
+        background2.setLayoutX(background2.getLayoutX() - speed * deltaTime);
 
         double width = background1.getBoundsInLocal().getWidth();
 
@@ -226,9 +229,9 @@ public class GameScene {
         if (spawnHistory.size() == 2 && spawnHistory.get(0).equals(spawnHistory.get(1))) {
             int lastSpawnedType = spawnHistory.get(0);
             List<Integer> possibleTypes = IntStream.range(0, 3)
-                    .filter(i -> i != lastSpawnedType)
-                    .boxed()
-                    .collect(Collectors.toList());
+                                                   .filter(i -> i != lastSpawnedType)
+                                                   .boxed()
+                                                   .collect(Collectors.toList());
             entityType = possibleTypes.get(random.nextInt(possibleTypes.size()));
         } else {
             entityType = random.nextInt(3);
@@ -266,7 +269,7 @@ public class GameScene {
         long delay = (long)((1.5 + Math.random() * 2.5) * 1_000_000_000);
         nextSpawnTime = now + delay;
     }
-
+    
     private void addNodeToScene(javafx.scene.Node node) {
         int uiIndex = root.getChildren().indexOf(pauseButton);
         if (uiIndex != -1) {
@@ -276,11 +279,11 @@ public class GameScene {
         }
     }
 
-    private void updateEnemies() {
+    private void updateEnemies(double deltaTime) {
         Iterator<Enemy> iterator = enemies.iterator();
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
-            enemy.update();
+            enemy.update(deltaTime);
             if (!enemy.isActive()) {
                 root.getChildren().remove(enemy.getNode());
                 iterator.remove();
@@ -290,7 +293,7 @@ public class GameScene {
                 enemy.markCollided();
                 duck.hit();
                 healthBar.decreaseHealth();
-                sleepBar.reduceSegment();
+                sleepBar.decreaseSegment();
                 timeUtil.increaseTime(5);
                 if (healthBar.isDead()) {
                     gameOver();
@@ -299,11 +302,11 @@ public class GameScene {
         }
     }
 
-    private void updateFoods() {
+    private void updateFoods(double deltaTime) {
         Iterator<Food> iterator = foods.iterator();
         while (iterator.hasNext()) {
             Food food = iterator.next();
-            food.update();
+            food.update(deltaTime);
             if (!food.isActive()) {
                 root.getChildren().remove(food.getNode());
                 iterator.remove();
@@ -321,11 +324,11 @@ public class GameScene {
         }
     }
 
-    private void updateObstacles() {
+    private void updateObstacles(double deltaTime) {
         Iterator<Obstacle> iterator = obstacles.iterator();
         while (iterator.hasNext()) {
             Obstacle obstacle = iterator.next();
-            obstacle.update();
+            obstacle.update(deltaTime);
             if (!obstacle.isActive()) {
                 root.getChildren().remove(obstacle.getNode());
                 iterator.remove();
@@ -335,7 +338,7 @@ public class GameScene {
                 obstacle.markCollided();
                 duck.hit();
                 healthBar.decreaseHealth();
-                sleepBar.reduceSegment();
+                sleepBar.decreaseSegment();
                 timeUtil.increaseTime(5);
                 if (healthBar.isDead()) {
                     gameOver();
@@ -348,14 +351,22 @@ public class GameScene {
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if (!isPaused) {
-                    updateBackground();
-                    duck.update();
-                    spawnEntities(now);
-                    updateEnemies();
-                    updateFoods();
-                    updateObstacles();
+                if (lastFrameTime == 0) {
+                    lastFrameTime = now;
+                    return;
+                }
+                
+                double deltaTime = (now - lastFrameTime) / 1_000_000_000.0;
+                lastFrameTime = now;
 
+                if (!isPaused) {
+                    updateBackground(deltaTime);
+                    duck.update(deltaTime);
+                    spawnEntities(now);
+                    updateEnemies(deltaTime);
+                    updateFoods(deltaTime);
+                    updateObstacles(deltaTime);
+                    
                     if (sleepBar.isFull()) {
                         gameOver();
                     }
@@ -379,6 +390,7 @@ public class GameScene {
     private void resumeGame() {
         if (!isPaused) return;
         isPaused = false;
+        lastFrameTime = 0; // Reset last frame time to avoid a large jump
         timeUtil.start();
         pauseMenu.setVisible(false, background1, background2);
         pauseButton.setVisible(true);
@@ -400,26 +412,26 @@ public class GameScene {
             root.getChildren().remove(f.getNode());
         }
         foods.clear();
-
+        
         for (Obstacle o : obstacles) {
             root.getChildren().remove(o.getNode());
         }
         obstacles.clear();
-
+        
         nextSpawnTime = 0;
         healthBar.reset();
         sleepBar.reset();
         timeUtil.reset();
         spawnHistory.clear();
     }
-
+    
     private void gameOver() {
-        if (gameLoop == null) return; // Prevent multiple calls
-
+        if (gameLoop == null) return;
+        
         System.out.println("GAME OVER");
         gameLoop.stop();
-        gameLoop = null; // Ensure it can't be restarted
-
+        gameLoop = null;
+        
         exitToMenu();
     }
 
