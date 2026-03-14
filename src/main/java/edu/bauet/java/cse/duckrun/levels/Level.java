@@ -13,10 +13,28 @@ public abstract class Level {
     }
 
     // --- Abstract methods to be implemented by each level ---
-    
+
     public abstract String getBackgroundPath();
-    
+
     public abstract double getWorldSpeed();
+
+    /**
+     * Controls how fast the background scrolls (pixels per second).
+     * Defined per-level so each level can fine-tune the feel independently.
+     */
+    public abstract double getBackgroundScrollSpeed();
+
+    /**
+     * Controls how fast the duck rises during a jump (pixels per second).
+     * Higher levels should feel snappier, so each level sets its own value.
+     */
+    public abstract double getDuckJumpSpeed();
+
+    /**
+     * Controls how fast the duck falls back down after a jump (pixels per second).
+     * Higher levels should feel snappier, so each level sets its own value.
+     */
+    public abstract double getDuckFallSpeed();
 
     public abstract Enemy spawnEnemy(double spawnX);
 

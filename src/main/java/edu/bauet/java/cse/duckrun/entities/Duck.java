@@ -36,12 +36,13 @@ public class Duck {
     private boolean goingUp = false;
     private boolean comingDown = false;
 
+    // Default values — overridden per-level via setJumpSpeed() / setFallSpeed()
     private double jumpHeight = 250;
-    private double jumpSpeed = 900; // pixels per second
-    private double fallSpeed = 400; // pixels per second
+    private double jumpSpeed  = 900; // pixels per second
+    private double fallSpeed  = 400; // pixels per second
 
-    private double effectDuration = 0.5;
-    private double hitIntensity = 3; 
+    private double effectDuration   = 0.5;
+    private double hitIntensity     = 3;
     private double powerUpIntensity = 3;
 
     private double maxY;
@@ -56,14 +57,14 @@ public class Duck {
 
         this.groundLine = groundLine;
 
-        runningImage = AssetLoader.getImage("/images/duck/running.png");
+        runningImage        = AssetLoader.getImage("/images/duck/running.png");
         runningMidPointImage = AssetLoader.getImage("/images/duck/running_mid_point.png");
-        duckingImage = AssetLoader.getImage("/images/duck/ducking.png");
+        duckingImage        = AssetLoader.getImage("/images/duck/ducking.png");
         duckingMidPointImage = AssetLoader.getImage("/images/duck/ducking_mid_point.png");
-        jumpingImage = AssetLoader.getImage("/images/duck/jumping.png");
+        jumpingImage        = AssetLoader.getImage("/images/duck/jumping.png");
 
         normalShadowImage = AssetLoader.getImage("/images/shadow/Shadow(normal).png");
-        jumpShadowImage = AssetLoader.getImage("/images/shadow/Shadow(small).png");
+        jumpShadowImage   = AssetLoader.getImage("/images/shadow/Shadow(small).png");
 
         duckView = new ImageView(runningImage);
         duckView.setFitHeight(DISPLAY_HEIGHT);
@@ -84,6 +85,28 @@ public class Duck {
         duckGroup = new Group(duckShadow, duckView, debugHitbox);
         duckGroup.setLayoutX(x);
     }
+
+    // ------------------------------------------------------------------
+    // Per-level speed configuration — call these right after construction
+    // ------------------------------------------------------------------
+
+    /**
+     * Sets the speed at which the duck rises during a jump (pixels per second).
+     * Called by GameScene using the value from the current Level.
+     */
+    public void setJumpSpeed(double jumpSpeed) {
+        this.jumpSpeed = jumpSpeed;
+    }
+
+    /**
+     * Sets the speed at which the duck falls back down after a jump (pixels per second).
+     * Called by GameScene using the value from the current Level.
+     */
+    public void setFallSpeed(double fallSpeed) {
+        this.fallSpeed = fallSpeed;
+    }
+
+    // ------------------------------------------------------------------
 
     public void update(double deltaTime) {
 
@@ -168,21 +191,21 @@ public class Duck {
     public void hit() {
         applyEffect(Color.RED, hitIntensity);
     }
-    
+
     public void powerUp() {
         applyEffect(Color.LIMEGREEN, powerUpIntensity);
     }
-    
+
     private void applyEffect(Color color, double intensity) {
         Lighting lighting = new Lighting();
         lighting.setSurfaceScale(0.0);
         lighting.setSpecularConstant(intensity);
         lighting.setDiffuseConstant(intensity);
-        
+
         Light.Distant light = new Light.Distant();
         light.setColor(color);
         lighting.setLight(light);
-        
+
         duckView.setEffect(lighting);
 
         PauseTransition pause = new PauseTransition(Duration.seconds(effectDuration));
@@ -231,11 +254,11 @@ public class Duck {
     public void setEffectDuration(double seconds) {
         this.effectDuration = seconds;
     }
-    
+
     public void setHitIntensity(double intensity) {
         this.hitIntensity = intensity;
     }
-    
+
     public void setPowerUpIntensity(double intensity) {
         this.powerUpIntensity = intensity;
     }

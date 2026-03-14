@@ -25,7 +25,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -57,7 +56,9 @@ public class GameScene {
     private final List<Obstacle> obstacles = new ArrayList<>();
     private long nextSpawnTime = 0;
 
-    private final double worldSpeed;
+    // Background scroll speed is now sourced directly from the Level.
+    // Enemy speed is already embedded in each spawned entity via getWorldSpeed().
+    private final double backgroundScrollSpeed;
 
     private HealthBar healthBar;
     private SleepBar sleepBar;
@@ -66,12 +67,14 @@ public class GameScene {
     private final double groundY = MainApp.WINDOW_HEIGHT - 130;
     private final Random random = new Random();
     private final List<Integer> spawnHistory = new ArrayList<>();
-    
+
     private long lastFrameTime = 0;
 
     public GameScene(Level level) {
         this.currentLevel = level;
-        this.worldSpeed = level.getWorldSpeed();
+        // Pull the background scroll speed from the level instead of computing
+        // it here — each level controls its own visual pacing.
+        this.backgroundScrollSpeed = level.getBackgroundScrollSpeed();
         initialize(level.getBackgroundPath());
     }
 
@@ -92,21 +95,20 @@ public class GameScene {
         healthBar = new HealthBar(3);
         healthBar.getView().setLayoutX(20);
         healthBar.getView().setLayoutY(20);
-        
+
         sleepBar = new SleepBar();
         sleepBar.getView().setLayoutX(20);
         sleepBar.getView().setLayoutY(60);
-        
+
         timeUtil = new TimeUtil();
         Label timerLabel = new Label();
         timerLabel.textProperty().bind(timeUtil.timeProperty());
         try {
-            // 36 is the font size; change as needed
             Font pixelfont = Font.loadFont(getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"), 32);
             if (pixelfont != null) {
                 timerLabel.setFont(pixelfont);
             } else {
-                timerLabel.setFont(Font.font("Arial", 32)); // Fallback
+                timerLabel.setFont(Font.font("Arial", 32));
             }
         } catch (Exception e) {
             timerLabel.setFont(Font.font("Arial", 32));
@@ -114,18 +116,15 @@ public class GameScene {
 
         timerLabel.setTextFill(Color.web("#AE6819"));
         timerLabel.setPrefWidth(200);
-        // 2. Center the text within that width
         timerLabel.setAlignment(javafx.geometry.Pos.CENTER);
-        // 3. Center the label itself on the screen
         timerLabel.setLayoutX((MainApp.WINDOW_WIDTH - 200) / 2.0);
         timerLabel.setLayoutY(20);
 
-        // Crisp Outline Effect
         DropShadow border = new DropShadow();
         border.setBlurType(BlurType.ONE_PASS_BOX);
         border.setColor(Color.BLACK);
         border.setRadius(4.0);
-        border.setSpread(2.0); // Makes it look like a stroke/border
+        border.setSpread(2.0);
         timerLabel.setEffect(border);
 
         createPauseSystem();
@@ -204,9 +203,9 @@ public class GameScene {
     }
 
     private void updateBackground(double deltaTime) {
-        double speed = worldSpeed * 60; // Speed in pixels per second
-        background1.setLayoutX(background1.getLayoutX() - speed * deltaTime);
-        background2.setLayoutX(background2.getLayoutX() - speed * deltaTime);
+        // Uses the level's own background scroll speed — not a derived formula.
+        background1.setLayoutX(background1.getLayoutX() - backgroundScrollSpeed * deltaTime);
+        background2.setLayoutX(background2.getLayoutX() - backgroundScrollSpeed * deltaTime);
 
         double width = background1.getBoundsInLocal().getWidth();
 
@@ -220,6 +219,10 @@ public class GameScene {
 
     private void createPlayer() {
         duck = new Duck(200, groundY);
+        // Apply per-level jump and fall speeds to the duck.
+        // Enemy speed is already handled inside each spawned entity.
+        duck.setJumpSpeed(currentLevel.getDuckJumpSpeed());
+        duck.setFallSpeed(currentLevel.getDuckFallSpeed());
     }
 
     private void setupControls() {
@@ -234,13 +237,13 @@ public class GameScene {
             if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.W || event.getCode() == KeyCode.UP) {
                 duck.jump();
             }
-            if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
+            if (event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S) {
                 duck.setCrouching(true);
             }
         });
+
         scene.setOnKeyReleased(event -> {
-            if (isPaused) return;
-            if (event.getCode() == KeyCode.S || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.C) {
+            if (event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S) {
                 duck.setCrouching(false);
             }
         });
@@ -249,7 +252,7 @@ public class GameScene {
     private void spawnEntities(long now) {
         if (now < nextSpawnTime) return;
 
-        double spawnX = MainApp.WINDOW_WIDTH + 100;
+        double spawnX = MainApp.WINDOW_WIDTH + 50;
         int entityType;
 
         if (spawnHistory.size() == 2 && spawnHistory.get(0).equals(spawnHistory.get(1))) {
@@ -292,10 +295,10 @@ public class GameScene {
             spawnHistory.remove(0);
         }
 
-        long delay = (long)((1.5 + Math.random() * 2.5) * 1_000_000_000);
+        long delay = (long) ((1.5 + Math.random() * 2.5) * 1_000_000_000);
         nextSpawnTime = now + delay;
     }
-    
+
     private void addNodeToScene(javafx.scene.Node node) {
         int uiIndex = root.getChildren().indexOf(pauseButton);
         if (uiIndex != -1) {
@@ -381,7 +384,7 @@ public class GameScene {
                     lastFrameTime = now;
                     return;
                 }
-                
+
                 double deltaTime = (now - lastFrameTime) / 1_000_000_000.0;
                 lastFrameTime = now;
 
@@ -392,7 +395,7 @@ public class GameScene {
                     updateEnemies(deltaTime);
                     updateFoods(deltaTime);
                     updateObstacles(deltaTime);
-                    
+
                     if (sleepBar.isFull()) {
                         gameOver();
                     }
@@ -416,7 +419,7 @@ public class GameScene {
     private void resumeGame() {
         if (!isPaused) return;
         isPaused = false;
-        lastFrameTime = 0; // Reset last frame time to avoid a large jump
+        lastFrameTime = 0;
         timeUtil.start();
         pauseMenu.setVisible(false, background1, background2);
         pauseButton.setVisible(true);
@@ -438,26 +441,26 @@ public class GameScene {
             root.getChildren().remove(f.getNode());
         }
         foods.clear();
-        
+
         for (Obstacle o : obstacles) {
             root.getChildren().remove(o.getNode());
         }
         obstacles.clear();
-        
+
         nextSpawnTime = 0;
         healthBar.reset();
         sleepBar.reset();
         timeUtil.reset();
         spawnHistory.clear();
     }
-    
+
     private void gameOver() {
         if (gameLoop == null) return;
-        
+
         System.out.println("GAME OVER");
         gameLoop.stop();
         gameLoop = null;
-        
+
         exitToMenu();
     }
 
