@@ -23,6 +23,9 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -97,10 +100,33 @@ public class GameScene {
         timeUtil = new TimeUtil();
         Label timerLabel = new Label();
         timerLabel.textProperty().bind(timeUtil.timeProperty());
-        timerLabel.setFont(Font.font("Arial", 24));
-        timerLabel.setTextFill(Color.WHITE);
-        timerLabel.setLayoutX((MainApp.WINDOW_WIDTH - 100) / 2.0);
+        try {
+            // 36 is the font size; change as needed
+            Font pixelfont = Font.loadFont(getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"), 32);
+            if (pixelfont != null) {
+                timerLabel.setFont(pixelfont);
+            } else {
+                timerLabel.setFont(Font.font("Arial", 32)); // Fallback
+            }
+        } catch (Exception e) {
+            timerLabel.setFont(Font.font("Arial", 32));
+        }
+
+        timerLabel.setTextFill(Color.web("#AE6819"));
+        timerLabel.setPrefWidth(200);
+        // 2. Center the text within that width
+        timerLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        // 3. Center the label itself on the screen
+        timerLabel.setLayoutX((MainApp.WINDOW_WIDTH - 200) / 2.0);
         timerLabel.setLayoutY(20);
+
+        // Crisp Outline Effect
+        DropShadow border = new DropShadow();
+        border.setBlurType(BlurType.ONE_PASS_BOX);
+        border.setColor(Color.BLACK);
+        border.setRadius(4.0);
+        border.setSpread(2.0); // Makes it look like a stroke/border
+        timerLabel.setEffect(border);
 
         createPauseSystem();
 
@@ -134,7 +160,7 @@ public class GameScene {
         pauseButton.setGraphic(pauseIcon);
         pauseButton.setStyle("-fx-background-color: transparent;");
         pauseButton.setLayoutX(MainApp.WINDOW_WIDTH - 80);
-        pauseButton.setLayoutY(20);
+        pauseButton.setLayoutY(10);
         pauseButton.setCursor(Cursor.HAND);
         pauseButton.getStyleClass().add("pause-button");
 
