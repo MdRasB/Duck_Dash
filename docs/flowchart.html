@@ -1,67 +1,67 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>DuckRun – Project Flowchart</title>
-    <style>
-        :root{--bg:#0b1220;--panel:#0f1a2b;--panel2:#0c1526;--text:#e5e7eb;--muted:#9ca3af;--border:#1f2a44;--accent:#60a5fa;--accent2:#34d399;--danger:#f87171}
-        html,body{height:100%}
-        body{margin:0;background:radial-gradient(1200px 800px at 15% 10%, #13284a 0%, var(--bg) 50%);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
-        a{color:inherit}
-        .app{display:grid;grid-template-rows:auto auto 1fr;min-height:100%}
-        header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--panel),transparent)}
-        .title{display:flex;flex-direction:column;gap:2px}
-        .title h1{margin:0;font-size:16px;letter-spacing:.2px}
-        .title p{margin:0;color:var(--muted);font-size:12px}
-        .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-        button{appearance:none;border:1px solid var(--border);background:linear-gradient(180deg,#14233a,#0f1b31);color:var(--text);padding:8px 10px;border-radius:10px;font-size:12px;cursor:pointer}
-        button:hover{border-color:#2a3a63}
-        button:active{transform:translateY(1px)}
-        button.primary{border-color:rgba(96,165,250,.45);box-shadow:0 0 0 2px rgba(96,165,250,.08) inset}
-        button.good{border-color:rgba(52,211,153,.45);box-shadow:0 0 0 2px rgba(52,211,153,.08) inset}
-        button.danger{border-color:rgba(248,113,113,.45);box-shadow:0 0 0 2px rgba(248,113,113,.08) inset}
-        .tabs{display:flex;gap:8px;align-items:center;padding:10px 18px;border-bottom:1px solid var(--border);background:rgba(10,18,34,.55);backdrop-filter:blur(8px)}
-        .tab{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:12px;background:rgba(15,26,43,.45);cursor:pointer;font-size:12px;color:var(--muted)}
-        .tab[aria-selected="true"]{color:var(--text);border-color:rgba(96,165,250,.55);box-shadow:0 0 0 2px rgba(96,165,250,.10) inset}
-        .tab small{opacity:.75}
-        main{display:grid;grid-template-columns:1fr;min-height:0}
-        .viewer{position:relative;min-height:0}
-        .panel{height:100%;min-height:0;border-top:0}
-        .diagram{display:none;height:100%;min-height:0}
-        .diagram.active{display:block}
-        .svgWrap{height:calc(100vh - 132px);min-height:520px;background:linear-gradient(180deg,rgba(15,26,43,.75),rgba(12,21,38,.75));border:1px solid var(--border);border-radius:16px;margin:18px;overflow:hidden;position:relative}
-        .svgWrap .hint{position:absolute;right:14px;top:12px;font-size:11px;color:var(--muted);background:rgba(10,18,34,.6);border:1px solid var(--border);padding:6px 8px;border-radius:999px}
-        .svgWrap svg{width:100%;height:100%}
-        .toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:rgba(10,18,34,.9);border:1px solid var(--border);padding:10px 12px;border-radius:12px;color:var(--text);font-size:12px;display:none;max-width:min(900px,calc(100vw - 28px))}
-        .toast.show{display:block}
-        code.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:1px 6px;border-radius:8px;font-size:11px}
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DuckRun – Project Flowchart</title>
+  <style>
+    :root{--bg:#0b1220;--panel:#0f1a2b;--panel2:#0c1526;--text:#e5e7eb;--muted:#9ca3af;--border:#1f2a44;--accent:#60a5fa;--accent2:#34d399;--danger:#f87171}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 800px at 15% 10%, #13284a 0%, var(--bg) 50%);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
+    a{color:inherit}
+    .app{display:grid;grid-template-rows:auto auto 1fr;min-height:100%}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--panel),transparent)}
+    .title{display:flex;flex-direction:column;gap:2px}
+    .title h1{margin:0;font-size:16px;letter-spacing:.2px}
+    .title p{margin:0;color:var(--muted);font-size:12px}
+    .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    button{appearance:none;border:1px solid var(--border);background:linear-gradient(180deg,#14233a,#0f1b31);color:var(--text);padding:8px 10px;border-radius:10px;font-size:12px;cursor:pointer}
+    button:hover{border-color:#2a3a63}
+    button:active{transform:translateY(1px)}
+    button.primary{border-color:rgba(96,165,250,.45);box-shadow:0 0 0 2px rgba(96,165,250,.08) inset}
+    button.good{border-color:rgba(52,211,153,.45);box-shadow:0 0 0 2px rgba(52,211,153,.08) inset}
+    button.danger{border-color:rgba(248,113,113,.45);box-shadow:0 0 0 2px rgba(248,113,113,.08) inset}
+    .tabs{display:flex;gap:8px;align-items:center;padding:10px 18px;border-bottom:1px solid var(--border);background:rgba(10,18,34,.55);backdrop-filter:blur(8px)}
+    .tab{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:12px;background:rgba(15,26,43,.45);cursor:pointer;font-size:12px;color:var(--muted)}
+    .tab[aria-selected="true"]{color:var(--text);border-color:rgba(96,165,250,.55);box-shadow:0 0 0 2px rgba(96,165,250,.10) inset}
+    .tab small{opacity:.75}
+    main{display:grid;grid-template-columns:1fr;min-height:0}
+    .viewer{position:relative;min-height:0}
+    .panel{height:100%;min-height:0;border-top:0}
+    .diagram{display:none;height:100%;min-height:0}
+    .diagram.active{display:block}
+    .svgWrap{height:calc(100vh - 132px);min-height:520px;background:linear-gradient(180deg,rgba(15,26,43,.75),rgba(12,21,38,.75));border:1px solid var(--border);border-radius:16px;margin:18px;overflow:hidden;position:relative}
+    .svgWrap .hint{position:absolute;right:14px;top:12px;font-size:11px;color:var(--muted);background:rgba(10,18,34,.6);border:1px solid var(--border);padding:6px 8px;border-radius:999px}
+    .svgWrap svg{width:100%;height:100%}
+    .toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:rgba(10,18,34,.9);border:1px solid var(--border);padding:10px 12px;border-radius:12px;color:var(--text);font-size:12px;display:none;max-width:min(900px,calc(100vw - 28px))}
+    .toast.show{display:block}
+    code.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:1px 6px;border-radius:8px;font-size:11px}
+  </style>
 </head>
 <body>
-<div class="app">
+  <div class="app">
     <header>
-        <div class="title">
-            <h1>DuckRun – Interactive Project Flowchart</h1>
-            <p>Pan/zoom, switch diagrams, export SVG. Generated from <code class="kbd">PROJECT_FLOWCHART.md</code>.</p>
-        </div>
-        <div class="actions">
-            <button id="zoomIn" class="primary" title="Zoom in">Zoom In</button>
-            <button id="zoomOut" class="primary" title="Zoom out">Zoom Out</button>
-            <button id="reset" class="good" title="Fit + center">Reset View</button>
-            <button id="export" title="Download current diagram as SVG">Download SVG</button>
-        </div>
+      <div class="title">
+        <h1>DuckRun – Interactive Project Flowchart</h1>
+        <p>Pan/zoom, switch diagrams, export SVG. Generated from <code class="kbd">PROJECT_FLOWCHART.md</code>.</p>
+      </div>
+      <div class="actions">
+        <button id="zoomIn" class="primary" title="Zoom in">Zoom In</button>
+        <button id="zoomOut" class="primary" title="Zoom out">Zoom Out</button>
+        <button id="reset" class="good" title="Fit + center">Reset View</button>
+        <button id="export" title="Download current diagram as SVG">Download SVG</button>
+      </div>
     </header>
     <nav class="tabs" id="tabs" aria-label="Flowchart tabs"></nav>
     <main>
-        <div class="viewer panel" id="viewer"></div>
+      <div class="viewer panel" id="viewer"></div>
     </main>
-</div>
-<div class="toast" id="toast"></div>
+  </div>
+  <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
-<script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+  <script>
     const DIAGRAMS = [];
     DIAGRAMS.push({ title: "Runtime Workflow (Screens + Game Lifecycle)", code: `flowchart TD
   %% =====================
@@ -73,9 +73,9 @@
   C --> D[AssetLoader.preloadAssets - images cached]
   D --> E[StoryScene.createScene stage]
 
-  E --> F{Intro video loads?\n/Story/opening.mp4}
+  E --> F{Intro video loads?\\n/Story/opening.mp4}
   F -- yes --> G[MediaPlayer autoplay]
-  G --> H{End of video\nor SPACE pressed}
+  G --> H{End of video\\nor SPACE pressed}
   F -- no --> I[Fallback: skip intro]
 
   H --> J["StoryScene.navigateToMenu(stage)"]
@@ -88,32 +88,32 @@
   N --> O[GameScene.initialize backgroundPath]
   O --> P[Create scrolling background]
   O --> Q[Create Duck player]
-  O --> R[Create HUD:\nHealthBar + SleepBar + Timer label]
-  O --> S[Create pause system:\nPauseMenu + SettingsMenu + Pause button]
-  O --> T[Setup keyboard controls\njump/crouch/pause]
-  O --> U[Start loop:\nAnimationTimer + TimeUtil.start]
+  O --> R[Create HUD:\\nHealthBar + SleepBar + Timer label]
+  O --> S[Create pause system:\\nPauseMenu + SettingsMenu + Pause button]
+  O --> T[Setup keyboard controls\\njump/crouch/pause]
+  O --> U[Start loop:\\nAnimationTimer + TimeUtil.start]
 
   %% Loop summary
   U --> V["Per-frame if not paused"]
   V --> W[Update background scroll]
-  V --> X["Duck.update(deltaTime)\nanimation + jump physics + hitbox"]
-  V --> Y["Spawn entities throttled\nvia Level.spawn*()"]
-  V --> Z["Update/move entities\nand remove off-screen"]
-  V --> AA[Collisions:\nDuck vs Enemy/Food/Obstacle]
+  V --> X["Duck.update(deltaTime)\\nanimation + jump physics + hitbox"]
+  V --> Y["Spawn entities throttled\\nvia Level.spawn*()"]
+  V --> Z["Update/move entities\\nand remove off-screen"]
+  V --> AA[Collisions:\\nDuck vs Enemy/Food/Obstacle]
   V --> AB{Game over condition?}
-  AB -- HealthBar dead --> AC["GameScene.gameOver()\nstop loop"]
-  AB -- SleepBar full --> AC["GameScene.gameOver()\nstop loop"]
+  AB -- HealthBar dead --> AC["GameScene.gameOver()\\nstop loop"]
+  AB -- SleepBar full --> AC["GameScene.gameOver()\\nstop loop"]
   AB -- no --> V
   AC --> K
 
   %% Pause flow
   T --> PAUSE[ESC or pause button]
   PAUSE --> PB{Paused already?}
-  PB -- no --> PC["Pause:\nTimeUtil.stop()\nShow PauseMenu\nHide pause button"]
-  PB -- yes --> PD["Resume:\nReset frame clock\nTimeUtil.start()\nHide PauseMenu"]
+  PB -- no --> PC["Pause:\\nTimeUtil.stop()\\nShow PauseMenu\\nHide pause button"]
+  PB -- yes --> PD["Resume:\\nReset frame clock\\nTimeUtil.start()\\nHide PauseMenu"]
   PC --> PE{Pause menu action}
   PE -- Resume --> PD
-  PE -- Restart --> PR[Restart:\nreset duck + backgrounds\nclear entities\nreset bars/time]
+  PE -- Restart --> PR[Restart:\\nreset duck + backgrounds\\nclear entities\\nreset bars/time]
   PR --> PD
   PE -- Settings --> PS[Show SettingsMenu overlay]
   PS --> PC
@@ -143,7 +143,7 @@
   %% ===========================
 
   A["AnimationTimer.handle(now)"] --> B{First frame?}
-  B -- yes --> C[Store lastFrameTime\nreturn]
+  B -- yes --> C["Store lastFrameTime\\nreturn"]
   B -- no --> D["Compute deltaTime: now-last/1e9"]
   D --> E{isPaused?}
   E -- yes --> Z[Skip updates]
@@ -158,11 +158,11 @@
   L -- no --> N[Next frame]
 
   %% Enemies
-  subgraph EN[Enemy update + collision]
+  subgraph EN ["Enemy update + collision"]
     E1["Enemy.update - move left + animate + hitbox"] --> E2{Off-screen?}
-    E2 -- yes --> E3[Remove from scene + list]
-    E2 -- no --> E4{Collides with Duck\nand not already collided?}
-    E4 -- yes --> E5["duck.hit()\nHealthBar--\nSleepBar--\nTime +5s"]
+    E2 -- yes --> E3["Remove from scene + list"]
+    E2 -- no --> E4{Collides with Duck\\nand not already collided?}
+    E4 -- yes --> E5["duck.hit()\\nHealthBar--\\nSleepBar--\\nTime +5s"]
     E5 --> E6{HealthBar dead?}
     E6 -- yes --> M
     E6 -- no --> E7[Continue]
@@ -170,20 +170,20 @@
   end
 
   %% Foods
-  subgraph FO[Food update + collision]
+  subgraph FO ["Food update + collision"]
     F1["Food.update - move left + hitbox"] --> F2{Off-screen?}
-    F2 -- yes --> F3[Remove from scene + list]
+    F2 -- yes --> F3["Remove from scene + list"]
     F2 -- no --> F4{Collides with Duck?}
-    F4 -- yes --> F5["Deactivate food\nHealthBar++ (if not full)\nSleepBar++\nduck.powerUp()\nTime +10s"]
+    F4 -- yes --> F5["Deactivate food\\nHealthBar++ (if not full)\\nSleepBar++\\nduck.powerUp()\\nTime +10s"]
     F4 -- no --> F6[Continue]
   end
 
   %% Obstacles
-  subgraph OB[Obstacle update + collision]
+  subgraph OB ["Obstacle update + collision"]
     O1["Obstacle.update - move left + hitbox"] --> O2{Off-screen?}
-    O2 -- yes --> O3[Remove from scene + list]
-    O2 -- no --> O4{Collides with Duck\nand not already collided?}
-    O4 -- yes --> O5["duck.hit()\nHealthBar--\nSleepBar--\nTime +5s"]
+    O2 -- yes --> O3["Remove from scene + list"]
+    O2 -- no --> O4{Collides with Duck\\nand not already collided?}
+    O4 -- yes --> O5["duck.hit()\\nHealthBar--\\nSleepBar--\\nTime +5s"]
     O5 --> O6{HealthBar dead?}
     O6 -- yes --> M
     O6 -- no --> O7[Continue]
@@ -195,42 +195,54 @@
   I --> E1
   J --> F1
   K --> O1
+
+  %% Color theme (so this diagram matches the styled Runtime Workflow)
+  classDef core fill:#163a24,stroke:#34d399,color:#ffffff;
+  classDef ui fill:#0b2a3a,stroke:#60a5fa,color:#ffffff;
+  classDef decision fill:#3a2a0b,stroke:#fbbf24,color:#ffffff;
+  classDef loop fill:#1f2a44,stroke:#93c5fd,color:#ffffff;
+  classDef remove fill:#111827,stroke:#64748b,color:#e5e7eb;
+
+  class A,D,F,G,H,I,J,K,N core;
+  class C,Z,M,E3,F3,O3 remove;
+  class B,E,L,E2,E4,E6,F2,F4,O2,O4,O6 decision;
+  class E1,E5,E7,F1,F5,F6,O1,O5,O7 ui;
 ` });
     DIAGRAMS.push({ title: "Code/Package Architecture (How Modules Connect)", code: `flowchart LR
   %% =====================
   %% Package architecture
   %% =====================
 
-  subgraph APP[edu.bauet.java.cse.duckrun]
-    MainApp["MainApp\n(JavaFX Application)"]
+  subgraph APP ["edu.bauet.java.cse.duckrun"]
+    MainApp["MainApp\\n(JavaFX Application)"]
   end
 
-  subgraph SCENES[scenes]
-    StoryScene["StoryScene\n(intro video)"]
-    MenuScene["MenuScene\n(main menu + overlays)"]
-    GameScene["GameScene\n(gameplay + loop)"]
+  subgraph SCENES ["scenes"]
+    StoryScene["StoryScene\\n(intro video)"]
+    MenuScene["MenuScene\\n(main menu + overlays)"]
+    GameScene["GameScene\\n(gameplay + loop)"]
   end
 
-  subgraph LEVELS[levels]
-    Level["Level (abstract)\nbackground/speed/spawn*()"]
-    Level1["Level1\n(Cat/Bread/Bottle)"]
+  subgraph LEVELS ["levels"]
+    Level["Level (abstract)\\nbackground/speed/spawn*()"]
+    Level1["Level1\\n(Cat/Bread/Bottle)"]
   end
 
-  subgraph ENT[entities]
+  subgraph ENT ["entities"]
     Duck["Duck (player)"]
     Enemy["Enemy (abstract)"]
     Food["Food (abstract)"]
     Obstacle["Obstacle (abstract)"]
-    Cat[Cat : Enemy]
-    Eagle[Eagle : Enemy]
-    Bread[Bread : Food]
-    Worm[Worm : Food]
-    Bottle[Bottle : Obstacle]
-    Chair[Chair : Obstacle]
-    Tree[Tree : Obstacle]
+    Cat["Cat : Enemy"]
+    Eagle["Eagle : Enemy"]
+    Bread["Bread : Food"]
+    Worm["Worm : Food"]
+    Bottle["Bottle : Obstacle"]
+    Chair["Chair : Obstacle"]
+    Tree["Tree : Obstacle"]
   end
 
-  subgraph UI[ui]
+  subgraph UI ["ui"]
     PauseMenu[PauseMenu]
     SettingsMenu[SettingsMenu]
     HealthBar[HealthBar]
@@ -239,17 +251,17 @@
     HighScoreMenu[HighScoreMenu]
   end
 
-  subgraph UTIL[utils]
-    AssetLoader["AssetLoader\n(cache + preload)"]
-    CollisionUtil["CollisionUtil\n(Bounds.intersects)"]
-    TimeUtil["TimeUtil\n(Timeline timer)"]
+  subgraph UTIL ["utils"]
+    AssetLoader["AssetLoader\\n(cache + preload)"]
+    CollisionUtil["CollisionUtil\\n(Bounds.intersects)"]
+    TimeUtil["TimeUtil\\n(Timeline timer)"]
   end
 
-  subgraph RES[resources]
-    Images["images/\n(backgrounds, enemies, ui)"]
-    Fonts["fonts/\n(PressStart2P, Jersey20)"]
-    CSS["styles/\n(menu, pause, settings)"]
-    Video[Story/opening.mp4]
+  subgraph RES ["resources"]
+    Images["images/\\n(backgrounds, enemies, ui)"]
+    Fonts["fonts/\\n(PressStart2P, Jersey20)"]
+    CSS["styles/\\n(menu, pause, settings)"]
+    Video["Story/opening.mp4"]
   end
 
   %% Entry + navigation
@@ -300,9 +312,21 @@
   AssetLoader --> Images
   AssetLoader --> Video
 
-  classDef cls fill:#0b2a3a,stroke:#0b2a3a,color:#fff;
-  classDef res fill:#2b2b2b,stroke:#2b2b2b,color:#fff;
-  class MainApp,StoryScene,MenuScene,GameScene,Level,Level1,Duck,Enemy,Food,Obstacle,Cat,Eagle,Bread,Worm,Bottle,Chair,Tree,PauseMenu,SettingsMenu,HealthBar,SleepBar,LevelMenu,HighScoreMenu,AssetLoader,CollisionUtil,TimeUtil cls;
+  %% Color theme (explicit classes so this isn’t monochrome)
+  classDef app fill:#163a24,stroke:#34d399,color:#ffffff;
+  classDef scenes fill:#0b2a3a,stroke:#60a5fa,color:#ffffff;
+  classDef levels fill:#1f2a44,stroke:#93c5fd,color:#ffffff;
+  classDef entities fill:#0f172a,stroke:#a78bfa,color:#ffffff;
+  classDef ui fill:#2a1b3d,stroke:#c084fc,color:#ffffff;
+  classDef util fill:#3a2a0b,stroke:#fbbf24,color:#ffffff;
+  classDef res fill:#2b2b2b,stroke:#fb923c,color:#ffffff;
+
+  class MainApp app;
+  class StoryScene,MenuScene,GameScene scenes;
+  class Level,Level1 levels;
+  class Duck,Enemy,Food,Obstacle,Cat,Eagle,Bread,Worm,Bottle,Chair,Tree entities;
+  class PauseMenu,SettingsMenu,HealthBar,SleepBar,LevelMenu,HighScoreMenu ui;
+  class AssetLoader,CollisionUtil,TimeUtil util;
   class Images,Fonts,CSS,Video res;
 ` });
 
@@ -318,7 +342,7 @@
         lineColor: "#93c5fd",
         edgeLabelBackground: "#0b1220"
       },
-      flowchart: { curve: "basis", padding: 8, nodeSpacing: 34, rankSpacing: 44 }
+      flowchart: { curve: "basis", padding: 8, nodeSpacing: 34, rankSpacing: 44, htmlLabels: false }
     });
 
     const tabsEl = document.getElementById("tabs");
@@ -338,9 +362,30 @@
       activeIndex = idx;
       [...tabsEl.querySelectorAll(".tab")].forEach((t, i) => t.setAttribute("aria-selected", i === idx ? "true" : "false"));
       [...viewerEl.querySelectorAll(".diagram")].forEach((p, i) => p.classList.toggle("active", i === idx));
+      ensurePanZoom(idx);
       const wrap = viewerEl.querySelector(`.diagram[data-idx=\"${idx}\"] .svgWrap`);
-      const pz = panZoomInstances.get(wrap);
+      const pz = wrap ? panZoomInstances.get(wrap) : null;
       if (pz) { pz.resize(); pz.fit(); pz.center(); }
+    }
+
+    function ensurePanZoom(idx) {
+      const wrap = viewerEl.querySelector(`.diagram[data-idx=\"${idx}\"] .svgWrap`);
+      if (!wrap || panZoomInstances.has(wrap)) return;
+      const svgEl = wrap.querySelector("svg");
+      if (!svgEl) return;
+      svgEl.style.height = "100%";
+      svgEl.style.width = "100%";
+      const pz = svgPanZoom(svgEl, {
+        zoomEnabled: true,
+        controlIconsEnabled: false,
+        fit: true,
+        center: true,
+        minZoom: 0.15,
+        maxZoom: 30,
+        zoomScaleSensitivity: 0.2,
+        dblClickZoomEnabled: false,
+      });
+      panZoomInstances.set(wrap, pz);
     }
 
     function currentPanZoom() {
@@ -376,58 +421,28 @@
         panel.appendChild(wrap);
         viewerEl.appendChild(panel);
 
-        let svgEl = null;
+        const id = `duckrun_mermaid_${i}`;
         try {
-          // Mermaid v10 can silently produce empty output for some invalid constructs (e.g., edges to subgraph ids).
-          // Parse first to surface errors per-diagram and keep the rest of the page usable.
-          if (typeof mermaid.parse === "function") await mermaid.parse(d.code);
-
-          const id = `duckrun_mermaid_${i}`;
           const { svg } = await mermaid.render(id, d.code);
           const holder = document.createElement("div");
           holder.innerHTML = svg;
-          if (holder.firstElementChild) wrap.appendChild(holder.firstElementChild);
-          svgEl = wrap.querySelector("svg");
+          wrap.appendChild(holder.firstElementChild);
+
+          const svgEl = wrap.querySelector("svg");
+          if (svgEl) {
+            svgEl.addEventListener("dblclick", (e) => { e.preventDefault(); const pz = panZoomInstances.get(wrap); if (pz) pz.zoomIn(); });
+            svgEl.addEventListener("click", (evt) => {
+              const t = evt.target;
+              if (!t) return;
+              const textEl = t.closest && t.closest("text");
+              if (textEl && textEl.textContent) toast(textEl.textContent.trim());
+            });
+          }
         } catch (err) {
-          console.error(err);
-          wrap.insertAdjacentHTML(
-            "beforeend",
-            `<div style="padding:18px;color:#fca5a5;font-size:12px">Mermaid error: ${String(err)}</div>`
-          );
-          continue;
+          console.error("Mermaid render failed for diagram", i, err);
+          wrap.innerHTML = `<div style=\"padding:18px;color:#fca5a5\">Render failed for "${d.title}":<br><pre style=\"font-size:11px;white-space:pre-wrap\">${esc_html(String(err))}</pre></div>`;
         }
 
-        if (!svgEl) {
-          wrap.insertAdjacentHTML(
-            "beforeend",
-            `<div style="padding:18px;color:#fca5a5;font-size:12px">Mermaid produced no SVG output for this diagram.</div>`
-          );
-          continue;
-        }
-
-        svgEl.style.height = "100%";
-        svgEl.style.width = "100%";
-        svgEl.addEventListener("dblclick", (e) => { e.preventDefault(); const pz = panZoomInstances.get(wrap); if (pz) pz.zoomIn(); });
-
-        const pz = svgPanZoom(svgEl, {
-          zoomEnabled: true,
-          controlIconsEnabled: false,
-          fit: true,
-          center: true,
-          minZoom: 0.15,
-          maxZoom: 30,
-          zoomScaleSensitivity: 0.2,
-          dblClickZoomEnabled: false,
-        });
-        panZoomInstances.set(wrap, pz);
-
-        // Lightweight click UX: show node text on click (helps navigation + debugging).
-        svgEl.addEventListener("click", (evt) => {
-          const t = evt.target;
-          if (!t) return;
-          const textEl = t.closest && t.closest("text");
-          if (textEl && textEl.textContent) toast(textEl.textContent.trim());
-        });
       }
 
       setActive(0);
@@ -459,8 +474,8 @@
 
     renderAll().catch((e) => {
       console.error(e);
-      viewerEl.innerHTML = `<div style=\"padding:18px;color:#fca5a5\">Render failed: ${String(e)}</div>`;
+      viewerEl.innerHTML = `<div style=\"padding:18px;color:#fca5a5\">Critical failure: ${String(e)}</div>`;
     });
-</script>
+  </script>
 </body>
 </html>
