@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INPUT_MD="${ROOT_DIR}/PROJECT_FLOWCHART.md"
+INPUT_MD="${ROOT_DIR}/docs/PROJECT_FLOWCHART.md"
 OUTPUT_HTML="${ROOT_DIR}/docs/flowchart.html"
 
 mkdir -p "${ROOT_DIR}/docs"
