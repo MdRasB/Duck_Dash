@@ -22,7 +22,7 @@ public abstract class Food {
                 double extraSpeed,
                 double displayHeight) {
 
-        this.speed = worldSpeed; // Ignore extraSpeed for stationary items
+        this.speed = worldSpeed + extraSpeed; // Ignore extraSpeed for stationary items
 
         view = new ImageView();
         view.setFitHeight(displayHeight);

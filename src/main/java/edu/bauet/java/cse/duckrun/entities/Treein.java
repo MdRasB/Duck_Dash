@@ -2,16 +2,16 @@ package edu.bauet.java.cse.duckrun.entities;
 
 import edu.bauet.java.cse.duckrun.utils.AssetLoader; // Import AssetLoader
 
-public class Bottle extends Obstacle {
+public class Treein extends Obstacle {
 
-    public Bottle(double startX, double startY, double worldSpeed) {
+    public Treein(double startX, double startY, double worldSpeed) {
         super(startX, startY-65, worldSpeed, 0.0, 70); // extraSpeed and displayHeight are passed to Obstacle constructor
 
         // Load and set the image for the bottle
-        view.setImage(AssetLoader.getImage("/images/obstacles/bottle.png"));
+        view.setImage(AssetLoader.getImage("/images/obstacles/plant2.png"));
         view.setFitHeight(100);
         view.setPreserveRatio(true);
-        view.setLayoutY(-35);
+        view.setLayoutY(-25);
     }
 
     // You can override hitbox shrinking methods here if needed for specific bottle hitbox

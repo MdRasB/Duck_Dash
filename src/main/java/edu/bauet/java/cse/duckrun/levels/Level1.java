@@ -47,7 +47,7 @@ public class Level1 extends Level {
 
     @Override
     public Food spawnFood(double spawnX) {
-        return new Bread(spawnX, groundY, getWorldSpeed());
+        return new Cockroach(spawnX, groundY, getWorldSpeed());
     }
 
     @Override

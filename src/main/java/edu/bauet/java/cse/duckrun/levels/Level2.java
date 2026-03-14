@@ -1,6 +1,7 @@
 package edu.bauet.java.cse.duckrun.levels;
 
 import edu.bauet.java.cse.duckrun.entities.*;
+import java.util.Random;
 
 public class Level2 extends Level {
 
@@ -10,6 +11,8 @@ public class Level2 extends Level {
     private static final double DUCK_JUMP_SPEED        = 820;               // px/sec — moderate pace
     private static final double DUCK_FALL_SPEED        = 420;               // px/sec
     private static final String BACKGROUND_PATH        = "/images/backgrounds/level2.png";
+
+    private static final Random RANDOM = new Random();
 
     public Level2(double groundY) {
         super(groundY);
@@ -42,16 +45,21 @@ public class Level2 extends Level {
 
     @Override
     public Enemy spawnEnemy(double spawnX) {
-        return new Cat(spawnX, groundY, getWorldSpeed());
+        // Level 2 — Cat and Eagle spawn with equal probability
+        if (RANDOM.nextBoolean()) {
+            return new Cat(spawnX, groundY, getWorldSpeed());
+        } else {
+            return new Eagle(spawnX, groundY, getWorldSpeed());
+        }
     }
 
     @Override
     public Food spawnFood(double spawnX) {
-        return new Bread(spawnX, groundY, getWorldSpeed());
+        return new Worm(spawnX, groundY, getWorldSpeed());
     }
 
     @Override
     public Obstacle spawnObstacle(double spawnX) {
-        return new Bottle(spawnX, groundY, getWorldSpeed());
+        return new Treeout(spawnX, groundY, getWorldSpeed());
     }
 }

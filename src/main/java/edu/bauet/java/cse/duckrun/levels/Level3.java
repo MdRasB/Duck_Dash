@@ -52,6 +52,6 @@ public class Level3 extends Level {
 
     @Override
     public Obstacle spawnObstacle(double spawnX) {
-        return new Bottle(spawnX, groundY, getWorldSpeed());
+        return new Treein(spawnX, groundY, getWorldSpeed());
     }
 }
