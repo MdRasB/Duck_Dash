@@ -91,7 +91,7 @@ flowchart TD
   %% ===========================
 
   A["AnimationTimer.handle(now)"] --> B{First frame?}
-  B -- yes --> C[Store lastFrameTime\nreturn]
+  B -- yes --> C["Store lastFrameTime\nreturn"]
   B -- no --> D["Compute deltaTime: now-last/1e9"]
   D --> E{isPaused?}
   E -- yes --> Z[Skip updates]
@@ -106,9 +106,9 @@ flowchart TD
   L -- no --> N[Next frame]
 
   %% Enemies
-  subgraph EN[Enemy update + collision]
+  subgraph EN ["Enemy update + collision"]
     E1["Enemy.update - move left + animate + hitbox"] --> E2{Off-screen?}
-    E2 -- yes --> E3[Remove from scene + list]
+    E2 -- yes --> E3["Remove from scene + list"]
     E2 -- no --> E4{Collides with Duck\nand not already collided?}
     E4 -- yes --> E5["duck.hit()\nHealthBar--\nSleepBar--\nTime +5s"]
     E5 --> E6{HealthBar dead?}
@@ -118,18 +118,18 @@ flowchart TD
   end
 
   %% Foods
-  subgraph FO[Food update + collision]
+  subgraph FO ["Food update + collision"]
     F1["Food.update - move left + hitbox"] --> F2{Off-screen?}
-    F2 -- yes --> F3[Remove from scene + list]
+    F2 -- yes --> F3["Remove from scene + list"]
     F2 -- no --> F4{Collides with Duck?}
     F4 -- yes --> F5["Deactivate food\nHealthBar++ (if not full)\nSleepBar++\nduck.powerUp()\nTime +10s"]
     F4 -- no --> F6[Continue]
   end
 
   %% Obstacles
-  subgraph OB[Obstacle update + collision]
+  subgraph OB ["Obstacle update + collision"]
     O1["Obstacle.update - move left + hitbox"] --> O2{Off-screen?}
-    O2 -- yes --> O3[Remove from scene + list]
+    O2 -- yes --> O3["Remove from scene + list"]
     O2 -- no --> O4{Collides with Duck\nand not already collided?}
     O4 -- yes --> O5["duck.hit()\nHealthBar--\nSleepBar--\nTime +5s"]
     O5 --> O6{HealthBar dead?}
@@ -138,9 +138,23 @@ flowchart TD
     O4 -- no --> O7
   end
 
-  I --> EN
-  J --> FO
-  K --> OB
+  %% Connect the main pipeline to concrete nodes inside subgraphs.
+  %% (Linking to the subgraph id itself can render blank in Mermaid v10+.)
+  I --> E1
+  J --> F1
+  K --> O1
+
+  %% Color theme (so this diagram matches the styled Runtime Workflow)
+  classDef core fill:#163a24,stroke:#34d399,color:#ffffff;
+  classDef ui fill:#0b2a3a,stroke:#60a5fa,color:#ffffff;
+  classDef decision fill:#3a2a0b,stroke:#fbbf24,color:#ffffff;
+  classDef loop fill:#1f2a44,stroke:#93c5fd,color:#ffffff;
+  classDef remove fill:#111827,stroke:#64748b,color:#e5e7eb;
+
+  class A,D,F,G,H,I,J,K,N core;
+  class C,Z,M,E3,F3,O3 remove;
+  class B,E,L,E2,E4,E6,F2,F4,O2,O4,O6 decision;
+  class E1,E5,E7,F1,F5,F6,O1,O5,O7 ui;
 ```
 
 ## Code/Package Architecture (How Modules Connect)
@@ -151,36 +165,36 @@ flowchart LR
   %% Package architecture
   %% =====================
 
-  subgraph APP[edu.bauet.java.cse.duckrun]
+  subgraph APP ["edu.bauet.java.cse.duckrun"]
     MainApp["MainApp\n(JavaFX Application)"]
   end
 
-  subgraph SCENES[scenes]
+  subgraph SCENES ["scenes"]
     StoryScene["StoryScene\n(intro video)"]
     MenuScene["MenuScene\n(main menu + overlays)"]
     GameScene["GameScene\n(gameplay + loop)"]
   end
 
-  subgraph LEVELS[levels]
+  subgraph LEVELS ["levels"]
     Level["Level (abstract)\nbackground/speed/spawn*()"]
     Level1["Level1\n(Cat/Bread/Bottle)"]
   end
 
-  subgraph ENT[entities]
+  subgraph ENT ["entities"]
     Duck["Duck (player)"]
     Enemy["Enemy (abstract)"]
     Food["Food (abstract)"]
     Obstacle["Obstacle (abstract)"]
-    Cat[Cat : Enemy]
-    Eagle[Eagle : Enemy]
-    Bread[Bread : Food]
-    Worm[Worm : Food]
-    Bottle[Bottle : Obstacle]
-    Chair[Chair : Obstacle]
-    Tree[Tree : Obstacle]
+    Cat["Cat : Enemy"]
+    Eagle["Eagle : Enemy"]
+    Bread["Bread : Food"]
+    Worm["Worm : Food"]
+    Bottle["Bottle : Obstacle"]
+    Chair["Chair : Obstacle"]
+    Tree["Tree : Obstacle"]
   end
 
-  subgraph UI[ui]
+  subgraph UI ["ui"]
     PauseMenu[PauseMenu]
     SettingsMenu[SettingsMenu]
     HealthBar[HealthBar]
@@ -189,17 +203,17 @@ flowchart LR
     HighScoreMenu[HighScoreMenu]
   end
 
-  subgraph UTIL[utils]
+  subgraph UTIL ["utils"]
     AssetLoader["AssetLoader\n(cache + preload)"]
     CollisionUtil["CollisionUtil\n(Bounds.intersects)"]
     TimeUtil["TimeUtil\n(Timeline timer)"]
   end
 
-  subgraph RES[resources]
+  subgraph RES ["resources"]
     Images["images/\n(backgrounds, enemies, ui)"]
     Fonts["fonts/\n(PressStart2P, Jersey20)"]
     CSS["styles/\n(menu, pause, settings)"]
-    Video[Story/opening.mp4]
+    Video["Story/opening.mp4"]
   end
 
   %% Entry + navigation
@@ -249,13 +263,22 @@ flowchart LR
   StoryScene --> Video
   AssetLoader --> Images
   AssetLoader --> Video
-  UI --> CSS
 
-  classDef pkg fill:#111827,stroke:#111827,color:#fff;
-  classDef cls fill:#0b2a3a,stroke:#0b2a3a,color:#fff;
-  classDef res fill:#2b2b2b,stroke:#2b2b2b,color:#fff;
-  class APP,SCENES,LEVELS,ENT,UI,UTIL,RES pkg;
-  class MainApp,StoryScene,MenuScene,GameScene,Level,Level1,Duck,Enemy,Food,Obstacle,Cat,Eagle,Bread,Worm,Bottle,Chair,Tree,PauseMenu,SettingsMenu,HealthBar,SleepBar,LevelMenu,HighScoreMenu,AssetLoader,CollisionUtil,TimeUtil cls;
+  %% Color theme (explicit classes so this isn’t monochrome)
+  classDef app fill:#163a24,stroke:#34d399,color:#ffffff;
+  classDef scenes fill:#0b2a3a,stroke:#60a5fa,color:#ffffff;
+  classDef levels fill:#1f2a44,stroke:#93c5fd,color:#ffffff;
+  classDef entities fill:#0f172a,stroke:#a78bfa,color:#ffffff;
+  classDef ui fill:#2a1b3d,stroke:#c084fc,color:#ffffff;
+  classDef util fill:#3a2a0b,stroke:#fbbf24,color:#ffffff;
+  classDef res fill:#2b2b2b,stroke:#fb923c,color:#ffffff;
+
+  class MainApp app;
+  class StoryScene,MenuScene,GameScene scenes;
+  class Level,Level1 levels;
+  class Duck,Enemy,Food,Obstacle,Cat,Eagle,Bread,Worm,Bottle,Chair,Tree entities;
+  class PauseMenu,SettingsMenu,HealthBar,SleepBar,LevelMenu,HighScoreMenu ui;
+  class AssetLoader,CollisionUtil,TimeUtil util;
   class Images,Fonts,CSS,Video res;
 ```
 

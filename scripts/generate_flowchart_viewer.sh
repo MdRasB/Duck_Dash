@@ -16,6 +16,10 @@ awk -v OUTPUT_HTML="${OUTPUT_HTML}" '
     return t
   }
 
+  # Normalize Windows CRLF -> LF so we never emit raw \r into JS string literals
+  # (a raw carriage return inside a quoted JS string is a syntax error).
+  { sub(/\r$/, "", $0) }
+
   BEGIN {
     heading = "Flowchart"
     in_mermaid = 0
@@ -104,7 +108,14 @@ awk -v OUTPUT_HTML="${OUTPUT_HTML}" '
     in_mermaid = 0
     block_count++
     title = heading
-    gsub(/\"/, "\\\"", title)
+    # Escape quotes for JS string literal
+    gsub(/"/, "\\\"", title)
+    
+    # Escape special characters for JS template literal in block
+    gsub(/\\/, "\\\\", block)
+    gsub(/`/, "\\`", block)
+    gsub(/\$/, "\\$", block)
+
     print "    DIAGRAMS.push({ title: \"" title "\", code: `" block "` });" >> OUTPUT_HTML
     next
   }
@@ -129,7 +140,8 @@ awk -v OUTPUT_HTML="${OUTPUT_HTML}" '
     print "        lineColor: \"#93c5fd\"," >> OUTPUT_HTML
     print "        edgeLabelBackground: \"#0b1220\"" >> OUTPUT_HTML
     print "      }," >> OUTPUT_HTML
-    print "      flowchart: { curve: \"basis\", padding: 8, nodeSpacing: 34, rankSpacing: 44 }" >> OUTPUT_HTML
+    # Use pure SVG text labels to avoid foreignObject/HTML label clipping (last character cut off).
+    print "      flowchart: { curve: \"basis\", padding: 8, nodeSpacing: 34, rankSpacing: 44, htmlLabels: false }" >> OUTPUT_HTML
     print "    });" >> OUTPUT_HTML
     print "" >> OUTPUT_HTML
     print "    const tabsEl = document.getElementById(\"tabs\");" >> OUTPUT_HTML
@@ -149,9 +161,30 @@ awk -v OUTPUT_HTML="${OUTPUT_HTML}" '
     print "      activeIndex = idx;" >> OUTPUT_HTML
     print "      [...tabsEl.querySelectorAll(\".tab\")].forEach((t, i) => t.setAttribute(\"aria-selected\", i === idx ? \"true\" : \"false\"));" >> OUTPUT_HTML
     print "      [...viewerEl.querySelectorAll(\".diagram\")].forEach((p, i) => p.classList.toggle(\"active\", i === idx));" >> OUTPUT_HTML
+    print "      ensurePanZoom(idx);" >> OUTPUT_HTML
     print "      const wrap = viewerEl.querySelector(`.diagram[data-idx=\\\"${idx}\\\"] .svgWrap`);" >> OUTPUT_HTML
-    print "      const pz = panZoomInstances.get(wrap);" >> OUTPUT_HTML
+    print "      const pz = wrap ? panZoomInstances.get(wrap) : null;" >> OUTPUT_HTML
     print "      if (pz) { pz.resize(); pz.fit(); pz.center(); }" >> OUTPUT_HTML
+    print "    }" >> OUTPUT_HTML
+    print "" >> OUTPUT_HTML
+    print "    function ensurePanZoom(idx) {" >> OUTPUT_HTML
+    print "      const wrap = viewerEl.querySelector(`.diagram[data-idx=\\\"${idx}\\\"] .svgWrap`);" >> OUTPUT_HTML
+    print "      if (!wrap || panZoomInstances.has(wrap)) return;" >> OUTPUT_HTML
+    print "      const svgEl = wrap.querySelector(\"svg\");" >> OUTPUT_HTML
+    print "      if (!svgEl) return;" >> OUTPUT_HTML
+    print "      svgEl.style.height = \"100%\";" >> OUTPUT_HTML
+    print "      svgEl.style.width = \"100%\";" >> OUTPUT_HTML
+    print "      const pz = svgPanZoom(svgEl, {" >> OUTPUT_HTML
+    print "        zoomEnabled: true," >> OUTPUT_HTML
+    print "        controlIconsEnabled: false," >> OUTPUT_HTML
+    print "        fit: true," >> OUTPUT_HTML
+    print "        center: true," >> OUTPUT_HTML
+    print "        minZoom: 0.15," >> OUTPUT_HTML
+    print "        maxZoom: 30," >> OUTPUT_HTML
+    print "        zoomScaleSensitivity: 0.2," >> OUTPUT_HTML
+    print "        dblClickZoomEnabled: false," >> OUTPUT_HTML
+    print "      });" >> OUTPUT_HTML
+    print "      panZoomInstances.set(wrap, pz);" >> OUTPUT_HTML
     print "    }" >> OUTPUT_HTML
     print "" >> OUTPUT_HTML
     print "    function currentPanZoom() {" >> OUTPUT_HTML
@@ -188,35 +221,27 @@ awk -v OUTPUT_HTML="${OUTPUT_HTML}" '
     print "        viewerEl.appendChild(panel);" >> OUTPUT_HTML
     print "" >> OUTPUT_HTML
     print "        const id = `duckrun_mermaid_${i}`;" >> OUTPUT_HTML
-    print "        const { svg } = await mermaid.render(id, d.code);" >> OUTPUT_HTML
-    print "        const holder = document.createElement(\"div\");" >> OUTPUT_HTML
-    print "        holder.innerHTML = svg;" >> OUTPUT_HTML
-    print "        wrap.appendChild(holder.firstElementChild);" >> OUTPUT_HTML
+    print "        try {" >> OUTPUT_HTML
+    print "          const { svg } = await mermaid.render(id, d.code);" >> OUTPUT_HTML
+    print "          const holder = document.createElement(\"div\");" >> OUTPUT_HTML
+    print "          holder.innerHTML = svg;" >> OUTPUT_HTML
+    print "          wrap.appendChild(holder.firstElementChild);" >> OUTPUT_HTML
     print "" >> OUTPUT_HTML
-    print "        const svgEl = wrap.querySelector(\"svg\");" >> OUTPUT_HTML
-    print "        svgEl.style.height = \"100%\";" >> OUTPUT_HTML
-    print "        svgEl.style.width = \"100%\";" >> OUTPUT_HTML
-    print "        svgEl.addEventListener(\"dblclick\", (e) => { e.preventDefault(); const pz = panZoomInstances.get(wrap); if (pz) pz.zoomIn(); });" >> OUTPUT_HTML
+    print "          const svgEl = wrap.querySelector(\"svg\");" >> OUTPUT_HTML
+    print "          if (svgEl) {" >> OUTPUT_HTML
+    print "            svgEl.addEventListener(\"dblclick\", (e) => { e.preventDefault(); const pz = panZoomInstances.get(wrap); if (pz) pz.zoomIn(); });" >> OUTPUT_HTML
+    print "            svgEl.addEventListener(\"click\", (evt) => {" >> OUTPUT_HTML
+    print "              const t = evt.target;" >> OUTPUT_HTML
+    print "              if (!t) return;" >> OUTPUT_HTML
+    print "              const textEl = t.closest && t.closest(\"text\");" >> OUTPUT_HTML
+    print "              if (textEl && textEl.textContent) toast(textEl.textContent.trim());" >> OUTPUT_HTML
+    print "            });" >> OUTPUT_HTML
+    print "          }" >> OUTPUT_HTML
+    print "        } catch (err) {" >> OUTPUT_HTML
+    print "          console.error(\"Mermaid render failed for diagram\", i, err);" >> OUTPUT_HTML
+    print "          wrap.innerHTML = `<div style=\\\"padding:18px;color:#fca5a5\\\">Render failed for \"${d.title}\":<br><pre style=\\\"font-size:11px;white-space:pre-wrap\\\">${esc_html(String(err))}</pre></div>`;" >> OUTPUT_HTML
+    print "        }" >> OUTPUT_HTML
     print "" >> OUTPUT_HTML
-    print "        const pz = svgPanZoom(svgEl, {" >> OUTPUT_HTML
-    print "          zoomEnabled: true," >> OUTPUT_HTML
-    print "          controlIconsEnabled: false," >> OUTPUT_HTML
-    print "          fit: true," >> OUTPUT_HTML
-    print "          center: true," >> OUTPUT_HTML
-    print "          minZoom: 0.15," >> OUTPUT_HTML
-    print "          maxZoom: 30," >> OUTPUT_HTML
-    print "          zoomScaleSensitivity: 0.2," >> OUTPUT_HTML
-    print "          dblClickZoomEnabled: false," >> OUTPUT_HTML
-    print "        });" >> OUTPUT_HTML
-    print "        panZoomInstances.set(wrap, pz);" >> OUTPUT_HTML
-    print "" >> OUTPUT_HTML
-    print "        // Lightweight click UX: show node text on click (helps navigation + debugging)." >> OUTPUT_HTML
-    print "        svgEl.addEventListener(\"click\", (evt) => {" >> OUTPUT_HTML
-    print "          const t = evt.target;" >> OUTPUT_HTML
-    print "          if (!t) return;" >> OUTPUT_HTML
-    print "          const textEl = t.closest && t.closest(\"text\");" >> OUTPUT_HTML
-    print "          if (textEl && textEl.textContent) toast(textEl.textContent.trim());" >> OUTPUT_HTML
-    print "        });" >> OUTPUT_HTML
     print "      }" >> OUTPUT_HTML
     print "" >> OUTPUT_HTML
     print "      setActive(0);" >> OUTPUT_HTML
@@ -248,7 +273,7 @@ awk -v OUTPUT_HTML="${OUTPUT_HTML}" '
     print "" >> OUTPUT_HTML
     print "    renderAll().catch((e) => {" >> OUTPUT_HTML
     print "      console.error(e);" >> OUTPUT_HTML
-    print "      viewerEl.innerHTML = `<div style=\\\"padding:18px;color:#fca5a5\\\">Render failed: ${String(e)}</div>`;" >> OUTPUT_HTML
+    print "      viewerEl.innerHTML = `<div style=\\\"padding:18px;color:#fca5a5\\\">Critical failure: ${String(e)}</div>`;" >> OUTPUT_HTML
     print "    });" >> OUTPUT_HTML
     print "  </script>" >> OUTPUT_HTML
     print "</body>" >> OUTPUT_HTML
