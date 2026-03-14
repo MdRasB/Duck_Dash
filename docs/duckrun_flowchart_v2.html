@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>DuckRun — Project Flowchart</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--panel:#0d1220;--border:#1a2840;
+  --cyan:#00d4ff;--orange:#ff6a30;--purple:#9b60f0;
+  --text:#b8c8e0;--muted:#3a5070;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif}
+body{display:flex;flex-direction:column}
+
+/* grid bg */
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:40px 40px;opacity:.18;pointer-events:none;z-index:0}
+
+header{position:relative;z-index:10;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px;
+  background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+.logo{font-size:26px;filter:drop-shadow(0 0 8px var(--orange))}
+.hd{display:flex;flex-direction:column;gap:1px}
+.ht{font-size:15px;font-weight:700;letter-spacing:3px;color:#fff;text-transform:uppercase}
+.hs{font-size:10px;color:var(--cyan);letter-spacing:2px;font-family:monospace}
+.badge{margin-left:auto;font-family:monospace;font-size:10px;
+  background:rgba(0,212,255,.07);color:var(--cyan);
+  border:1px solid rgba(0,212,255,.25);border-radius:4px;padding:4px 10px;letter-spacing:1px}
+
+nav{position:relative;z-index:10;display:flex;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{display:flex;align-items:center;gap:9px;padding:0 22px;height:50px;
+  font-family:monospace;font-size:11px;letter-spacing:1px;color:var(--muted);
+  cursor:pointer;border:none;background:none;border-right:1px solid var(--border);
+  transition:color .2s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:#fff}
+.tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.tab[data-id="runtime"].active::after{background:var(--cyan)}
+.tab[data-id="gameloop"].active::after{background:var(--orange)}
+.tab[data-id="arch"].active::after{background:var(--purple)}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tab[data-id="runtime"] .tdot{background:var(--cyan)}
+.tab[data-id="gameloop"] .tdot{background:var(--orange)}
+.tab[data-id="arch"] .tdot{background:var(--purple)}
+
+.toolbar{position:relative;z-index:10;display:flex;align-items:center;gap:7px;padding:7px 18px;
+  background:rgba(13,18,32,.96);border-bottom:1px solid var(--border);flex-shrink:0}
+.desc{font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;margin-right:4px}
+.tbtn{padding:4px 11px;font-family:monospace;font-size:10px;letter-spacing:.5px;
+  background:rgba(255,255,255,.04);color:var(--text);
+  border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:all .15s}
+.tbtn:hover{background:rgba(255,255,255,.09);color:#fff;border-color:rgba(255,255,255,.15)}
+.sep{width:1px;height:18px;background:var(--border);margin:0 3px}
+.zlbl{font-family:monospace;font-size:10px;color:var(--cyan);min-width:40px;text-align:center}
+
+.legend{margin-left:auto;display:flex;gap:12px;align-items:center}
+.li{display:flex;align-items:center;gap:5px;font-size:9px;font-family:monospace;color:var(--muted);letter-spacing:.5px}
+.ld{width:8px;height:8px;border-radius:2px}
+
+#canvas{flex:1;position:relative;overflow:hidden;cursor:grab}
+#canvas:active{cursor:grabbing}
+.dpanel{display:none;position:absolute;inset:0}
+.dpanel.active{display:block}
+.panlayer{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+
+#minimap{position:fixed;bottom:18px;right:18px;width:130px;height:80px;
+  background:rgba(13,18,32,.92);border:1px solid var(--border);border-radius:5px;overflow:hidden;z-index:100}
+#mmvp{position:absolute;border:1px solid rgba(0,212,255,.4);background:rgba(0,212,255,.06);border-radius:2px;pointer-events:none}
+
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  background:var(--panel);border:1px solid var(--cyan);color:var(--text);
+  padding:7px 18px;border-radius:5px;font-family:monospace;font-size:11px;
+  opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap}
+#toast.show{opacity:1}
+
+.tab{position:relative}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🦆</div>
+  <div class="hd">
+    <div class="ht">DuckRun</div>
+    <div class="hs">// PROJECT ARCHITECTURE · INTERACTIVE FLOWCHART</div>
+  </div>
+  <div class="badge">Maven · JavaFX · edu.bauet</div>
+</header>
+
+<nav>
+  <button class="tab active" data-id="runtime">
+    <span class="tdot"></span>01 · Runtime Workflow
+  </button>
+  <button class="tab" data-id="gameloop">
+    <span class="tdot"></span>02 · Game Loop Detail
+  </button>
+  <button class="tab" data-id="arch">
+    <span class="tdot"></span>03 · Package Architecture
+  </button>
+</nav>
+
+<div class="toolbar">
+  <span class="desc" id="desc">Startup sequence · scene navigation · full game lifecycle</span>
+  <div class="sep"></div>
+  <button class="tbtn" id="zin">＋ Zoom In</button>
+  <button class="tbtn" id="zout">－ Zoom Out</button>
+  <span class="zlbl" id="zlbl">100%</span>
+  <button class="tbtn" id="fit">⊞ Fit</button>
+  <button class="tbtn" id="rst">↺ Reset</button>
+  <div class="sep"></div>
+  <div class="legend">
+    <div class="li"><div class="ld" style="background:#0d2535;border:1px solid #00d4ff"></div>IO</div>
+    <div class="li"><div class="ld" style="background:#0d1e35;border:1px solid #2060a0"></div>Core</div>
+    <div class="li"><div class="ld" style="background:#150d2a;border:1px solid #5030a0"></div>UI/Menu</div>
+    <div class="li"><div class="ld" style="background:#1e1608;border:1px solid #a07020"></div>Decision</div>
+    <div class="li"><div class="ld" style="background:#081830;border:1px solid #1a4090"></div>Loop</div>
+    <div class="li"><div class="ld" style="background:#2a0808;border:1px solid #c03030"></div>Game Over</div>
+    <div class="li"><div class="ld" style="background:#201810;border:1px solid #804020"></div>Stub ⚠</div>
+  </div>
+</div>
+
+<div id="canvas">
+  <div class="dpanel active" id="panel-runtime">
+    <div class="panlayer" id="pl-runtime"><svg id="svg-runtime"></svg></div>
+  </div>
+  <div class="dpanel" id="panel-gameloop">
+    <div class="panlayer" id="pl-gameloop"><svg id="svg-gameloop"></svg></div>
+  </div>
+  <div class="dpanel" id="panel-arch">
+    <div class="panlayer" id="pl-arch"><svg id="svg-arch"></svg></div>
+  </div>
+</div>
+
+<div id="minimap"><div id="mmvp"></div></div>
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// THEMES
+// ═══════════════════════════════════════════
+const T = {
+  io:       {fill:'#0d2535', stroke:'#00d4ff', text:'#80d8f8'},
+  core:     {fill:'#0d1e35', stroke:'#2060a0', text:'#70a8d8'},
+  ui:       {fill:'#150d2a', stroke:'#5030a0', text:'#b888f8'},
+  decision: {fill:'#1e1608', stroke:'#a07020', text:'#d8a840'},
+  loop:     {fill:'#081830', stroke:'#1a4090', text:'#4888e0'},
+  gameover: {fill:'#2a0808', stroke:'#c03030', text:'#f07070'},
+  safe:     {fill:'#081a10', stroke:'#206040', text:'#50c070'},
+  remove:   {fill:'#101028', stroke:'#303080', text:'#7080c0'},
+  entity:   {fill:'#081808', stroke:'#206020', text:'#58b058'},
+  stub:     {fill:'#201810', stroke:'#804020', text:'#d08050'},
+  res:      {fill:'#1a1208', stroke:'#604020', text:'#c09060'},
+  util:     {fill:'#181018', stroke:'#602060', text:'#c060c0'},
+};
+
+const ARROW_DEF = `<defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M1 2L9 5L1 8" fill="none" stroke="#3a6090" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<marker id="ah-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M1 2L9 5L1 8" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<marker id="ah-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M1 2L9 5L1 8" fill="none" stroke="#ff6a30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<marker id="ah-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M1 2L9 5L1 8" fill="none" stroke="#c03030" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<marker id="ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M1 2L9 5L1 8" fill="none" stroke="#206040" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>`;
+
+// ═══════════════════════════════════════════
+// DRAW HELPERS
+// ═══════════════════════════════════════════
+function node(cx, cy, w, h, type, lines) {
+  const t = T[type];
+  const x = cx - w/2, y = cy - h/2;
+  const lh = 14, sy = cy - (lines.length - 1) * lh / 2;
+  const texts = lines.map((l, i) =>
+    `<text x="${cx}" y="${sy + i*lh}" fill="${t.text}" font-size="12" font-family="monospace"
+     text-anchor="middle" dominant-baseline="central">${escHtml(l)}</text>`).join('');
+  return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6"
+    fill="${t.fill}" stroke="${t.stroke}" stroke-width="1.5"/>${texts}</g>`;
+}
+
+function diamond(cx, cy, hw, hh, type, lines) {
+  const t = T[type];
+  const pts = `${cx},${cy-hh} ${cx+hw},${cy} ${cx},${cy+hh} ${cx-hw},${cy}`;
+  const lh = 13, sy = cy - (lines.length - 1) * lh / 2;
+  const texts = lines.map((l, i) =>
+    `<text x="${cx}" y="${sy + i*lh}" fill="${t.text}" font-size="11" font-family="monospace"
+     text-anchor="middle" dominant-baseline="central">${escHtml(l)}</text>`).join('');
+  return `<g><polygon points="${pts}" fill="${t.fill}" stroke="${t.stroke}" stroke-width="1.5"/>${texts}</g>`;
+}
+
+function edge(pts, label='', marker='ah', stroke='#2a5078', dashed=false) {
+  const d = 'M ' + pts.map(([x, y]) => `${x},${y}`).join(' L ');
+  const mid = pts[Math.floor((pts.length - 1) / 2)];
+  const lbl = label ? `<text x="${mid[0]+6}" y="${mid[1]-5}" fill="#5a7898"
+    font-size="10" font-family="monospace">${escHtml(label)}</text>` : '';
+  const dash = dashed ? ' stroke-dasharray="6 4"' : '';
+  return `${lbl}<path d="${d}" fill="none" stroke="${stroke}" stroke-width="1.5"${dash} marker-end="url(#${marker})"/>`;
+}
+
+function label(x, y, text, color='#4a6888', size=10) {
+  return `<text x="${x}" y="${y}" fill="${color}" font-size="${size}" font-family="monospace"
+    text-anchor="middle">${escHtml(text)}</text>`;
+}
+
+function subgraph(x, y, w, h, title, color) {
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10"
+    fill="${color}11" stroke="${color}44" stroke-width="1" stroke-dasharray="6 4"/>
+    <text x="${x+10}" y="${y+18}" fill="${color}99" font-size="11" font-family="monospace">${escHtml(title)}</text>`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function makeSVG(w, h, content) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"
+    style="display:block">${ARROW_DEF}${content}</svg>`;
+}
+
+// ═══════════════════════════════════════════
+// DIAGRAM 1: RUNTIME WORKFLOW
+// ═══════════════════════════════════════════
+function buildRuntime() {
+  const W = 1160, H = 2440;
+  // Column x-centers
+  const MC = 480;   // main column
+  const LC = 220;   // left fork
+  const RC = 740;   // right fork
+  const PC = 980;   // pause branch
+
+  let s = '';
+
+  // ── Main startup chain ──
+  s += node(MC, 60,  240, 44, 'io',   ['🚀 mvn javafx:run']);
+  s += node(MC, 155, 280, 44, 'core', ['JavaFX Maven Plugin → MainApp']);
+  s += node(MC, 250, 220, 44, 'core', ['MainApp.start()']);
+  s += node(MC, 345, 290, 44, 'core', ['AssetLoader.preloadAssets()', '(images cached to HashMap)']);
+  s += node(MC, 460, 270, 44, 'ui',   ['StoryScene.createScene(stage)']);
+
+  // Intro decision
+  s += diamond(MC, 570, 105, 50, 'decision', ['Intro video', 'loads?']);
+
+  // Yes branch (left): media player
+  s += node(LC, 680, 210, 44, 'core', ['MediaPlayer autoplay']);
+  s += diamond(LC, 790, 105, 50, 'decision', ['End of video', 'or SPACE?']);
+
+  // No branch (right): skip
+  s += node(RC, 680, 200, 44, 'core', ['Fallback: skip intro']);
+
+  // Merge → navigate
+  s += node(MC, 920, 290, 44, 'ui', ['StoryScene.navigateToMenu(stage)']);
+  s += node(MC,1015, 270, 44, 'ui', ['MenuScene.createScene()']);
+
+  // Menu action decision
+  s += diamond(MC, 1120, 110, 55, 'decision', ['Menu', 'action']);
+
+  // Side options from menu
+  s += node(175, 1195, 185, 40, 'ui', ['LevelMenu overlay']);
+  s += node(175, 1255, 185, 40, 'ui', ['HighScoreMenu overlay']);
+  s += node(785, 1195, 185, 40, 'ui', ['SettingsMenu overlay']);
+  s += node(785, 1255, 180, 40, 'io', ['Stage.close()']);
+
+  // New Game path
+  s += node(MC, 1245, 250, 44, 'core', ['Create Level1 (groundY config)']);
+  s += node(MC, 1340, 250, 44, 'core', ['new GameScene(level)']);
+  s += node(MC, 1435, 270, 44, 'core', ['GameScene.initialize(backgroundPath)']);
+
+  // Sub-components created during initialize
+  s += subgraph(60, 1485, 800, 54, 'Created during initialize:', '#2060a0');
+  s += node(175, 1512, 165, 34, 'core', ['Scrolling bg']);
+  s += node(355, 1512, 140, 34, 'core', ['Duck entity']);
+  s += node(490, 1512, 200, 34, 'core', ['HUD (Health+Sleep+Timer)']);
+  s += node(680, 1512, 165, 34, 'ui',   ['Pause system']);
+
+  s += node(MC, 1590, 250, 44, 'core', ['Setup keyboard (jump/crouch/pause)']);
+  s += node(MC, 1685, 290, 44, 'core', ['Start: AnimationTimer + TimeUtil.start()']);
+
+  // Game loop
+  s += node(MC, 1805, 250, 50, 'loop', ['▶ Per-frame update', '(if not paused)']);
+
+  // Per-frame sub-updates
+  s += node(285, 1905, 195, 40, 'loop', ['updateBackground(Δt)']);
+  s += node(480, 1905, 195, 40, 'loop', ['duck.update(Δt)']);
+  s += node(675, 1905, 195, 40, 'loop', ['spawnEntities() throttled']);
+  s += node(MC,  1970, 270, 40, 'loop', ['updateEntities · remove off-screen']);
+  s += node(MC,  2030, 250, 40, 'loop', ['Collision: Duck vs Enemy/Food/Obstacle']);
+
+  // Game over decision
+  s += diamond(MC, 2130, 120, 55, 'decision', ['Game over', 'condition?']);
+  s += node(MC, 2270, 280, 50, 'gameover', ['GameScene.gameOver()', '(stop AnimationTimer loop)']);
+
+  // ── PAUSE BRANCH (right side) ──
+  s += node(PC, 1805, 215, 44, 'ui', ['ESC / pause button']);
+  s += diamond(PC, 1910, 100, 50, 'decision', ['Already', 'paused?']);
+  s += node(855, 2030, 230, 50, 'ui', ['Pause: TimeUtil.stop()', 'Show PauseMenu · Hide btn']);
+  s += node(1090, 2030, 175, 44, 'safe', ['Resume: reset', 'frame clock']);
+  s += diamond(855, 2150, 100, 50, 'decision', ['Pause menu', 'action']);
+  s += node(760, 2280, 185, 40, 'ui', ['Restart: reset duck,', 'bg, entities, bars, time']);
+  s += node(955, 2280, 185, 40, 'ui', ['Show SettingsMenu', 'overlay']);
+
+  // ── EDGES ──
+  // Main chain
+  s += edge([[MC,82],[MC,133]]); // start→plugin
+  s += edge([[MC,177],[MC,228]]); // plugin→mainapp
+  s += edge([[MC,272],[MC,323]]); // mainapp→asset
+  s += edge([[MC,367],[MC,438]]); // asset→story
+  s += edge([[MC,482],[MC,520]]); // story→intro?
+
+  // intro? → yes (left)
+  s += edge([[MC-105,570],[LC,570],[LC,658]], 'yes', 'ah-green');
+  // intro? → no (right)
+  s += edge([[MC+105,570],[RC,570],[RC,658]], 'no', 'ah');
+
+  // media → end?
+  s += edge([[LC,702],[LC,740]]);
+  // end? yes → navigate
+  s += edge([[LC,840],[LC,920],[MC-145,920]], 'yes', 'ah-green');
+  // skip → navigate
+  s += edge([[RC,702],[RC,920],[MC+145,920]]);
+
+  // menu chain
+  s += edge([[MC,942],[MC,993]]);
+  s += edge([[MC,1037],[MC,1065]]);
+
+  // action branches
+  s += edge([[MC-110,1120],[175,1120],[175,1175]], 'Levels', 'ah');
+  s += edge([[MC-110,1120],[175,1120],[175,1235]], 'High Score', 'ah');
+  s += edge([[MC+110,1120],[785,1120],[785,1175]], 'Settings', 'ah');
+  s += edge([[MC+110,1120],[785,1120],[785,1235]], 'Exit', 'ah-red');
+  s += edge([[MC,1175],[MC,1223]], 'New Game', 'ah-green');
+
+  // New Game chain
+  s += edge([[MC,1267],[MC,1318]]);
+  s += edge([[MC,1362],[MC,1413]]);
+
+  // init → sub-components
+  s += edge([[MC,1457],[MC,1485],[175,1485],[175,1495]]);
+  s += edge([[MC,1457],[MC,1485],[355,1485],[355,1495]]);
+  s += edge([[MC,1457],[MC,1485],[490,1485],[490,1495]]);
+  s += edge([[MC,1457],[MC,1485],[680,1485],[680,1495]]);
+
+  // sub-components → keyboard
+  s += edge([[175,1529],[175,1590],[MC-125,1590]]);
+  s += edge([[355,1529],[355,1590],[MC-125,1590]]);
+  s += edge([[490,1529],[490,1590],[MC,1590],[MC,1568]]);
+  s += edge([[680,1529],[680,1590],[MC+125,1590]]);
+  s += edge([[MC,1612],[MC,1663]]);
+  s += edge([[MC,1707],[MC,1780]]);
+
+  // per-frame sub-updates fan
+  s += edge([[MC,1830],[MC,1885],[285,1885],[285,1885]]);
+  s += edge([[MC,1830],[MC,1885],[480,1885]]);
+  s += edge([[MC,1830],[MC,1885],[675,1885]]);
+  s += edge([[285,1925],[285,1950],[MC-135,1950]]);
+  s += edge([[480,1925],[480,1950],[MC,1950]]);
+  s += edge([[675,1925],[675,1950],[MC+135,1950]]);
+  s += edge([[MC,1990],[MC,2010]]);
+  s += edge([[MC,2050],[MC,2075]]);
+
+  // game over decision
+  s += edge([[MC,2185],[MC,2245]], 'yes (health=0 or sleep full)', 'ah-red', '#903030');
+  // gameover → back to menu (left sweep)
+  s += edge([[MC-140,2270],[50,2270],[50,1015],[MC-135,1015]], '→ menu', 'ah-cyan', '#00d4ff', true);
+  // no → loop back to per-frame
+  s += edge([[MC-120,2130],[35,2130],[35,1805],[MC-125,1805]], 'no → loop', 'ah-green', '#206040', true);
+
+  // Pause branch edges
+  s += edge([[MC+125,1805],[PC-107,1805]]);
+  s += edge([[PC,1827],[PC,1860]]);
+  // paused? no → pause
+  s += edge([[PC-100,1910],[855,1910],[855,2005]], 'no', 'ah');
+  // paused? yes → resume
+  s += edge([[PC+100,1910],[1090,1910],[1090,2008]], 'yes', 'ah-green');
+
+  // pause menu from PC
+  s += edge([[855,2055],[855,2100]]);
+
+  // pause action branches
+  s += edge([[855-100,2150],[760,2150],[760,2260]], 'Restart', 'ah');
+  s += edge([[855+100,2150],[955,2150],[955,2260]], 'Settings', 'ah');
+  // Resume → back to loop
+  s += edge([[855,2150],[855,2030],[1090,2030],[1090,2052]], 'Resume→', 'ah-green', '#206040');
+  // Resume node → game loop
+  s += edge([[1090,2008],[1090,1805],[MC+125,1830]], '', 'ah-green', '#206040', true);
+  // Exit → back to menu
+  s += edge([[755,2150],[700,2150],[700,1015],[MC+135,1015]], 'Exit', 'ah-red', '#903030', true);
+  // Restart → resume
+  s += edge([[760,2300],[760,2360],[1090,2360],[1090,2074]], '', 'ah');
+  // Settings → pause menu
+  s += edge([[955,2300],[955,2380],[730,2380],[730,2060],[855-115,2060]], '', 'ah');
+
+  return makeSVG(W, H, s);
+}
+
+// ═══════════════════════════════════════════
+// DIAGRAM 2: GAME LOOP DETAIL
+// ═══════════════════════════════════════════
+function buildGameLoop() {
+  const W = 1300, H = 1680;
+  let s = '';
+
+  // ── MAIN FLOW (left column) ──
+  const MC = 200;
+  s += node(MC, 50,  240, 44, 'loop', ['AnimationTimer.handle(now)']);
+  s += diamond(MC, 140, 100, 45, 'decision', ['First', 'frame?']);
+  s += node(MC, 220, 230, 40, 'core', ['Store lastFrameTime → return']);
+  s += node(MC, 300, 250, 44, 'loop', ['Compute deltaTime: (now−last)/1e9']);
+  s += diamond(MC, 390, 90, 40, 'decision', ['isPaused?']);
+  s += node(MC, 460, 180, 36, 'remove', ['⏸ Skip all updates']);
+  s += node(MC, 510, 220, 44, 'loop', ['updateBackground(Δt)']);
+  s += node(MC, 570, 200, 44, 'loop', ['duck.update(Δt)']);
+  s += node(MC, 630, 240, 44, 'loop', ['spawnEntities() throttled + anti-repeat']);
+  s += node(MC, 695, 220, 44, 'loop', ['updateEnemies(Δt)']);
+  s += node(MC, 755, 220, 44, 'loop', ['updateFoods(Δt)']);
+  s += node(MC, 815, 220, 44, 'loop', ['updateObstacles(Δt)']);
+  s += diamond(MC, 905, 110, 50, 'decision', ['SleepBar', 'full?']);
+  s += node(MC, 1010, 200, 44, 'gameover', ['💀 gameOver()']);
+  s += node(MC, 1090, 180, 44, 'safe', ['→ Next frame (loop)']);
+
+  // Main chain edges
+  s += edge([[MC,72],[MC,95]]);
+  s += edge([[MC,185],[MC,208]], 'no', 'ah-green');
+  s += edge([[MC+100,140],[350,140],[350,220],[MC+115,220]], 'yes → store+return', 'ah');
+  s += edge([[MC,232],[MC,278]]);
+  s += edge([[MC,322],[MC,370]]);
+  s += edge([[MC,430],[MC,444]], 'no', 'ah-green');
+  s += edge([[MC-90,390],[60,390],[60,460],[MC-90,460]], 'yes', 'ah');
+  s += edge([[MC,478],[MC,488]]);
+  s += edge([[MC,532],[MC,548]]);
+  s += edge([[MC,592],[MC,608]]);
+  s += edge([[MC,652],[MC,673]]);
+  s += edge([[MC,717],[MC,733]]);
+  s += edge([[MC,777],[MC,793]]);
+  s += edge([[MC,837],[MC,855]]);
+  s += edge([[MC,955],[MC,988]], 'yes', 'ah-red', '#903030');
+  s += edge([[MC+110,905],[350,905],[350,1090],[MC+100,1090]], 'no', 'ah-green');
+
+  // ── ENEMY SUBGRAPH ──
+  const EC = 560;
+  s += subgraph(400, 650, 330, 440, '⚔ Enemy update + collision', '#c03030');
+  s += node(EC, 700, 260, 44, 'loop',     ['Enemy.update(): move left + animate + hitbox']);
+  s += diamond(EC, 790, 95, 40, 'decision', ['Off-', 'screen?']);
+  s += node(EC, 860, 230, 40, 'remove',   ['🗑 Remove from scene + list']);
+  s += diamond(EC, 935, 100, 45, 'decision', ['Collides Duck', '& not collided?']);
+  s += node(EC,1020, 280, 44, 'gameover', ['duck.hit()', 'Health−− Sleep−− Time+5s']);
+  s += diamond(EC,1105, 95, 40, 'decision', ['Health', 'dead?']);
+  s += node(EC+110,1190, 120, 36, 'safe',     ['Continue →']);
+
+  s += edge([[MC,695],[400,695],[EC-130,695]]);
+  s += edge([[EC,722],[EC,770]]);
+  s += edge([[EC,830],[EC,848]], 'no', 'ah-green');
+  s += edge([[EC+95,790],[615,790],[615,860],[EC+115,860]], 'yes', 'ah');
+  s += edge([[EC,880],[EC,890]]);
+  s += edge([[EC,980],[EC,998]], 'yes', 'ah-red', '#903030');
+  s += edge([[EC-100,935],[430,935],[430,1190],[EC-30,1190]], 'no', 'ah-green');
+  s += edge([[EC,1042],[EC,1065]]);
+  s += edge([[EC,1145],[EC,1010]], 'yes→gameOver', 'ah-red', '#903030');
+  s += edge([[EC+95,1105],[670,1105],[670,1190],[EC+60,1190]], 'no', 'ah-green');
+
+  // ── FOOD SUBGRAPH ──
+  const FC = 870;
+  s += subgraph(720, 650, 290, 440, '🍞 Food update + collision', '#206040');
+  s += node(FC, 700, 240, 44, 'loop',     ['Food.update(): move left + hitbox']);
+  s += diamond(FC, 790, 90, 40, 'decision', ['Off-', 'screen?']);
+  s += node(FC, 860, 220, 40, 'remove',   ['🗑 Remove from scene + list']);
+  s += diamond(FC, 940, 95, 45, 'decision', ['Collides', 'with Duck?']);
+  s += node(FC,1040, 290, 44, 'safe',     ['Deactivate food', 'Health++ Sleep++ Time+10s', 'duck.powerUp()']);
+  s += node(FC+80,1160, 110, 36, 'safe',    ['Continue →']);
+
+  s += edge([[MC,755],[720,755],[FC-120,755]]);
+  s += edge([[FC,722],[FC,770]]);
+  s += edge([[FC,830],[FC,848]], 'no', 'ah-green');
+  s += edge([[FC+90,790],[1000,790],[1000,860],[FC+110,860]], 'yes', 'ah');
+  s += edge([[FC,880],[FC,895]]);
+  s += edge([[FC,985],[FC,1018]], 'yes', 'ah-green');
+  s += edge([[FC-95,940],[750,940],[750,1160],[FC-20,1160]], 'no', 'ah-green');
+  s += edge([[FC,1160+20],[FC,1160+20]]);
+
+  // ── OBSTACLE SUBGRAPH ──
+  const OC = 1140;
+  s += subgraph(1010, 650, 290, 440, '🪑 Obstacle update + collision', '#a07020');
+  s += node(OC, 700, 240, 44, 'loop',     ['Obstacle.update(): move left + hitbox']);
+  s += diamond(OC, 790, 90, 40, 'decision', ['Off-', 'screen?']);
+  s += node(OC, 860, 220, 40, 'remove',   ['🗑 Remove from scene + list']);
+  s += diamond(OC, 940, 100, 45, 'decision', ['Collides Duck', '& not collided?']);
+  s += node(OC,1035, 280, 44, 'gameover', ['duck.hit()', 'Health−− Sleep−− Time+5s']);
+  s += diamond(OC,1115, 90, 40, 'decision', ['Health', 'dead?']);
+  s += node(OC+85,1190, 110, 36, 'safe',    ['Continue →']);
+
+  s += edge([[MC,815],[1010,815],[OC-120,815]]);
+  s += edge([[OC,722],[OC,770]]);
+  s += edge([[OC,830],[OC,848]], 'no', 'ah-green');
+  s += edge([[OC+90,790],[1270,790],[1270,860],[OC+115,860]], 'yes', 'ah');
+  s += edge([[OC,880],[OC,895]]);
+  s += edge([[OC,985],[OC,1013]], 'yes', 'ah-red', '#903030');
+  s += edge([[OC-100,940],[1040,940],[1040,1190],[OC-25,1190]], 'no', 'ah-green');
+  s += edge([[OC,1057],[OC,1075]]);
+  s += edge([[OC,1155],[OC,1035]], 'yes→gameOver', 'ah-red', '#903030');
+  s += edge([[OC+90,1115],[1250,1115],[1250,1190],[OC+90,1190]], 'no', 'ah-green');
+
+  // gameOver connections from subgraphs
+  s += edge([[EC,1010+22],[EC,1010+22]]);
+
+  return makeSVG(W, H, s);
+}
+
+// ═══════════════════════════════════════════
+// DIAGRAM 3: PACKAGE ARCHITECTURE
+// ═══════════════════════════════════════════
+function buildArch() {
+  const W = 2100, H = 900;
+  let s = '';
+
+  // Column x-positions (left edges of groups)
+  // APP: x=40, SCENES: x=260, LEVELS+ENT: x=540, UI: x=830, UTIL: x=1100, RES: x=1380
+
+  // ── APP PACKAGE ──
+  s += subgraph(30, 60, 180, 80, '📦 Main App', '#00d4ff');
+  s += node(120, 110, 150, 44, 'io', ['MainApp', 'JavaFX Application']);
+
+  // ── SCENES PACKAGE ──
+  s += subgraph(230, 40, 200, 300, '🎬 scenes', '#9b60f0');
+  s += node(330, 100, 175, 44, 'ui', ['StoryScene', 'intro video']);
+  s += node(330, 175, 175, 44, 'ui', ['MenuScene', 'main menu + overlays']);
+  s += node(330, 255, 175, 44, 'ui', ['GameScene', 'gameplay + loop']);
+
+  // ── LEVELS PACKAGE ──
+  s += subgraph(450, 40, 195, 155, '🗺 levels', '#2060a0');
+  s += node(548, 90, 168, 44, 'core', ['Level (abstract)', 'bg / speed / spawn()']);
+  s += node(548, 165, 168, 44, 'core', ['Level1', 'Cat · Bread · Bottle']);
+
+  // ── ENTITIES PACKAGE ──
+  s += subgraph(450, 220, 340, 500, '🐾 entities', '#206020');
+  s += node(548, 275, 160, 40, 'entity',  ['Duck 🦆', 'player']);
+  s += node(548, 330, 160, 40, 'entity',  ['Enemy (abstract)']);
+  s += node(548, 385, 160, 40, 'entity',  ['Food (abstract)']);
+  s += node(548, 440, 160, 40, 'entity',  ['Obstacle (abstract)']);
+  s += node(700, 310, 80,  36, 'entity',  ['Cat']);
+  s += node(700, 358, 80,  36, 'stub',    ['Eagle ⚠']);
+  s += node(700, 406, 80,  36, 'entity',  ['Bread']);
+  s += node(700, 454, 80,  36, 'stub',    ['Worm ⚠']);
+  s += node(700, 502, 80,  36, 'entity',  ['Bottle']);
+  s += node(700, 550, 80,  36, 'stub',    ['Chair ⚠']);
+  s += node(700, 598, 80,  36, 'stub',    ['Tree ⚠']);
+
+  // ── UI PACKAGE ──
+  s += subgraph(810, 40, 200, 480, '🖥 ui', '#2060a0');
+  s += node(910, 90,  175, 38, 'ui', ['PauseMenu']);
+  s += node(910, 140, 175, 38, 'ui', ['SettingsMenu']);
+  s += node(910, 190, 175, 38, 'ui', ['HealthBar']);
+  s += node(910, 240, 175, 38, 'ui', ['SleepBar']);
+  s += node(910, 290, 175, 38, 'ui', ['LevelMenu']);
+  s += node(910, 340, 175, 38, 'ui', ['HighScoreMenu']);
+
+  // ── UTILS PACKAGE ──
+  s += subgraph(810, 540, 200, 210, '🛠 utils', '#602060');
+  s += node(910, 595, 175, 40, 'util', ['AssetLoader', 'cache + preload']);
+  s += node(910, 650, 175, 40, 'util', ['CollisionUtil', 'Bounds.intersects()']);
+  s += node(910, 705, 175, 40, 'util', ['TimeUtil', 'Timeline timer']);
+
+  // ── RESOURCES ──
+  s += subgraph(1040, 40, 210, 480, '📁 resources', '#604020');
+  s += node(1145, 90,  180, 38, 'res', ['images/', 'backgrounds · enemies · ui']);
+  s += node(1145, 140, 180, 38, 'res', ['fonts/', 'PressStart2P · Jersey20']);
+  s += node(1145, 190, 180, 38, 'res', ['styles/', 'menu · pause · settings CSS']);
+  s += node(1145, 240, 180, 38, 'res', ['Story/opening.mp4']);
+
+  // STUB LEGEND
+  s += node(1145, 350, 180, 60, 'stub', ['⚠ Stub entities', 'Not spawned by Level1:', 'Eagle/Worm/Chair/Tree']);
+
+  // ── ARROWS ──
+  const ec = '#2a5078'; // default edge color
+  const pu = '#5030a0'; // purple for UI
+  const gr = '#206040'; // green for entities
+
+  // MainApp → AssetLoader
+  s += edge([[120,132],[120,595],[823,595]], '', 'ah', ec);
+  // MainApp → StoryScene
+  s += edge([[195,110],[330,100]], '', 'ah', ec);
+  // StoryScene → MenuScene
+  s += edge([[330,122],[330,153]], '', 'ah', pu);
+  // MenuScene → GameScene
+  s += edge([[330,197],[330,233]], '', 'ah', pu);
+  // MenuScene → SettingsMenu
+  s += edge([[418,175],[823,140]], '', 'ah', pu);
+  // MenuScene → LevelMenu
+  s += edge([[418,175],[823,290]], '', 'ah', pu);
+  // MenuScene → HighScoreMenu
+  s += edge([[418,175],[823,340]], '', 'ah', pu);
+  // GameScene → Duck
+  s += edge([[418,255],[463,275]], '', 'ah', gr);
+  // GameScene → Level
+  s += edge([[418,240],[463,90]], '', 'ah', ec);
+  // Level1 → Level (inheritance)
+  s += edge([[548,143],[548,112]], '', 'ah', ec);
+  // GameScene → Enemy/Food/Obstacle
+  s += edge([[418,255],[463,330]], '', 'ah', gr);
+  s += edge([[418,255],[463,385]], '', 'ah', gr);
+  s += edge([[418,255],[463,440]], '', 'ah', gr);
+  // GameScene → PauseMenu/SettingsMenu
+  s += edge([[418,255],[823,90]], '', 'ah', pu);
+  // GameScene → HealthBar/SleepBar
+  s += edge([[418,260],[823,190]], '', 'ah', pu);
+  s += edge([[418,260],[823,240]], '', 'ah', pu);
+  // GameScene → CollisionUtil/TimeUtil
+  s += edge([[418,265],[823,650]], '', 'ah', '#602060');
+  s += edge([[418,265],[823,705]], '', 'ah', '#602060');
+  // Level1 → Cat, Bread, Bottle
+  s += edge([[548,187],[700,310]], '', 'ah', gr);
+  s += edge([[548,187],[700,406]], '', 'ah', gr);
+  s += edge([[548,187],[700,502]], '', 'ah', gr);
+  // Cat→Enemy, Eagle→Enemy, etc.
+  s += edge([[660,310],[548+80,330]], '', 'ah', gr);
+  s += edge([[660,358],[548+80,330]], '', 'ah', '#804020');
+  s += edge([[660,406],[548+80,385]], '', 'ah', gr);
+  s += edge([[660,454],[548+80,385]], '', 'ah', '#804020');
+  s += edge([[660,502],[548+80,440]], '', 'ah', gr);
+  s += edge([[660,550],[548+80,440]], '', 'ah', '#804020');
+  s += edge([[660,598],[548+80,440]], '', 'ah', '#804020');
+  // Asset usage
+  s += edge([[628,330],[910,595]], '', 'ah', '#602060');
+  s += edge([[628,385],[910,595]], '', 'ah', '#602060');
+  s += edge([[628,440],[910,595]], '', 'ah', '#602060');
+  s += edge([[628,275],[910,595]], '', 'ah', '#602060');
+  // Resources
+  s += edge([[910,595],[1040,90]], '', 'ah', '#604020');
+  s += edge([[910,140],[1040,190]], '', 'ah', '#604020');
+  s += edge([[910,90],[1040,90]], '', 'ah', '#604020');
+  s += edge([[330,100],[1040,240]], '', 'ah', '#604020');
+
+  return makeSVG(W, H, s);
+}
+
+// ═══════════════════════════════════════════
+// STATE + CONTROL
+// ═══════════════════════════════════════════
+const state = {
+  tab: 'runtime',
+  zoom: {runtime:1, gameloop:1, arch:1},
+  pan:  {runtime:{x:20,y:20}, gameloop:{x:20,y:20}, arch:{x:20,y:20}},
+  drag: false, lm: {x:0, y:0}
+};
+
+const DESCS = {
+  runtime:  'Startup sequence · scene navigation · full game lifecycle',
+  gameloop: 'Per-frame update · entity spawning · collision outcomes',
+  arch:     'Package structure · module dependencies · resource flow'
+};
+
+// Render diagrams
+document.getElementById('svg-runtime').outerHTML  = buildRuntime();
+document.getElementById('svg-gameloop').outerHTML = buildGameLoop();
+document.getElementById('svg-arch').outerHTML     = buildArch();
+
+function applyTransform(id) {
+  const pl = document.getElementById('pl-' + id);
+  if (!pl) return;
+  const {x, y} = state.pan[id];
+  const z = state.zoom[id];
+  pl.style.transform = `translate(${x}px,${y}px) scale(${z})`;
+  if (id === state.tab) {
+    document.getElementById('zlbl').textContent = Math.round(z * 100) + '%';
+    updateMinimap();
+  }
+}
+
+function fitView(id) {
+  const pl = document.getElementById('pl-' + id);
+  const panel = document.getElementById('panel-' + id);
+  if (!pl || !panel) return;
+  const svg = pl.querySelector('svg');
+  if (!svg) return;
+  const pw = panel.clientWidth, ph = panel.clientHeight;
+  const sw = svg.getAttribute('width')*1 || svg.clientWidth;
+  const sh = svg.getAttribute('height')*1 || svg.clientHeight;
+  const z = Math.min((pw - 40) / sw, (ph - 40) / sh, 1.5) * 0.92;
+  state.zoom[id] = z;
+  state.pan[id] = { x: (pw - sw * z) / 2, y: (ph - sh * z) / 2 };
+  applyTransform(id);
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const id = tab.dataset.id;
+    state.tab = id;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.dpanel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    document.getElementById('desc').textContent = DESCS[id];
+    applyTransform(id);
+  });
+});
+
+// Zoom buttons
+document.getElementById('zin').onclick  = () => { const id=state.tab; state.zoom[id]=Math.min(state.zoom[id]*1.25,6); applyTransform(id); };
+document.getElementById('zout').onclick = () => { const id=state.tab; state.zoom[id]=Math.max(state.zoom[id]/1.25,.08); applyTransform(id); };
+document.getElementById('fit').onclick  = () => fitView(state.tab);
+document.getElementById('rst').onclick  = () => { state.zoom[state.tab]=1; state.pan[state.tab]={x:20,y:20}; applyTransform(state.tab); };
+
+// Mouse wheel zoom
+const canvas = document.getElementById('canvas');
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const id = state.tab;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const delta = e.deltaY < 0 ? 1.12 : 0.89;
+  const nz = Math.max(.08, Math.min(6, state.zoom[id] * delta));
+  const ratio = nz / state.zoom[id];
+  state.pan[id].x = mx - ratio * (mx - state.pan[id].x);
+  state.pan[id].y = my - ratio * (my - state.pan[id].y);
+  state.zoom[id] = nz;
+  applyTransform(id);
+}, {passive: false});
+
+// Pan drag
+canvas.addEventListener('mousedown', e => {
+  if (e.button !== 0) return;
+  state.drag = true;
+  state.lm = {x: e.clientX, y: e.clientY};
+  canvas.style.cursor = 'grabbing';
+});
+window.addEventListener('mousemove', e => {
+  if (!state.drag) return;
+  const dx = e.clientX - state.lm.x, dy = e.clientY - state.lm.y;
+  state.lm = {x: e.clientX, y: e.clientY};
+  const id = state.tab;
+  state.pan[id].x += dx;
+  state.pan[id].y += dy;
+  applyTransform(id);
+});
+window.addEventListener('mouseup', () => { state.drag = false; canvas.style.cursor = 'grab'; });
+
+// Keyboard
+window.addEventListener('keydown', e => {
+  const id = state.tab;
+  if (e.key === '=' || e.key === '+') { state.zoom[id] = Math.min(state.zoom[id]*1.2,6); applyTransform(id); }
+  if (e.key === '-')                  { state.zoom[id] = Math.max(state.zoom[id]/1.2,.08); applyTransform(id); }
+  if (e.key === '0' || e.key === 'f') fitView(id);
+  if (e.key === '1') document.querySelector('[data-id="runtime"]').click();
+  if (e.key === '2') document.querySelector('[data-id="gameloop"]').click();
+  if (e.key === '3') document.querySelector('[data-id="arch"]').click();
+});
+
+// Minimap
+function updateMinimap() {
+  const id = state.tab;
+  const pl = document.getElementById('pl-' + id);
+  const panel = document.getElementById('panel-' + id);
+  if (!pl || !panel) return;
+  const svg = pl.querySelector('svg');
+  if (!svg) return;
+  const mm = document.getElementById('minimap');
+  const mmvp = document.getElementById('mmvp');
+  const mw = mm.clientWidth, mh = mm.clientHeight;
+  const sw = svg.getAttribute('width')*1 || 1200;
+  const sh = svg.getAttribute('height')*1 || 1600;
+  const pw = panel.clientWidth, ph = panel.clientHeight;
+  const scaleX = mw / (sw * state.zoom[id]);
+  const scaleY = mh / (sh * state.zoom[id]);
+  const sc = Math.min(scaleX, scaleY);
+  const vpW = Math.max(20, Math.min(pw * sc, mw));
+  const vpH = Math.max(10, Math.min(ph * sc, mh));
+  mmvp.style.width  = vpW + 'px';
+  mmvp.style.height = vpH + 'px';
+  mmvp.style.left   = Math.max(0, Math.min(-state.pan[id].x * sc, mw - vpW)) + 'px';
+  mmvp.style.top    = Math.max(0, Math.min(-state.pan[id].y * sc, mh - vpH)) + 'px';
+}
+
+// Toast
+const toast = document.getElementById('toast');
+let toastT;
+function showToast(msg, ms=2800) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => toast.classList.remove('show'), ms);
+}
+
+// Init: fit all diagrams, then toast
+window.addEventListener('load', () => {
+  ['runtime','gameloop','arch'].forEach(id => fitView(id));
+  showToast('🦆 Scroll to zoom · Drag to pan · Keys 1 2 3 switch tabs');
+});
+</script>
+</body>
+</html>
