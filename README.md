@@ -82,6 +82,17 @@ src/main/java/edu/bauet/java/cse/duckrun/
 
 ---
 
+## 🧭 Interactive Flowchart
+
+The full project flow is documented in `PROJECT_FLOWCHART.md`, and can be viewed interactively (pan/zoom + export) here:
+
+- `docs/duckrun_flowchart_v2.html` (generated from `PROJECT_FLOWCHART.md`)
+- Regenerate anytime: `scripts/generate_flowchart_viewer.sh`
+- See the flowchart : [Flowchart](https://rawcdn.githack.com/MdRasB/2D_Duck_in_Bauet/refs/heads/r_flow/docs/duckrun_flowchart_v2.html)
+
+
+---
+
 ## 🖼️ Screenshots
 
 ### Main Menu
