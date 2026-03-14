@@ -82,6 +82,15 @@ src/main/java/edu/bauet/java/cse/duckrun/
 
 ---
 
+## 🧭 Interactive Flowchart
+
+The full project flow is documented in `PROJECT_FLOWCHART.md`, and can be viewed interactively (pan/zoom + export) here:
+
+- `docs/flowchart.html` (generated from `PROJECT_FLOWCHART.md`)
+- Regenerate anytime: `scripts/generate_flowchart_viewer.sh`
+
+---
+
 ## 🖼️ Screenshots
 
 ### Main Menu
