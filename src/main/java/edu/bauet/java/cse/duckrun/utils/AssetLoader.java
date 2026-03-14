@@ -156,6 +156,8 @@ public final class AssetLoader {
             "/images/pause_menu/settings_menu_frame.png",
 
             "/images/backgrounds/level1.png",
+            "/images/backgrounds/level2.png",
+            "/images/backgrounds/level3.png",
 
             "/images/ui/duck_emoji.png",
             "/images/ui/hall_background.png",

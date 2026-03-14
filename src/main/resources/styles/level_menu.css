@@ -15,6 +15,47 @@
     -fx-text-fill: #ab691e;
 }
 
+/* ── Level Select Buttons ── */
+.level-select-button {
+    -fx-background-color: #F4EBD0;
+    -fx-border-color: #C67F2F;
+    -fx-border-width: 4px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-pref-width: 340px;
+    -fx-pref-height: 72px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.4), 0, 0, 4, 3);
+}
+
+.level-select-button:hover {
+    -fx-background-color: #FFF5DC;
+    -fx-scale-x: 1.06;
+    -fx-scale-y: 1.06;
+    -fx-effect: dropshadow(two-pass-box, rgba(198,127,47,0.6), 0, 0, 8, 4);
+}
+
+.level-select-button:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+/* Title text inside the level button */
+.level-btn-title {
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 18px;
+    -fx-text-fill: #ab691e;
+    -fx-effect: dropshadow(one-pass-box, black, 0, 0, 1, 1);
+}
+
+/* Subtitle text inside the level button */
+.level-btn-sub {
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 10px;
+    -fx-text-fill: #c8893a;
+}
+
+/* ── Close Button ── */
 .level-close {
     -fx-background-color: transparent;
     -fx-font-family: "Press Start 2P";
@@ -30,10 +71,4 @@
 .level-close:hover {
     -fx-font-size: 36px;
     -fx-text-fill: #C67F2F;
-}
-
-/* Additional hover effects for interactive elements */
-.level-close:hover,
-.music-toggle:hover {
-    -fx-cursor: hand;
 }
