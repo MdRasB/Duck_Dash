@@ -1,7 +1,6 @@
 package edu.bauet.java.cse.duckrun.utils;
 
 import javafx.scene.image.Image;
-import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 
 import java.io.InputStream;
@@ -15,65 +14,95 @@ public final class AssetLoader {
 
     private static final Logger LOGGER = Logger.getLogger(AssetLoader.class.getName());
     private static final boolean FAIL_FAST = false;
+
     private static final Map<String, Image> imageCache = new HashMap<>();
     private static final Map<String, Media> videoCache = new HashMap<>();
 
-    private AssetLoader() {}
 
     public static Media loadVideo(String resourcePath) {
+
         if (videoCache.containsKey(resourcePath)) {
             return videoCache.get(resourcePath);
         }
+
         try {
-            var resource = AssetLoader.class.getResource(resourcePath);
-            if (resource == null) {
-                throw new RuntimeException("Video file not found at: " + resourcePath);
+
+            URL url = AssetLoader.class.getResource(resourcePath);
+
+            if (url == null) {
+                System.out.println("VIDEO NOT FOUND: " + resourcePath);
+                return null;
             }
-            Media media = new Media(resource.toExternalForm());
+
+            Media media = new Media(url.toExternalForm());
+
             videoCache.put(resourcePath, media);
+
             return media;
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
+
     public static Image getImage(String path) {
+
         if (imageCache.containsKey(path)) {
             return imageCache.get(path);
         }
+
         Image image = loadImageInternal(path);
         imageCache.put(path, image);
+
         return image;
     }
 
+
     private static Image loadImageInternal(String path) {
+
         try (InputStream stream = AssetLoader.class.getResourceAsStream(path)) {
+
             if (stream == null) {
                 return handleMissingImage(path);
             }
+
             return new Image(stream);
+
         } catch (Exception e) {
+
             LOGGER.log(Level.SEVERE, "Error loading image: " + path, e);
             return handleMissingImage(path);
         }
     }
 
+
     private static Image handleMissingImage(String path) {
+
         String message = "Image not found: " + path;
+
         if (FAIL_FAST) {
             throw new RuntimeException(message);
         }
+
         LOGGER.warning(message + " | Using placeholder image.");
+
         return createPlaceholderImage();
     }
 
+
     private static Image createPlaceholderImage() {
-        return new Image("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
+
+        return new Image(
+                "data:image/png;base64,"
+                        + "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+        );
     }
 
+
     private static final String[] PRELOAD_IMAGE_PATHS = {
-            // Duck
+
             "/images/duck/running.png",
             "/images/duck/running_mid_point.png",
             "/images/duck/running_sleepy.png",
@@ -88,10 +117,10 @@ public final class AssetLoader {
             "/images/duck/victory.png",
             "/images/duck/sleeping.png",
             "/images/duck/base_duck.png",
-            // Shadow
+
             "/images/shadow/Shadow(normal).png",
             "/images/shadow/Shadow(small).png",
-            // Enemies
+
             "/images/enemies/Worm.png",
             "/images/enemies/Bread.png",
             "/images/enemies/Cockroach.png",
@@ -101,23 +130,23 @@ public final class AssetLoader {
             "/images/enemies/Cat_state_2.png",
             "/images/enemies/Eagle_state_1.png",
             "/images/enemies/Eagle_state_2.png",
-            // Game Over
+
             "/images/game_over/game_over_cat.png",
             "/images/game_over/game_over_bump.png",
             "/images/game_over/game_over_eagle.png",
             "/images/game_over/game_over_caught.png",
-            // Indicator
+
             "/images/indicator/heart_full.png",
             "/images/indicator/heart_empty.png",
             "/images/indicator/sleep_bar_full.png",
             "/images/indicator/sleep_bar_empty.png",
-            // Obstacles
+
             "/images/obstacles/bottle.png",
             "/images/obstacles/plant 1.png",
             "/images/obstacles/plant 2.png",
             "/images/obstacles/Chair_wood.png",
             "/images/obstacles/chair_black.png",
-            // Pause Menu
+
             "/images/pause_menu/exit_button.png",
             "/images/pause_menu/play_button.png",
             "/images/pause_menu/pause_button.png",
@@ -125,24 +154,31 @@ public final class AssetLoader {
             "/images/pause_menu/settings_button.png",
             "/images/pause_menu/pause_menu_frame.png",
             "/images/pause_menu/settings_menu_frame.png",
-            // Backgrounds
+
             "/images/backgrounds/level1.png",
-            // UI
+
             "/images/ui/duck_emoji.png",
             "/images/ui/hall_background.png",
             "/images/ui/hall_ui_1200x600.png"
     };
 
+
     public static void preloadAssets() {
+
         LOGGER.info("Preloading image assets...");
+
         for (String path : PRELOAD_IMAGE_PATHS) {
             getImage(path);
         }
+
         LOGGER.info("Image preloading complete.");
     }
 
+
     public static void clearAll() {
+
         imageCache.clear();
+
         LOGGER.info("Image cache cleared.");
     }
 }
