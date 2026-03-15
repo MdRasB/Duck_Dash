@@ -49,4 +49,8 @@ public class TimeUtil {
         currentTimeSeconds = 0;
         updateTimeProperty();
     }
+
+    public int getElapsedSeconds() {
+        return currentTimeSeconds;
+    }
 }

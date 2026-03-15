@@ -10,6 +10,7 @@ import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import edu.bauet.java.cse.duckrun.utils.CollisionUtil;
 import edu.bauet.java.cse.duckrun.ui.HealthBar;
 import edu.bauet.java.cse.duckrun.utils.TimeUtil;
+import edu.bauet.java.cse.duckrun.utils.HighScoreManager;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -612,6 +613,16 @@ public class GameScene {
         if (gameLoop != null) {
             gameLoop.stop();
             gameLoop = null;
+        }
+
+        // Save best time for this level
+        int elapsed = timeUtil.getElapsedSeconds();
+        if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level1) {
+            HighScoreManager.submitLevel1(elapsed);
+        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level2) {
+            HighScoreManager.submitLevel2(elapsed);
+        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level3) {
+            HighScoreManager.submitLevel3(elapsed);
         }
 
         // Clear remaining entities

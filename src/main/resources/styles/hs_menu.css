@@ -15,6 +15,54 @@
     -fx-text-fill: #ab691e;
 }
 
+/* ── Tab Buttons ── */
+.hs-tab-button {
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 14px;
+    -fx-pref-width: 160px;
+    -fx-pref-height: 44px;
+    -fx-background-color: #d4c9a8;
+    -fx-border-color: #C67F2F;
+    -fx-border-width: 3px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-text-fill: #8b551f;
+    -fx-cursor: hand;
+}
+
+.hs-tab-button.hs-tab-active {
+    -fx-background-color: #F4EBD0;
+    -fx-text-fill: #ab691e;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.3), 0, 0, 2, 2);
+}
+
+.hs-tab-button:hover {
+    -fx-background-color: #FFF5DC;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ── Score Rows ── */
+.hs-row-label {
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 16px;
+    -fx-text-fill: #ab691e;
+}
+
+.hs-row-dots {
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 14px;
+    -fx-text-fill: #c8893a;
+}
+
+.hs-row-time {
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 16px;
+    -fx-text-fill: #AE6819;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1);
+}
+
+/* ── Close Button ── */
 .hs-close {
     -fx-background-color: transparent;
     -fx-font-family: "Press Start 2P";
@@ -30,10 +78,4 @@
 .hs-close:hover {
     -fx-font-size: 36px;
     -fx-text-fill: #C67F2F;
-}
-
-/* Additional hover effects for interactive elements */
-.hs-close:hover,
-.music-toggle:hover {
-    -fx-cursor: hand;
 }
