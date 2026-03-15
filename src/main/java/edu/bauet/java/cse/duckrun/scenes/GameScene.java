@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -27,10 +28,12 @@ import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
@@ -489,80 +492,77 @@ public class GameScene {
     }
 
     private void showGameOverScreen(String imagePath) {
-        // ── 1. Full-screen black background ─────────────────────────────────
-        Image blackBg = AssetLoader.getImage("/images/game_over/black.png");
-        ImageView blackScreen = new ImageView(blackBg);
-        blackScreen.setFitWidth(MainApp.WINDOW_WIDTH);
-        blackScreen.setFitHeight(MainApp.WINDOW_HEIGHT);
-        blackScreen.setPreserveRatio(false);
+        // 1. Full-screen background image (e.g., your black.png or a darkened version)
+        javafx.scene.shape.Rectangle darkOverlay = new javafx.scene.shape.Rectangle(
+                MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT, Color.rgb(0, 0, 0, 0.8)
+        );
 
-        // ── 2. Death image (sleeping duck or game-over sprite) ───────────────
-        Image deathImg = AssetLoader.getImage(imagePath);
-        ImageView deathView = new ImageView(deathImg);
-        deathView.setFitHeight(200);
-        deathView.setPreserveRatio(true);
-        deathView.setLayoutX((MainApp.WINDOW_WIDTH - 200) / 2.0);
-        deathView.setLayoutY(MainApp.WINDOW_HEIGHT / 2.0 - 30);
+        // 2. The Frame Container
+        StackPane frameContainer = new StackPane();
+        frameContainer.getStyleClass().add("game-over-frame-container");
 
-        // ── 3. "GAME OVER" label ─────────────────────────────────────────────
+        // Using the game_over_frame.png you uploaded
+        ImageView frameView = new ImageView(AssetLoader.getImage("/images/game_over/game_over_frame.png"));
+        frameView.setFitWidth(750); // Slightly larger to give the content room to breathe
+        frameView.setPreserveRatio(true);
+
+        // 3. Content Layout (Vertical Box)
+        VBox contentLayout = new VBox(25);
+        contentLayout.setAlignment(javafx.geometry.Pos.CENTER);
+
+        // Title with CSS styling
         Label gameOverLabel = new Label("GAME OVER");
-        try {
-            Font pixelFont = Font.loadFont(
-                    getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"), 48);
-            gameOverLabel.setFont(pixelFont != null ? pixelFont : Font.font("Arial", 48));
-        } catch (Exception e) {
-            gameOverLabel.setFont(Font.font("Arial", 48));
-        }
-        gameOverLabel.setTextFill(Color.web("#AE6819"));
-        DropShadow shadow = new DropShadow();
-        shadow.setBlurType(BlurType.ONE_PASS_BOX);
-        shadow.setColor(Color.BLACK);
-        shadow.setRadius(4);
-        shadow.setSpread(2);
-        gameOverLabel.setEffect(shadow);
-        gameOverLabel.setPrefWidth(MainApp.WINDOW_WIDTH);
-        gameOverLabel.setAlignment(javafx.geometry.Pos.CENTER);
-        gameOverLabel.setLayoutX(0);
-        gameOverLabel.setLayoutY(MainApp.WINDOW_HEIGHT / 2.0 - 140);
+        gameOverLabel.getStyleClass().add("game-over-title");
 
-        // ── 4. Restart button ────────────────────────────────────────────────
-        Image restartImg = AssetLoader.getImage("/images/pause_menu/restart_button.png");
-        ImageView restartIcon = new ImageView(restartImg);
-        restartIcon.setFitWidth(100);
-        restartIcon.setPreserveRatio(true);
+        // Death Image (dynamically chosen based on cause)
+        ImageView deathView = new ImageView(AssetLoader.getImage(imagePath));
+        deathView.setFitHeight(180);
+        deathView.setPreserveRatio(true);
+
+        // Buttons Row
+        HBox buttonRow = new HBox(50);
+        buttonRow.setAlignment(Pos.CENTER);
 
         Button restartBtn = new Button();
-        restartBtn.setGraphic(restartIcon);
-        restartBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;");
+        restartBtn.setGraphic(createButtonIcon("/images/pause_menu/restart_button.png"));
+        restartBtn.getStyleClass().add("game-over-button");
         restartBtn.setOnAction(e -> {
             GameScene fresh = new GameScene(currentLevel);
             MainApp.switchScene(fresh.getScene());
         });
 
-        // ── 5. Exit button ───────────────────────────────────────────────────
-        Image exitImg = AssetLoader.getImage("/images/pause_menu/exit_button.png");
-        ImageView exitIcon = new ImageView(exitImg);
-        exitIcon.setFitWidth(100);
-        exitIcon.setPreserveRatio(true);
-
         Button exitBtn = new Button();
-        exitBtn.setGraphic(exitIcon);
-        exitBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;");
+        exitBtn.setGraphic(createButtonIcon("/images/pause_menu/exit_button.png"));
+        exitBtn.getStyleClass().add("game-over-button");
         exitBtn.setOnAction(e -> exitToMenu());
 
-        // ── 6. Button row centred below the image ────────────────────────────
-        javafx.scene.layout.HBox buttonRow = new javafx.scene.layout.HBox(60, restartBtn, exitBtn);
-        buttonRow.setAlignment(javafx.geometry.Pos.CENTER);
-        buttonRow.setPrefWidth(MainApp.WINDOW_WIDTH);
-        buttonRow.setLayoutX(0);
-        buttonRow.setLayoutY(MainApp.WINDOW_HEIGHT / 2.0 + 160);
+        buttonRow.getChildren().addAll(restartBtn, exitBtn);
+        contentLayout.getChildren().addAll(gameOverLabel, deathView, buttonRow);
 
-        // ── 7. Layer on top ──────────────────────────────────────────────────
-        root.getChildren().addAll(blackScreen, deathView, gameOverLabel, buttonRow);
-        blackScreen.toFront();
-        deathView.toFront();
-        gameOverLabel.toFront();
-        buttonRow.toFront();
+        // Add frame and content to the stack
+        frameContainer.getChildren().addAll(frameView, contentLayout);
+
+        // Position the frame in the center of the screen
+        // Using StackPane's layout properties or centering it manually:
+        frameContainer.setTranslateX((MainApp.WINDOW_WIDTH - 750) / 2.0);
+        frameContainer.setTranslateY((MainApp.WINDOW_HEIGHT - 480) / 2.0);
+
+        // 4. Final assembly
+        root.getChildren().addAll(darkOverlay, frameContainer);
+
+        // Load the CSS if it's not present
+        String css = Objects.requireNonNull(getClass().getResource("/styles/game_over.css")).toExternalForm();
+        if (!scene.getStylesheets().contains(css)) {
+            scene.getStylesheets().add(css);
+        }
+    }
+
+    // Helper to keep code clean
+    private ImageView createButtonIcon(String path) {
+        ImageView iv = new ImageView(AssetLoader.getImage(path));
+        iv.setFitWidth(100);
+        iv.setPreserveRatio(true);
+        return iv;
     }
 
     private void openSettings() {

@@ -1,0 +1,28 @@
+.game-over-title {
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 40px;
+    -fx-text-fill: #AE6819;
+    -fx-effect: dropshadow(one-pass-box, black, 2, 0, 2, 2);
+}
+
+.game-over-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-transition: 0.2s;
+    -fx-translate-y: -20px;
+}
+
+.game-over-button:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.game-over-button:pressed {
+    -fx-scale-x: 0.9;
+    -fx-scale-y: 0.9;
+}
+
+/*container glow*/
+/*.game-over-frame-container {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 30, 0.5, 0, 0);
+}*/
