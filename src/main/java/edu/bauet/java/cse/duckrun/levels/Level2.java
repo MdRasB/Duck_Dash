@@ -6,7 +6,7 @@ import java.util.Random;
 public class Level2 extends Level {
 
     // --- Level-specific configuration ---
-    private static final double LEVEL_SPEED            = 7.0;
+    private static final double LEVEL_SPEED            = 7.5;
     private static final double BACKGROUND_SCROLL_SPEED = LEVEL_SPEED * 60; // 420 px/sec
     private static final double DUCK_JUMP_SPEED        = 820;               // px/sec — moderate pace
     private static final double DUCK_FALL_SPEED        = 420;               // px/sec

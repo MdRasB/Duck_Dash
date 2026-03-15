@@ -9,9 +9,9 @@ public class Bottle extends Obstacle {
 
         // Load and set the image for the bottle
         view.setImage(AssetLoader.getImage("/images/obstacles/bottle.png"));
-        view.setFitHeight(100);
+        view.setFitHeight(120);
         view.setPreserveRatio(true);
-        view.setLayoutY(-35);
+        view.setLayoutY(-55);
     }
 
     // You can override hitbox shrinking methods here if needed for specific bottle hitbox
