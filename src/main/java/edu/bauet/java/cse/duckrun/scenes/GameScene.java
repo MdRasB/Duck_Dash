@@ -258,9 +258,9 @@ public class GameScene {
         if (spawnHistory.size() == 2 && spawnHistory.get(0).equals(spawnHistory.get(1))) {
             int lastSpawnedType = spawnHistory.get(0);
             List<Integer> possibleTypes = IntStream.range(0, 3)
-                                                   .filter(i -> i != lastSpawnedType)
-                                                   .boxed()
-                                                   .collect(Collectors.toList());
+                    .filter(i -> i != lastSpawnedType)
+                    .boxed()
+                    .collect(Collectors.toList());
             entityType = possibleTypes.get(random.nextInt(possibleTypes.size()));
         } else {
             entityType = random.nextInt(3);
@@ -457,11 +457,97 @@ public class GameScene {
     private void gameOver() {
         if (gameLoop == null) return;
 
-        System.out.println("GAME OVER");
         gameLoop.stop();
         gameLoop = null;
+        timeUtil.stop();
 
-        exitToMenu();
+        if (sleepBar.isFull()) {
+            showSleepGameOver();
+        } else {
+            exitToMenu();
+        }
+    }
+
+    private void showSleepGameOver() {
+        // ── 1. Full-screen black level1 background ──────────────────────────
+        Image blackBg = AssetLoader.getImage("/images/game_over/black.png");
+        ImageView blackScreen = new ImageView(blackBg);
+        blackScreen.setFitWidth(MainApp.WINDOW_WIDTH);
+        blackScreen.setFitHeight(MainApp.WINDOW_HEIGHT);
+        blackScreen.setPreserveRatio(false);
+
+        // ── 2. Sleeping duck ────────────────────────────────────────────────
+        Image sleepImg = AssetLoader.getImage("/images/duck/sleeping.png");
+        ImageView sleepingDuck = new ImageView(sleepImg);
+        sleepingDuck.setFitHeight(200);
+        sleepingDuck.setPreserveRatio(true);
+        // Centre horizontally, centre-ish vertically
+        // We'll centre it after the image loads; 160px height → approx 200px wide
+        sleepingDuck.setLayoutX((MainApp.WINDOW_WIDTH - 200) / 2.0);
+        sleepingDuck.setLayoutY(MainApp.WINDOW_HEIGHT / 2.0 - 30);
+
+        // ── 3. "GAME OVER" label ─────────────────────────────────────────────
+        Label gameOverLabel = new Label("GAME OVER");
+        try {
+            Font pixelFont = Font.loadFont(
+                    getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"), 48);
+            gameOverLabel.setFont(pixelFont != null ? pixelFont : Font.font("Arial", 48));
+        } catch (Exception e) {
+            gameOverLabel.setFont(Font.font("Arial", 48));
+        }
+        gameOverLabel.setTextFill(Color.web("#AE6819"));
+        DropShadow shadow = new DropShadow();
+        shadow.setBlurType(BlurType.ONE_PASS_BOX);
+        shadow.setColor(Color.BLACK);
+        shadow.setRadius(4);
+        shadow.setSpread(2);
+        gameOverLabel.setEffect(shadow);
+        gameOverLabel.setPrefWidth(MainApp.WINDOW_WIDTH);
+        gameOverLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        gameOverLabel.setLayoutX(0);
+        gameOverLabel.setLayoutY(MainApp.WINDOW_HEIGHT / 2.0 - 140);
+
+        // ── 4. Restart button ────────────────────────────────────────────────
+        Image restartImg = AssetLoader.getImage("/images/pause_menu/restart_button.png");
+        ImageView restartIcon = new ImageView(restartImg);
+        restartIcon.setFitWidth(100);
+        restartIcon.setPreserveRatio(true);
+
+        Button restartBtn = new Button();
+        restartBtn.setGraphic(restartIcon);
+        restartBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;");
+        restartBtn.setOnAction(e -> {
+            // Rebuild the game scene for the same level from scratch
+            GameScene fresh = new GameScene(currentLevel);
+            MainApp.switchScene(fresh.getScene());
+        });
+
+        // ── 5. Exit button ───────────────────────────────────────────────────
+        Image exitImg = AssetLoader.getImage("/images/pause_menu/exit_button.png");
+        ImageView exitIcon = new ImageView(exitImg);
+        exitIcon.setFitWidth(100);
+        exitIcon.setPreserveRatio(true);
+
+        Button exitBtn = new Button();
+        exitBtn.setGraphic(exitIcon);
+        exitBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;");
+        exitBtn.setOnAction(e -> exitToMenu());
+
+        // ── 6. HBox for the two buttons, centred below the duck ──────────────
+        javafx.scene.layout.HBox buttonRow = new javafx.scene.layout.HBox(60, restartBtn, exitBtn);
+        buttonRow.setAlignment(javafx.geometry.Pos.CENTER);
+        buttonRow.setPrefWidth(MainApp.WINDOW_WIDTH);
+        buttonRow.setLayoutX(0);
+        buttonRow.setLayoutY(MainApp.WINDOW_HEIGHT / 2.0 + 160);
+
+        // ── 7. Layer everything on top of the game root ──────────────────────
+        root.getChildren().addAll(blackScreen, sleepingDuck, gameOverLabel, buttonRow);
+
+        // Make sure the overlay is on top
+        blackScreen.toFront();
+        sleepingDuck.toFront();
+        gameOverLabel.toFront();
+        buttonRow.toFront();
     }
 
     private void openSettings() {
