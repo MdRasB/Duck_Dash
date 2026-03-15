@@ -398,6 +398,7 @@ public class GameScene {
                 lastFrameTime = now;
 
                 if (!isPaused) {
+                    duck.setSleepy(!sleepBar.isEmpty());
                     updateBackground(deltaTime);
                     duck.update(deltaTime);
                     spawnEntities(now);
@@ -460,6 +461,7 @@ public class GameScene {
         nextSpawnTime = 0;
         healthBar.reset();
         sleepBar.reset();
+        duck.setSleepy(false);
         timeUtil.reset();
         spawnHistory.clear();
     }

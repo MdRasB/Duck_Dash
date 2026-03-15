@@ -57,6 +57,10 @@ public class SleepBar {
         return currentSegments >= maxSegments;
     }
 
+    public boolean isEmpty() {
+        return currentSegments <= 0;
+    }
+
     public HBox getView() {
         return container;
     }

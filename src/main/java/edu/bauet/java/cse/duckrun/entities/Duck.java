@@ -30,6 +30,15 @@ public class Duck {
     private final Image normalShadowImage;
     private final Image jumpShadowImage;
 
+    // Sleepy variants — used when the sleep bar has any segments filled
+    private final Image runningImageSleepy;
+    private final Image runningMidPointImageSleepy;
+    private final Image duckingImageSleepy;
+    private final Image duckingMidPointImageSleepy;
+    private final Image jumpingImageSleepy;
+
+    private boolean sleepy = false;
+
     private final double groundLine;
 
     public static boolean jumping = false;
@@ -62,6 +71,12 @@ public class Duck {
         duckingImage        = AssetLoader.getImage("/images/duck/ducking.png");
         duckingMidPointImage = AssetLoader.getImage("/images/duck/ducking_mid_point.png");
         jumpingImage        = AssetLoader.getImage("/images/duck/jumping.png");
+
+        runningImageSleepy        = AssetLoader.getImage("/images/duck/running_sleepy.png");
+        runningMidPointImageSleepy = AssetLoader.getImage("/images/duck/running_mid_point_sleepy.png");
+        duckingImageSleepy        = AssetLoader.getImage("/images/duck/ducking_sleepy.png");
+        duckingMidPointImageSleepy = AssetLoader.getImage("/images/duck/ducking_mid_point_sleepy.png");
+        jumpingImageSleepy        = AssetLoader.getImage("/images/duck/jumping_sleepy.png");
 
         normalShadowImage = AssetLoader.getImage("/images/shadow/Shadow(normal).png");
         jumpShadowImage   = AssetLoader.getImage("/images/shadow/Shadow(small).png");
@@ -106,6 +121,14 @@ public class Duck {
         this.fallSpeed = fallSpeed;
     }
 
+    /**
+     * Called by GameScene whenever the sleep bar changes.
+     * When true, the duck uses drowsy sprite variants.
+     */
+    public void setSleepy(boolean sleepy) {
+        this.sleepy = sleepy;
+    }
+
     // ------------------------------------------------------------------
 
     public void update(double deltaTime) {
@@ -129,12 +152,12 @@ public class Duck {
         }
 
         if (goingUp) {
-            duckView.setImage(runningImage);
+            duckView.setImage(sleepy ? runningImageSleepy : runningImage);
             duckView.setLayoutY(duckView.getLayoutY() - jumpSpeed * deltaTime);
             if (duckView.getLayoutY() <= maxY) {
                 goingUp = false;
                 comingDown = true;
-                duckView.setImage(jumpingImage);
+                duckView.setImage(sleepy ? jumpingImageSleepy : jumpingImage);
             }
         } else if (comingDown) {
             duckView.setLayoutY(duckView.getLayoutY() + fallSpeed * deltaTime);
@@ -158,10 +181,14 @@ public class Duck {
         }
 
         if (crouching && !jumping) {
-            duckView.setImage(toggleFrame ? duckingImage : duckingMidPointImage);
+            duckView.setImage(toggleFrame
+                    ? (sleepy ? duckingImageSleepy        : duckingImage)
+                    : (sleepy ? duckingMidPointImageSleepy : duckingMidPointImage));
             duckView.setLayoutY(groundLine - DISPLAY_HEIGHT + 20);
         } else if (!jumping) {
-            duckView.setImage(toggleFrame ? runningImage : runningMidPointImage);
+            duckView.setImage(toggleFrame
+                    ? (sleepy ? runningImageSleepy        : runningImage)
+                    : (sleepy ? runningMidPointImageSleepy : runningMidPointImage));
             duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
         }
     }
