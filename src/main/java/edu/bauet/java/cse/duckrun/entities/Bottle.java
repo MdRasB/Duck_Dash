@@ -22,7 +22,7 @@ public class Bottle extends Obstacle {
 
     @Override
     protected double getHitboxShrinkYTop() {
-        return 0.05; // Example: shrink 5% from top
+        return 0.08; // Example: shrink 5% from top
     }
 
     @Override
