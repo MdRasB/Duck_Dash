@@ -70,6 +70,10 @@ public class GameScene {
 
     private long lastFrameTime = 0;
 
+    // Tracks what killed the duck — set just before calling gameOver()
+    private enum DeathCause { SLEEP, OBSTACLE, CAT, BOY, EAGLE }
+    private DeathCause deathCause = null;
+
     public GameScene(Level level) {
         this.currentLevel = level;
         // Pull the background scroll speed from the level instead of computing
@@ -325,6 +329,10 @@ public class GameScene {
                 sleepBar.decreaseSegment();
                 timeUtil.increaseTime(5);
                 if (healthBar.isDead()) {
+                    if (enemy instanceof Cat)   deathCause = DeathCause.CAT;
+                    else if (enemy instanceof Eagle) deathCause = DeathCause.EAGLE;
+                    else if (enemy instanceof Boy)   deathCause = DeathCause.BOY;
+                    else                             deathCause = DeathCause.CAT; // fallback
                     gameOver();
                 }
             }
@@ -370,6 +378,7 @@ public class GameScene {
                 sleepBar.decreaseSegment();
                 timeUtil.increaseTime(5);
                 if (healthBar.isDead()) {
+                    deathCause = DeathCause.OBSTACLE;
                     gameOver();
                 }
             }
@@ -397,6 +406,7 @@ public class GameScene {
                     updateObstacles(deltaTime);
 
                     if (sleepBar.isFull()) {
+                        deathCause = DeathCause.SLEEP;
                         gameOver();
                     }
                 }
@@ -461,30 +471,36 @@ public class GameScene {
         gameLoop = null;
         timeUtil.stop();
 
-        if (sleepBar.isFull()) {
-            showSleepGameOver();
+        if (deathCause == DeathCause.SLEEP) {
+            showGameOverScreen("/images/duck/sleeping.png");
+        } else if (deathCause == DeathCause.OBSTACLE) {
+            showGameOverScreen("/images/game_over/game_over_bump.png");
+        } else if (deathCause == DeathCause.CAT) {
+            showGameOverScreen("/images/game_over/game_over_cat.png");
+        } else if (deathCause == DeathCause.BOY) {
+            showGameOverScreen("/images/game_over/game_over_caught.png");
+        } else if (deathCause == DeathCause.EAGLE) {
+            showGameOverScreen("/images/game_over/game_over_eagle.png");
         } else {
-            exitToMenu();
+            exitToMenu(); // fallback, should never happen
         }
     }
 
-    private void showSleepGameOver() {
-        // ── 1. Full-screen black level1 background ──────────────────────────
-        Image blackBg = AssetLoader.getImage("/images/game_over/black.png");
+    private void showGameOverScreen(String imagePath) {
+        // ── 1. Full-screen black background ─────────────────────────────────
+        Image blackBg = AssetLoader.getImage("/images/game_over/black.png.png");
         ImageView blackScreen = new ImageView(blackBg);
         blackScreen.setFitWidth(MainApp.WINDOW_WIDTH);
         blackScreen.setFitHeight(MainApp.WINDOW_HEIGHT);
         blackScreen.setPreserveRatio(false);
 
-        // ── 2. Sleeping duck ────────────────────────────────────────────────
-        Image sleepImg = AssetLoader.getImage("/images/duck/sleeping.png");
-        ImageView sleepingDuck = new ImageView(sleepImg);
-        sleepingDuck.setFitHeight(200);
-        sleepingDuck.setPreserveRatio(true);
-        // Centre horizontally, centre-ish vertically
-        // We'll centre it after the image loads; 160px height → approx 200px wide
-        sleepingDuck.setLayoutX((MainApp.WINDOW_WIDTH - 200) / 2.0);
-        sleepingDuck.setLayoutY(MainApp.WINDOW_HEIGHT / 2.0 - 30);
+        // ── 2. Death image (sleeping duck or game-over sprite) ───────────────
+        Image deathImg = AssetLoader.getImage(imagePath);
+        ImageView deathView = new ImageView(deathImg);
+        deathView.setFitHeight(200);
+        deathView.setPreserveRatio(true);
+        deathView.setLayoutX((MainApp.WINDOW_WIDTH - 200) / 2.0);
+        deathView.setLayoutY(MainApp.WINDOW_HEIGHT / 2.0 - 30);
 
         // ── 3. "GAME OVER" label ─────────────────────────────────────────────
         Label gameOverLabel = new Label("GAME OVER");
@@ -517,7 +533,6 @@ public class GameScene {
         restartBtn.setGraphic(restartIcon);
         restartBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;");
         restartBtn.setOnAction(e -> {
-            // Rebuild the game scene for the same level from scratch
             GameScene fresh = new GameScene(currentLevel);
             MainApp.switchScene(fresh.getScene());
         });
@@ -533,19 +548,17 @@ public class GameScene {
         exitBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;");
         exitBtn.setOnAction(e -> exitToMenu());
 
-        // ── 6. HBox for the two buttons, centred below the duck ──────────────
+        // ── 6. Button row centred below the image ────────────────────────────
         javafx.scene.layout.HBox buttonRow = new javafx.scene.layout.HBox(60, restartBtn, exitBtn);
         buttonRow.setAlignment(javafx.geometry.Pos.CENTER);
         buttonRow.setPrefWidth(MainApp.WINDOW_WIDTH);
         buttonRow.setLayoutX(0);
         buttonRow.setLayoutY(MainApp.WINDOW_HEIGHT / 2.0 + 160);
 
-        // ── 7. Layer everything on top of the game root ──────────────────────
-        root.getChildren().addAll(blackScreen, sleepingDuck, gameOverLabel, buttonRow);
-
-        // Make sure the overlay is on top
+        // ── 7. Layer on top ──────────────────────────────────────────────────
+        root.getChildren().addAll(blackScreen, deathView, gameOverLabel, buttonRow);
         blackScreen.toFront();
-        sleepingDuck.toFront();
+        deathView.toFront();
         gameOverLabel.toFront();
         buttonRow.toFront();
     }
