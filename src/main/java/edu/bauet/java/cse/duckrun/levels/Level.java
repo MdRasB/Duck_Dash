@@ -42,4 +42,15 @@ public abstract class Level {
 
     public abstract Obstacle spawnObstacle(double spawnX);
 
+    /**
+     * Number of normal background loops before the transition image appears.
+     */
+    public abstract int getLoopsToComplete();
+
+    /**
+     * Path to the transition image shown as the final background loop.
+     * Return null if the level has no transition (e.g. Level 3).
+     */
+    public abstract String getTransitionImagePath();
+
 }

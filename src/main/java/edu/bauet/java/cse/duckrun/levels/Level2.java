@@ -62,4 +62,14 @@ public class Level2 extends Level {
     public Obstacle spawnObstacle(double spawnX) {
         return new Treeout(spawnX, groundY, getWorldSpeed());
     }
+
+    @Override
+    public int getLoopsToComplete() {
+        return 16; // 15 normal + 1 transition
+    }
+
+    @Override
+    public String getTransitionImagePath() {
+        return "/images/backgrounds/level1_transition.png";
+    }
 }

@@ -67,4 +67,14 @@ public class Level1 extends Level {
             return new ChairB(spawnX, groundY, getWorldSpeed());
         }
     }
+
+    @Override
+    public int getLoopsToComplete() {
+        return 11; // 10 normal + 1 transition
+    }
+
+    @Override
+    public String getTransitionImagePath() {
+        return "/images/backgrounds/level1_transition.png";
+    }
 }

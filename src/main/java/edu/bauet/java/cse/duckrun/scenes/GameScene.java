@@ -81,15 +81,14 @@ public class GameScene {
     private DeathCause deathCause = null;
 
     // Level completion — track how far the background has scrolled
-    private static final int    LOOPS_TO_COMPLETE   = 11;
-    private int                  bgScrolledTotal     = 0;   // counts tiles that have wrapped
-    private boolean              levelCompleted      = false;
+    private int                  bgScrolledTotal = 0;
+    private int                  loopsToComplete = 0;
+    private boolean              levelCompleted  = false;
 
     public GameScene(Level level) {
         this.currentLevel = level;
-        // Pull the background scroll speed from the level instead of computing
-        // it here — each level controls its own visual pacing.
         this.backgroundScrollSpeed = level.getBackgroundScrollSpeed();
+        this.loopsToComplete = level.getLoopsToComplete();
         initialize(level.getBackgroundPath());
     }
 
@@ -108,7 +107,7 @@ public class GameScene {
         createBackground(backgroundPath);
         createPlayer();
 
-        healthBar = new HealthBar(3);
+        healthBar = new HealthBar(10);
         healthBar.getView().setLayoutX(20);
         healthBar.getView().setLayoutY(20);
 
@@ -204,7 +203,8 @@ public class GameScene {
 
     private void createBackground(String path) {
         Image bgImage = AssetLoader.getImage(path);
-        transitionImage = AssetLoader.getImage("/images/backgrounds/level1_transition.png");
+        String transPath = currentLevel.getTransitionImagePath();
+        transitionImage = (transPath != null) ? AssetLoader.getImage(transPath) : null;
         background1 = new ImageView(bgImage);
         background2 = new ImageView(bgImage);
 
@@ -252,13 +252,11 @@ public class GameScene {
     }
 
     private void onTileWrapped(ImageView tile) {
-        // At loop 9 (0-indexed), swap the NEXT incoming tile to transition image
-        // so it becomes the 10th tile (1-indexed = position 11 in the sequence)
-        if (bgScrolledTotal == LOOPS_TO_COMPLETE - 1 && !levelCompleted) {
+        if (transitionImage == null) return;
+        if (bgScrolledTotal == loopsToComplete - 2 && !levelCompleted) {
             tile.setImage(transitionImage);
             levelCompleted = true;
             timeUtil.stop();
-            // Stop spawning but keep duck fully controllable
         }
     }
 
