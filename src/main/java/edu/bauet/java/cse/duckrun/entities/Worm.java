@@ -15,5 +15,8 @@ public class Worm extends Food {
         );
 
         view.setImage(AssetLoader.getImage("/images/enemies/Worm.png"));
+        view.setPreserveRatio(true);
+        view.setFitHeight(40);
+        view.setLayoutY(+10);
     }
 }

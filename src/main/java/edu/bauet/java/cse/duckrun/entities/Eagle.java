@@ -51,7 +51,7 @@ public class Eagle extends Enemy {
 
     @Override
     protected double getHitboxShrinkYBottom() {
-        return 0.2;
+        return 0.1;
     }
 
     @Override

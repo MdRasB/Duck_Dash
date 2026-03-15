@@ -37,7 +37,7 @@ public class ChairB extends Obstacle {
         view.setImage(AssetLoader.getImage("/images/obstacles/chair_black.png"));
         view.setFitHeight(125);
         view.setPreserveRatio(true);
-        view.setLayoutY(-60);
+        view.setLayoutY(-64);
     }
 
     @Override
@@ -47,12 +47,12 @@ public class ChairB extends Obstacle {
 
     @Override
     protected double getHitboxShrinkYTop() {
-        return 0.05; // Keep top of hitbox near the chair back
+        return 0.1; // Keep top of hitbox near the chair back
     }
 
     @Override
     protected double getHitboxShrinkYBottom() {
         // Cuts away the leg region — crouching duck passes under the seat
-        return 0.5;
+        return 0.37;
     }
 }
