@@ -488,7 +488,7 @@ public class GameScene {
 
     private void showGameOverScreen(String imagePath) {
         // ── 1. Full-screen black background ─────────────────────────────────
-        Image blackBg = AssetLoader.getImage("/images/game_over/black.png.png");
+        Image blackBg = AssetLoader.getImage("/images/game_over/black.png");
         ImageView blackScreen = new ImageView(blackBg);
         blackScreen.setFitWidth(MainApp.WINDOW_WIDTH);
         blackScreen.setFitHeight(MainApp.WINDOW_HEIGHT);
