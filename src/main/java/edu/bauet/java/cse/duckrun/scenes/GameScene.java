@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -47,6 +49,7 @@ public class GameScene {
 
     private ImageView background1;
     private ImageView background2;
+    private javafx.scene.image.Image transitionImage;
 
     private boolean isPaused = false;
     private Button pauseButton;
@@ -77,6 +80,11 @@ public class GameScene {
     private enum DeathCause { SLEEP, OBSTACLE, CAT, BOY, EAGLE }
     private DeathCause deathCause = null;
 
+    // Level completion — track how far the background has scrolled
+    private static final int    LOOPS_TO_COMPLETE   = 11;
+    private int                  bgScrolledTotal     = 0;   // counts tiles that have wrapped
+    private boolean              levelCompleted      = false;
+
     public GameScene(Level level) {
         this.currentLevel = level;
         // Pull the background scroll speed from the level instead of computing
@@ -88,6 +96,7 @@ public class GameScene {
     private void initialize(String backgroundPath) {
         root = new Pane();
         root.setPrefSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
+        root.setStyle("-fx-background-color: black;");
 
         menuLayer = new StackPane();
         menuLayer.setPrefSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
@@ -195,6 +204,7 @@ public class GameScene {
 
     private void createBackground(String path) {
         Image bgImage = AssetLoader.getImage(path);
+        transitionImage = AssetLoader.getImage("/images/backgrounds/level1_transition.png");
         background1 = new ImageView(bgImage);
         background2 = new ImageView(bgImage);
 
@@ -210,17 +220,45 @@ public class GameScene {
     }
 
     private void updateBackground(double deltaTime) {
-        // Uses the level's own background scroll speed — not a derived formula.
-        background1.setLayoutX(background1.getLayoutX() - backgroundScrollSpeed * deltaTime);
-        background2.setLayoutX(background2.getLayoutX() - backgroundScrollSpeed * deltaTime);
+        double moveAmount = backgroundScrollSpeed * deltaTime;
 
-        double width = background1.getBoundsInLocal().getWidth();
+        background1.setLayoutX(background1.getLayoutX() - moveAmount);
+        background2.setLayoutX(background2.getLayoutX() - moveAmount);
+
+        double width = background1.getBoundsInParent().getWidth();
 
         if (background1.getLayoutX() <= -width) {
             background1.setLayoutX(background2.getLayoutX() + width);
+            bgScrolledTotal++;
+            onTileWrapped(background1);
         }
         if (background2.getLayoutX() <= -width) {
             background2.setLayoutX(background1.getLayoutX() + width);
+            bgScrolledTotal++;
+            onTileWrapped(background2);
+        }
+
+        // Victory: right edge of transition tile has reached right edge of screen
+        // i.e. layoutX + width <= WINDOW_WIDTH means it's fully entered
+        if (levelCompleted) {
+            ImageView transitionTile = (background1.getImage() == transitionImage)
+                    ? background1 : background2;
+            double rightEdge = transitionTile.getLayoutX() + transitionTile.getBoundsInParent().getWidth();
+            if (rightEdge <= MainApp.WINDOW_WIDTH) {
+                levelCompleted = false; // prevent re-trigger
+                showVictoryScreen();
+            }
+        }
+    }
+
+    private void onTileWrapped(ImageView tile) {
+        // At loop 9 (0-indexed), swap the NEXT incoming tile to transition image
+        // so it becomes the 10th tile (1-indexed = position 11 in the sequence)
+        if (bgScrolledTotal == LOOPS_TO_COMPLETE - 1 && !levelCompleted) {
+            tile.setImage(transitionImage);
+            levelCompleted = true;
+            timeUtil.stop();
+            // Stop spawning but keep duck fully controllable
         }
     }
 
@@ -404,7 +442,7 @@ public class GameScene {
                     duck.setSleepy(!sleepBar.isEmpty());
                     updateBackground(deltaTime);
                     duck.update(deltaTime);
-                    spawnEntities(now);
+                    if (!levelCompleted) spawnEntities(now);
                     updateEnemies(deltaTime);
                     updateFoods(deltaTime);
                     updateObstacles(deltaTime);
@@ -467,6 +505,11 @@ public class GameScene {
         duck.setSleepy(false);
         timeUtil.reset();
         spawnHistory.clear();
+        bgScrolledTotal = 0;
+        levelCompleted  = false;
+        Image normalBg = AssetLoader.getImage(currentLevel.getBackgroundPath());
+        background1.setImage(normalBg);
+        background2.setImage(normalBg);
     }
 
     private void gameOver() {
@@ -563,6 +606,105 @@ public class GameScene {
         iv.setFitWidth(100);
         iv.setPreserveRatio(true);
         return iv;
+    }
+
+
+    private void showVictoryScreen() {
+        // Stop the game loop — freeze everything
+        if (gameLoop != null) {
+            gameLoop.stop();
+            gameLoop = null;
+        }
+
+        // Clear remaining entities
+        for (Enemy e : enemies) root.getChildren().remove(e.getNode());
+        enemies.clear();
+        for (Food f : foods) root.getChildren().remove(f.getNode());
+        foods.clear();
+        for (Obstacle o : obstacles) root.getChildren().remove(o.getNode());
+        obstacles.clear();
+        // 1. Dark overlay — mouse transparent so buttons behind it still work
+        javafx.scene.shape.Rectangle darkOverlay = new javafx.scene.shape.Rectangle(
+                MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT, Color.rgb(0, 0, 0, 0.8));
+        darkOverlay.setMouseTransparent(true);
+
+        // 2. Frame
+        StackPane frameContainer = new StackPane();
+        ImageView frameView = new ImageView(
+                AssetLoader.getImage("/images/game_over/game_over_frame.png"));
+        frameView.setFitWidth(750);
+        frameView.setPreserveRatio(true);
+
+        // 3. Content
+        VBox contentLayout = new VBox(25);
+        contentLayout.setAlignment(Pos.CENTER);
+
+        Label levelPassedLabel = new Label("LEVEL PASSED!");
+        levelPassedLabel.getStyleClass().add("game-over-title");
+
+        ImageView victoryView = new ImageView(
+                AssetLoader.getImage("/images/duck/victory.png"));
+        victoryView.setFitHeight(180);
+        victoryView.setPreserveRatio(true);
+
+        // 4. Buttons row — restart | play/next | exit
+        HBox buttonRow = new HBox(40);
+        buttonRow.setAlignment(Pos.CENTER);
+
+        // Restart — same level
+        Button restartBtn = new Button();
+        restartBtn.setGraphic(createButtonIcon("/images/pause_menu/restart_button.png"));
+        restartBtn.getStyleClass().add("game-over-button");
+        restartBtn.setOnAction(e -> {
+            GameScene fresh = new GameScene(currentLevel);
+            MainApp.switchScene(fresh.getScene());
+        });
+
+        // Play — next level OR main menu if on level 3
+        Button playBtn = new Button();
+        playBtn.setGraphic(createButtonIcon("/images/pause_menu/play_button.png"));
+        playBtn.getStyleClass().add("game-over-button");
+        playBtn.setOnAction(e -> {
+            Level nextLevel = getNextLevel();
+            if (nextLevel != null) {
+                GameScene next = new GameScene(nextLevel);
+                MainApp.switchScene(next.getScene());
+            } else {
+                exitToMenu(); // Level 3 completed — go to main menu
+            }
+        });
+
+        // Exit — main menu
+        Button exitBtn = new Button();
+        exitBtn.setGraphic(createButtonIcon("/images/pause_menu/exit_button.png"));
+        exitBtn.getStyleClass().add("game-over-button");
+        exitBtn.setOnAction(e -> exitToMenu());
+
+        buttonRow.getChildren().addAll(restartBtn, playBtn, exitBtn);
+        contentLayout.getChildren().addAll(levelPassedLabel, victoryView, buttonRow);
+
+        frameContainer.getChildren().addAll(frameView, contentLayout);
+        frameContainer.setTranslateX((MainApp.WINDOW_WIDTH - 750) / 2.0);
+        frameContainer.setTranslateY((MainApp.WINDOW_HEIGHT - 480) / 2.0);
+
+        root.getChildren().addAll(darkOverlay, frameContainer);
+
+        String css = Objects.requireNonNull(
+                getClass().getResource("/styles/game_over.css")).toExternalForm();
+        if (!scene.getStylesheets().contains(css)) {
+            scene.getStylesheets().add(css);
+        }
+    }
+
+    /** Returns the next level, or null if currentLevel is Level3. */
+    private Level getNextLevel() {
+        if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level1) {
+            return new edu.bauet.java.cse.duckrun.levels.Level2(groundY);
+        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level2) {
+            return new edu.bauet.java.cse.duckrun.levels.Level3(groundY);
+        } else {
+            return null; // Level3 — no next level
+        }
     }
 
     private void openSettings() {

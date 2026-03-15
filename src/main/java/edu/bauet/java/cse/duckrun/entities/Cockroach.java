@@ -10,7 +10,7 @@ public class Cockroach extends Food {
                 startX,
                 groundLine - 57,
                 worldSpeed,
-                -3,
+                -2,
                 60
         );
 
