@@ -6,7 +6,7 @@
     -fx-font-family: "Press Start 2P";
     -fx-font-size: 36px;
     -fx-text-fill: #AE6819;
-    -fx-effect: dropshadow(one-pass-box, black, 2, 2, 0, 0);
+    -fx-effect: dropshadow(one-pass-box, black, 2, 0, 2, 2);
 }
 
 .level-info {
