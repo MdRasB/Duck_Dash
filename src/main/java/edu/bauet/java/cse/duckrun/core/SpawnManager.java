@@ -15,7 +15,7 @@ public class SpawnManager {
 
         if (!spawnCat) return null;
 
-        return new Cat(spawnX, groundY, worldSpeed);
+        return new CatBrown(spawnX, groundY, worldSpeed);
     }
 
     public Food spawnFood(double spawnX, double groundY, double worldSpeed) {

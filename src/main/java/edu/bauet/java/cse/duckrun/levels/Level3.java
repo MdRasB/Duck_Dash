@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class Level3 extends Level {
 
-    private static final double LEVEL_SPEED            = 10.0;
+    private static final double LEVEL_SPEED            = 11.2;
     private static final double BACKGROUND_SCROLL_SPEED = LEVEL_SPEED * 60;
     private static final double DUCK_JUMP_SPEED        = 1050;
     private static final double DUCK_FALL_SPEED        = 580;
@@ -30,7 +30,11 @@ public class Level3 extends Level {
      */
     @Override
     public Enemy spawnEnemy(double spawnX) {
-        return new Boy(spawnX, groundY, getWorldSpeed());
+        if (random.nextBoolean()) {
+            return new Boy(spawnX, groundY, getWorldSpeed());
+        } else {
+            return new CatBrown(spawnX, groundY, getWorldSpeed());
+        }
     }
 
     @Override
@@ -55,7 +59,11 @@ public class Level3 extends Level {
 
     @Override
     public Enemy spawnEnemy(double spawnX, double worldSpeed) {
-        return new Boy(spawnX, groundY, worldSpeed);
+        if (random.nextBoolean()) {
+            return new Boy(spawnX, groundY, worldSpeed);
+        } else {
+            return new CatBrown(spawnX, groundY, worldSpeed);
+        }
     }
 
     @Override

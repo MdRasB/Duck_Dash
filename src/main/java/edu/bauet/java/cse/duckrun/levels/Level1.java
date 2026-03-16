@@ -7,7 +7,7 @@ import java.util.Random;
 public class Level1 extends Level {
 
     // --- Level-specific configuration ---
-    private static final double LEVEL_SPEED            = 6.5;
+    private static final double LEVEL_SPEED            = 6.375;
     private static final double BACKGROUND_SCROLL_SPEED = LEVEL_SPEED * 60; // 330 px/sec
     private static final double DUCK_JUMP_SPEED        = 700;               // px/sec — relaxed pace
     private static final double DUCK_FALL_SPEED        = 350;               // px/sec
@@ -46,7 +46,7 @@ public class Level1 extends Level {
 
     @Override
     public Enemy spawnEnemy(double spawnX) {
-        return new Cat(spawnX, groundY, getWorldSpeed());
+        return new CatBlack(spawnX, groundY, getWorldSpeed());
     }
 
     @Override
@@ -70,7 +70,7 @@ public class Level1 extends Level {
 
     @Override
     public Enemy spawnEnemy(double spawnX, double worldSpeed) {
-        return new Cat(spawnX, groundY, worldSpeed);
+        return new CatBlack(spawnX, groundY, worldSpeed);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class Level1 extends Level {
 
     @Override
     public int getLoopsToComplete() {
-        return 4; // 10 normal + 1 transition
+        return 12; // 10 normal + 1 transition
     }
 
     @Override

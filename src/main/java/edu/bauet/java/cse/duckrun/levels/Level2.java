@@ -6,11 +6,11 @@ import java.util.Random;
 public class Level2 extends Level {
 
     // --- Level-specific configuration ---
-    private static final double LEVEL_SPEED            = 7.5;
+    private static final double LEVEL_SPEED             = 8.635;
     private static final double BACKGROUND_SCROLL_SPEED = LEVEL_SPEED * 60; // 420 px/sec
-    private static final double DUCK_JUMP_SPEED        = 820;               // px/sec — moderate pace
-    private static final double DUCK_FALL_SPEED        = 420;               // px/sec
-    private static final String BACKGROUND_PATH        = "/images/backgrounds/level2.png";
+    private static final double DUCK_JUMP_SPEED         = 820;              // px/sec — moderate pace
+    private static final double DUCK_FALL_SPEED         = 420;              // px/sec
+    private static final String BACKGROUND_PATH         = "/images/backgrounds/level2.png";
 
     private static final Random RANDOM = new Random();
 
@@ -45,9 +45,10 @@ public class Level2 extends Level {
 
     @Override
     public Enemy spawnEnemy(double spawnX) {
-        // Level 2 — Cat and Eagle spawn with equal probability
+        // Level 2 — Dog and Eagle spawn with equal probability.
+        // Dog stays on the ground like a Treeout (extraSpeed = 0).
         if (RANDOM.nextBoolean()) {
-            return new Cat(spawnX, groundY, getWorldSpeed());
+            return new Dog(spawnX, groundY, getWorldSpeed());
         } else {
             return new Eagle(spawnX, groundY, getWorldSpeed());
         }
@@ -66,7 +67,7 @@ public class Level2 extends Level {
     @Override
     public Enemy spawnEnemy(double spawnX, double worldSpeed) {
         if (RANDOM.nextBoolean()) {
-            return new Cat(spawnX, groundY, worldSpeed);
+            return new Dog(spawnX, groundY, worldSpeed);
         } else {
             return new Eagle(spawnX, groundY, worldSpeed);
         }
@@ -84,7 +85,7 @@ public class Level2 extends Level {
 
     @Override
     public int getLoopsToComplete() {
-        return 16; // 15 normal + 1 transition
+        return 22; // 15 normal + 1 transition
     }
 
     @Override

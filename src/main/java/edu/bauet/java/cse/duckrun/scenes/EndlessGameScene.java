@@ -10,7 +10,6 @@ import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import edu.bauet.java.cse.duckrun.utils.CollisionUtil;
 import edu.bauet.java.cse.duckrun.ui.HealthBar;
 import edu.bauet.java.cse.duckrun.utils.HighScoreManager;
-import edu.bauet.java.cse.duckrun.utils.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.PauseTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -38,7 +36,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
 
 public class EndlessGameScene {
 
@@ -96,7 +93,7 @@ public class EndlessGameScene {
 
     private long lastFrameTime = 0;
 
-    private enum DeathCause { SLEEP, OBSTACLE, CAT, BOY, EAGLE }
+    private enum DeathCause { SLEEP, OBSTACLE, CAT, BOY, EAGLE, DOG }
     private DeathCause deathCause = null;
 
     // ── Constructor ───────────────────────────────────────────────────────────
@@ -126,7 +123,7 @@ public class EndlessGameScene {
         createBackground(backgroundPath);
         createPlayer();
 
-        healthBar = new HealthBar(10);
+        healthBar = new HealthBar(3);
         healthBar.getView().setLayoutX(20);
         healthBar.getView().setLayoutY(20);
 
@@ -381,12 +378,16 @@ public class EndlessGameScene {
                     deathCause = DeathCause.BOY;
                     gameOver();
                 } else {
+                    if (enemy instanceof Dog) {
+                        ((Dog) enemy).showHitImage();
+                    }
                     healthBar.decreaseHealth();
                     sleepBar.decreaseSegment();
                     timerSeconds += HIT_TIME_PENALTY;
                     timerLabel.setText(formatTime(timerSeconds));
                     if (healthBar.isDead()) {
-                        if (enemy instanceof Cat)        deathCause = DeathCause.CAT;
+                        if (enemy instanceof Dog)        deathCause = DeathCause.DOG;
+                        else if (enemy instanceof CatBrown)   deathCause = DeathCause.CAT;
                         else if (enemy instanceof Eagle) deathCause = DeathCause.EAGLE;
                         else                             deathCause = DeathCause.CAT;
                         gameOver();
@@ -528,6 +529,8 @@ public class EndlessGameScene {
             showGameOverScreen("/images/game_over/game_over_caught.png");
         } else if (deathCause == DeathCause.EAGLE) {
             showGameOverScreen("/images/game_over/game_over_eagle.png");
+        } else if (deathCause == DeathCause.DOG) {
+            showGameOverScreen("/images/game_over/game_over_dog.png");
         } else {
             exitToMenu();
         }

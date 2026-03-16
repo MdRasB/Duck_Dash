@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.PauseTransition;
-import javafx.util.Duration;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -78,7 +76,7 @@ public class GameScene {
     private long lastFrameTime = 0;
 
     // Tracks what killed the duck — set just before calling gameOver()
-    private enum DeathCause { SLEEP, OBSTACLE, CAT, BOY, EAGLE }
+    private enum DeathCause { SLEEP, OBSTACLE, CAT, BOY, EAGLE, DOG }
     private DeathCause deathCause = null;
 
     // Level completion — track how far the background has scrolled
@@ -109,7 +107,7 @@ public class GameScene {
         createBackground(backgroundPath);
         createPlayer();
 
-        healthBar = new HealthBar(10);
+        healthBar = new HealthBar(3);
         healthBar.getView().setLayoutX(20);
         healthBar.getView().setLayoutY(20);
 
@@ -379,11 +377,15 @@ public class GameScene {
                     deathCause = DeathCause.BOY;
                     gameOver();
                 } else {
+                    if (enemy instanceof Dog) {
+                        ((Dog) enemy).showHitImage();
+                    }
                     healthBar.decreaseHealth();
                     sleepBar.decreaseSegment();
                     timeUtil.increaseTime(5);
                     if (healthBar.isDead()) {
-                        if (enemy instanceof Cat)        deathCause = DeathCause.CAT;
+                        if (enemy instanceof Dog)        deathCause = DeathCause.DOG;
+                        else if (enemy instanceof CatBrown)   deathCause = DeathCause.CAT;
                         else if (enemy instanceof Eagle) deathCause = DeathCause.EAGLE;
                         else                             deathCause = DeathCause.CAT;
                         gameOver();
@@ -553,6 +555,8 @@ public class GameScene {
             showGameOverScreen("/images/game_over/game_over_caught.png");
         } else if (deathCause == DeathCause.EAGLE) {
             showGameOverScreen("/images/game_over/game_over_eagle.png");
+        } else if (deathCause == DeathCause.DOG) {
+            showGameOverScreen("/images/game_over/game_over_dog.png");
         } else {
             exitToMenu(); // fallback, should never happen
         }
