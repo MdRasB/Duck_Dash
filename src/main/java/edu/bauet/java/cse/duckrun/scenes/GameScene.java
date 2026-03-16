@@ -395,6 +395,7 @@ public class GameScene {
                     healthBar.increaseHealth();
                 }
                 sleepBar.addSegment();
+                duck.eat();
                 duck.powerUp();
                 timeUtil.increaseTime(10);
             }

@@ -14,10 +14,20 @@ import javafx.scene.layout.VBox;
 public class HighScoreMenu extends StackPane {
 
     private Runnable onClose;
+    private VBox storyPanel;
 
     public HighScoreMenu(Runnable onCloseAction) {
         this.onClose = onCloseAction;
         initialize();
+    }
+
+    /** Rebuilds the score rows with the latest values from HighScoreManager. */
+    public void refresh() {
+        storyPanel.getChildren().setAll(
+                buildScoreRow("Level 1", HighScoreManager.getLevel1Best()),
+                buildScoreRow("Level 2", HighScoreManager.getLevel2Best()),
+                buildScoreRow("Level 3", HighScoreManager.getLevel3Best())
+        );
     }
 
     private void initialize() {
@@ -41,7 +51,7 @@ public class HighScoreMenu extends StackPane {
         HBox tabRow = new HBox(20, btnStory, btnEndless);
         tabRow.setAlignment(Pos.CENTER);
 
-        VBox storyPanel   = buildStoryPanel();
+        storyPanel   = buildStoryPanel();
         VBox endlessPanel = buildEndlessPanel();
         endlessPanel.setVisible(false);
         endlessPanel.setManaged(false);
@@ -78,9 +88,9 @@ public class HighScoreMenu extends StackPane {
         VBox panel = new VBox(14);
         panel.setAlignment(Pos.CENTER);
         panel.getChildren().addAll(
-            buildScoreRow("Level 1", HighScoreManager.getLevel1Best()),
-            buildScoreRow("Level 2", HighScoreManager.getLevel2Best()),
-            buildScoreRow("Level 3", HighScoreManager.getLevel3Best())
+                buildScoreRow("Level 1", HighScoreManager.getLevel1Best()),
+                buildScoreRow("Level 2", HighScoreManager.getLevel2Best()),
+                buildScoreRow("Level 3", HighScoreManager.getLevel3Best())
         );
         return panel;
     }

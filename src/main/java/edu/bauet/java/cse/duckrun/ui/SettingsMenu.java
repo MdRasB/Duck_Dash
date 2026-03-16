@@ -1,5 +1,6 @@
 package edu.bauet.java.cse.duckrun.ui;
 
+import edu.bauet.java.cse.duckrun.utils.HighScoreManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -15,9 +16,15 @@ public class SettingsMenu extends StackPane {
     private Button musicToggle;
     private boolean isMusicOn = true;
     private Runnable onClose;
+    private HighScoreMenu highScoreMenu;
 
     public SettingsMenu(Runnable onCloseAction) {
+        this(onCloseAction, null);
+    }
+
+    public SettingsMenu(Runnable onCloseAction, HighScoreMenu highScoreMenu) {
         this.onClose = onCloseAction;
+        this.highScoreMenu = highScoreMenu;
         initialize();
     }
 
@@ -31,6 +38,7 @@ public class SettingsMenu extends StackPane {
 
         // Load CSS specifically for settings
         this.getStylesheets().add(getClass().getResource("/styles/settings_style.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource("/styles/main_menu.css").toExternalForm());
 
         // Frame Image
         Image frameImg = new Image(getClass().getResourceAsStream("/images/pause_menu/settings_menu_frame.png"));
@@ -59,6 +67,17 @@ public class SettingsMenu extends StackPane {
         VBox.setMargin(musicBox, new Insets(80, 0, 0, 0));
 
         contentLayout.getChildren().addAll(titleLabel, musicBox);
+
+        // Reset High Score
+        Button resetHsButton = new Button("Reset High Score");
+        resetHsButton.getStyleClass().add("menu-button");
+        resetHsButton.setStyle("-fx-pref-width: 360px; -fx-min-width: 360px;");
+        resetHsButton.setOnAction(e -> {
+            HighScoreManager.resetAll();
+            if (highScoreMenu != null) highScoreMenu.refresh();
+        });
+        VBox.setMargin(resetHsButton, new Insets(20, 0, 0, 0));
+        contentLayout.getChildren().add(resetHsButton);
 
         // Close Button
         Button closeButton = new Button("X");

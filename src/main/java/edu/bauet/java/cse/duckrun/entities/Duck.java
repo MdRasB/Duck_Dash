@@ -215,6 +215,15 @@ public class Duck {
         }
     }
 
+    public void eat() {
+        if (!jumping) {
+            crouching = true;
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.25));
+            pause.setOnFinished(e -> crouching = false);
+            pause.play();
+        }
+    }
+
     public void hit() {
         applyEffect(Color.RED, hitIntensity);
     }

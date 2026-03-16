@@ -62,7 +62,7 @@ public class MenuScene {
 
         levelMenu = new LevelMenu(this::closeMenu);
         highScoreMenu = new HighScoreMenu(this::closeMenu);
-        settingsMenu = new SettingsMenu(this::closeMenu);
+        settingsMenu = new SettingsMenu(this::closeMenu, highScoreMenu);
 
         btnNewGame.setOnAction(e -> {
             // Create a Level1 object and pass it to the GameScene

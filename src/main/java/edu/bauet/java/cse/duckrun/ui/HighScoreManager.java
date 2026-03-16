@@ -25,6 +25,12 @@ public final class HighScoreManager {
     public static void submitLevel2(int seconds) { submit(KEY_LEVEL2, seconds); }
     public static void submitLevel3(int seconds) { submit(KEY_LEVEL3, seconds); }
 
+    public static void resetAll() {
+        PREFS.remove(KEY_LEVEL1);
+        PREFS.remove(KEY_LEVEL2);
+        PREFS.remove(KEY_LEVEL3);
+    }
+
     private static void submit(String key, int seconds) {
         int current = PREFS.getInt(key, NO_SCORE);
         if (seconds < current) {
