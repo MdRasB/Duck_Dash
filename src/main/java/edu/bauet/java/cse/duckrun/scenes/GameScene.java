@@ -109,7 +109,7 @@ public class GameScene {
         createBackground(backgroundPath);
         createPlayer();
 
-        healthBar = new HealthBar(10);
+        healthBar = new HealthBar(5);
         healthBar.getView().setLayoutX(20);
         healthBar.getView().setLayoutY(20);
 
