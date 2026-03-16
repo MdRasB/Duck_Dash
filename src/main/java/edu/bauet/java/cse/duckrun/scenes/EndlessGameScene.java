@@ -300,6 +300,14 @@ public class EndlessGameScene {
 
             duck.setJumpSpeed(currentJumpSpeed);
             duck.setFallSpeed(currentFallSpeed);
+
+            //escalate duck movement
+            int newThreshold = (int) (25 * (400.0 / currentBgSpeed));
+
+            // max speed cap
+            if (newThreshold < 10) newThreshold = 10;
+
+            duck.setAnimationThreshold(newThreshold);
         }
     }
 
