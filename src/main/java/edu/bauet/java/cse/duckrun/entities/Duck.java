@@ -133,6 +133,12 @@ public class Duck {
 
     public void update(double deltaTime) {
 
+        if (runningOff) {
+            duckGroup.setLayoutX(duckGroup.getLayoutX() + RUN_OFF_SPEED * deltaTime);
+            animate();
+            return;
+        }
+
         duckShadow.setLayoutY(groundLine - DISPLAY_HEIGHT + 40);
 
         if (jumping) {
@@ -249,11 +255,34 @@ public class Duck {
         pause.play();
     }
 
+    private boolean runningOff = false;
+    private static final double RUN_OFF_SPEED = 600; // pixels per second
+
+    /** Starts the duck running off the right side of the screen. */
+    public void startRunOff() {
+        runningOff = true;
+        jumping = false;
+        goingUp = false;
+        comingDown = false;
+        crouching = false;
+        duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
+    }
+
+    /** Returns true once the duck has fully exited the right edge. */
+    public boolean hasRunOff(double screenWidth) {
+        return runningOff && duckGroup.getLayoutX() > screenWidth + 50;
+    }
+
+    public boolean isRunningOff() {
+        return runningOff;
+    }
+
     public void resetState() {
         jumping = false;
         crouching = false;
         goingUp = false;
         comingDown = false;
+        runningOff = false;
         duckGroup.setLayoutX(200);
         duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
         duckView.setEffect(null);

@@ -70,7 +70,7 @@ public class Level1 extends Level {
 
     @Override
     public int getLoopsToComplete() {
-        return 11; // 10 normal + 1 transition
+        return 3; // 10 normal + 1 transition
     }
 
     @Override

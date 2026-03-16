@@ -85,6 +85,7 @@ public class GameScene {
     private int                  bgScrolledTotal = 0;
     private int                  loopsToComplete = 0;
     private boolean              levelCompleted  = false;
+    private boolean              duckRunningOff  = false;
 
     public GameScene(Level level) {
         this.currentLevel = level;
@@ -241,13 +242,14 @@ public class GameScene {
 
         // Victory: right edge of transition tile has reached right edge of screen
         // i.e. layoutX + width <= WINDOW_WIDTH means it's fully entered
-        if (levelCompleted) {
+        if (levelCompleted && !duckRunningOff) {
             ImageView transitionTile = (background1.getImage() == transitionImage)
                     ? background1 : background2;
             double rightEdge = transitionTile.getLayoutX() + transitionTile.getBoundsInParent().getWidth();
             if (rightEdge <= MainApp.WINDOW_WIDTH) {
                 levelCompleted = false; // prevent re-trigger
-                showVictoryScreen();
+                duckRunningOff = true;
+                duck.startRunOff();
             }
         }
     }
@@ -257,7 +259,6 @@ public class GameScene {
         if (bgScrolledTotal == loopsToComplete - 2 && !levelCompleted) {
             tile.setImage(transitionImage);
             levelCompleted = true;
-            timeUtil.stop();
         }
     }
 
@@ -439,6 +440,15 @@ public class GameScene {
                 lastFrameTime = now;
 
                 if (!isPaused) {
+                    if (duckRunningOff) {
+                        duck.update(deltaTime);
+                        if (duck.hasRunOff(MainApp.WINDOW_WIDTH)) {
+                            duckRunningOff = false;
+                            showVictoryScreen();
+                        }
+                        return;
+                    }
+
                     duck.setSleepy(!sleepBar.isEmpty());
                     updateBackground(deltaTime);
                     duck.update(deltaTime);
@@ -507,6 +517,7 @@ public class GameScene {
         spawnHistory.clear();
         bgScrolledTotal = 0;
         levelCompleted  = false;
+        duckRunningOff  = false;
         Image normalBg = AssetLoader.getImage(currentLevel.getBackgroundPath());
         background1.setImage(normalBg);
         background2.setImage(normalBg);
@@ -615,8 +626,7 @@ public class GameScene {
             gameLoop.stop();
             gameLoop = null;
         }
-
-        // Save best time for this level
+        timeUtil.stop();
         int elapsed = timeUtil.getElapsedSeconds();
         if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level1) {
             HighScoreManager.submitLevel1(elapsed);
