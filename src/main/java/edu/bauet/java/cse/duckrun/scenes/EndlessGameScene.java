@@ -43,8 +43,8 @@ import javafx.util.Duration;
 public class EndlessGameScene {
 
     // ── Endless-mode configuration ───────────────────────────────────────────
-    private static final double ESCALATION_INTERVAL   = 15.0; // seconds between speed bumps
-    private static final double SPEED_INCREMENT       = 1.0;  // world-speed added per escalation
+    private static final double ESCALATION_INTERVAL   = 20.0; // seconds between speed bumps
+    private static final double SPEED_INCREMENT       = 0.5;  // world-speed added per escalation
     private static final double BG_SPEED_FACTOR       = 60.0; // bg pixels = worldSpeed * factor
     private static final double JUMP_SPEED_INCREMENT  = 50.0; // duck jump speed added per escalation
     private static final double FALL_SPEED_INCREMENT  = 25.0; // duck fall speed added per escalation
@@ -369,16 +369,20 @@ public class EndlessGameScene {
             if (!enemy.hasCollided() && CollisionUtil.isColliding(duck.getHitBox(), enemy.getHitBox())) {
                 enemy.markCollided();
                 duck.hit();
-                healthBar.decreaseHealth();
-                sleepBar.decreaseSegment();
-                timerSeconds += HIT_TIME_PENALTY;
-                timerLabel.setText(formatTime(timerSeconds));
-                if (healthBar.isDead()) {
-                    if (enemy instanceof Cat)        deathCause = DeathCause.CAT;
-                    else if (enemy instanceof Eagle) deathCause = DeathCause.EAGLE;
-                    else if (enemy instanceof Boy)   deathCause = DeathCause.BOY;
-                    else                             deathCause = DeathCause.CAT;
+                if (enemy instanceof Boy) {
+                    deathCause = DeathCause.BOY;
                     gameOver();
+                } else {
+                    healthBar.decreaseHealth();
+                    sleepBar.decreaseSegment();
+                    timerSeconds += HIT_TIME_PENALTY;
+                    timerLabel.setText(formatTime(timerSeconds));
+                    if (healthBar.isDead()) {
+                        if (enemy instanceof Cat)        deathCause = DeathCause.CAT;
+                        else if (enemy instanceof Eagle) deathCause = DeathCause.EAGLE;
+                        else                             deathCause = DeathCause.CAT;
+                        gameOver();
+                    }
                 }
             }
         }

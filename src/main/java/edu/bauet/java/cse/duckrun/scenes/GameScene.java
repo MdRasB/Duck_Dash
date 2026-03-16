@@ -366,15 +366,19 @@ public class GameScene {
             if (!enemy.hasCollided() && CollisionUtil.isColliding(duck.getHitBox(), enemy.getHitBox())) {
                 enemy.markCollided();
                 duck.hit();
-                healthBar.decreaseHealth();
-                sleepBar.decreaseSegment();
-                timeUtil.increaseTime(5);
-                if (healthBar.isDead()) {
-                    if (enemy instanceof Cat)   deathCause = DeathCause.CAT;
-                    else if (enemy instanceof Eagle) deathCause = DeathCause.EAGLE;
-                    else if (enemy instanceof Boy)   deathCause = DeathCause.BOY;
-                    else                             deathCause = DeathCause.CAT; // fallback
+                if (enemy instanceof Boy) {
+                    deathCause = DeathCause.BOY;
                     gameOver();
+                } else {
+                    healthBar.decreaseHealth();
+                    sleepBar.decreaseSegment();
+                    timeUtil.increaseTime(5);
+                    if (healthBar.isDead()) {
+                        if (enemy instanceof Cat)        deathCause = DeathCause.CAT;
+                        else if (enemy instanceof Eagle) deathCause = DeathCause.EAGLE;
+                        else                             deathCause = DeathCause.CAT;
+                        gameOver();
+                    }
                 }
             }
         }
