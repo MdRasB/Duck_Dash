@@ -268,6 +268,15 @@ public class GameScene {
         // Enemy speed is already handled inside each spawned entity.
         duck.setJumpSpeed(currentLevel.getDuckJumpSpeed());
         duck.setFallSpeed(currentLevel.getDuckFallSpeed());
+
+        // Adjust animation speed based on level
+        if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level3) {
+            duck.setAnimationThreshold(12); // Very fast leg movement
+        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level2) {
+            duck.setAnimationThreshold(15); // Faster leg movement
+        } else {
+            duck.setAnimationThreshold(25); // Default/Slow movement for Level 1
+        }
     }
 
     private void setupControls() {

@@ -178,10 +178,16 @@ public class Duck {
         updateDebugHitbox();
     }
 
+    private int animationThreshold = 25;
+
+    public void setAnimationThreshold(int threshold) {
+        this.animationThreshold = threshold;
+    }
+
     private void animate() {
 
         frameCounter++;
-        if (frameCounter >= 25) {
+        if (frameCounter >= animationThreshold) {
             toggleFrame = !toggleFrame;
             frameCounter = 0;
         }
@@ -195,7 +201,8 @@ public class Duck {
             duckView.setImage(toggleFrame
                     ? (sleepy ? runningImageSleepy        : runningImage)
                     : (sleepy ? runningMidPointImageSleepy : runningMidPointImage));
-            duckView.setLayoutY(groundLine - DISPLAY_HEIGHT);
+            double runOffset = toggleFrame ? -2 : 0;
+            duckView.setLayoutY(groundLine - DISPLAY_HEIGHT + runOffset);
         }
     }
 
