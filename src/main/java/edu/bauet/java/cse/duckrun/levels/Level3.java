@@ -54,6 +54,25 @@ public class Level3 extends Level {
     }
 
     @Override
+    public Enemy spawnEnemy(double spawnX, double worldSpeed) {
+        return new Boy(spawnX, groundY, worldSpeed);
+    }
+
+    @Override
+    public Food spawnFood(double spawnX, double worldSpeed) {
+        return new Bread(spawnX, groundY, worldSpeed);
+    }
+
+    @Override
+    public Obstacle spawnObstacle(double spawnX, double worldSpeed) {
+        switch (random.nextInt(3)) {
+            case 0:  return new Bottle(spawnX, groundY, worldSpeed);
+            case 1:  return new Treein(spawnX, groundY, worldSpeed);
+            default: return new ChairW(spawnX, groundY, worldSpeed);
+        }
+    }
+
+    @Override
     public int getLoopsToComplete() {
         return 25; // 24 normal + 1 transition
     }

@@ -43,8 +43,8 @@ import javafx.util.Duration;
 public class EndlessGameScene {
 
     // ── Endless-mode configuration ───────────────────────────────────────────
-    private static final double ESCALATION_INTERVAL   = 20.0; // seconds between speed bumps
-    private static final double SPEED_INCREMENT       = 0.5;  // world-speed added per escalation
+    private static final double ESCALATION_INTERVAL   = 15.0; // seconds between speed bumps
+    private static final double SPEED_INCREMENT       = 1.0;  // world-speed added per escalation
     private static final double BG_SPEED_FACTOR       = 60.0; // bg pixels = worldSpeed * factor
     private static final double JUMP_SPEED_INCREMENT  = 50.0; // duck jump speed added per escalation
     private static final double FALL_SPEED_INCREMENT  = 25.0; // duck fall speed added per escalation
@@ -332,15 +332,15 @@ public class EndlessGameScene {
 
         switch (entityType) {
             case 0:
-                Enemy enemy = currentLevel.spawnEnemy(spawnX);
+                Enemy enemy = currentLevel.spawnEnemy(spawnX, currentWorldSpeed);
                 if (enemy != null) { enemies.add(enemy); addNodeToScene(enemy.getNode()); }
                 break;
             case 1:
-                Food food = currentLevel.spawnFood(spawnX);
+                Food food = currentLevel.spawnFood(spawnX, currentWorldSpeed);
                 if (food != null) { foods.add(food); addNodeToScene(food.getNode()); }
                 break;
             case 2:
-                Obstacle obstacle = currentLevel.spawnObstacle(spawnX);
+                Obstacle obstacle = currentLevel.spawnObstacle(spawnX, currentWorldSpeed);
                 if (obstacle != null) { obstacles.add(obstacle); addNodeToScene(obstacle.getNode()); }
                 break;
         }

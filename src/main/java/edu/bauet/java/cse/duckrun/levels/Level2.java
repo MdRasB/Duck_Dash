@@ -64,6 +64,25 @@ public class Level2 extends Level {
     }
 
     @Override
+    public Enemy spawnEnemy(double spawnX, double worldSpeed) {
+        if (RANDOM.nextBoolean()) {
+            return new Cat(spawnX, groundY, worldSpeed);
+        } else {
+            return new Eagle(spawnX, groundY, worldSpeed);
+        }
+    }
+
+    @Override
+    public Food spawnFood(double spawnX, double worldSpeed) {
+        return new Worm(spawnX, groundY, worldSpeed);
+    }
+
+    @Override
+    public Obstacle spawnObstacle(double spawnX, double worldSpeed) {
+        return new Treeout(spawnX, groundY, worldSpeed);
+    }
+
+    @Override
     public int getLoopsToComplete() {
         return 16; // 15 normal + 1 transition
     }

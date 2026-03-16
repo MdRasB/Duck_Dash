@@ -37,10 +37,18 @@ public abstract class Level {
     public abstract double getDuckFallSpeed();
 
     public abstract Enemy spawnEnemy(double spawnX);
-
     public abstract Food spawnFood(double spawnX);
-
     public abstract Obstacle spawnObstacle(double spawnX);
+
+    /**
+     * Spawn overloads that accept a custom world speed — used by EndlessGameScene
+     * so escalating speed is applied to newly spawned entities without touching Level subclasses.
+     * Default implementations temporarily override groundY-based speed via reflection-free pattern:
+     * subclasses that want custom behaviour can override these too.
+     */
+    public Enemy    spawnEnemy(double spawnX, double worldSpeed)    { return spawnEnemy(spawnX); }
+    public Food     spawnFood(double spawnX, double worldSpeed)     { return spawnFood(spawnX); }
+    public Obstacle spawnObstacle(double spawnX, double worldSpeed) { return spawnObstacle(spawnX); }
 
     /**
      * Number of normal background loops before the transition image appears.
