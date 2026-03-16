@@ -5,6 +5,7 @@ import edu.bauet.java.cse.duckrun.levels.Level1;
 import edu.bauet.java.cse.duckrun.ui.LevelMenu;
 import edu.bauet.java.cse.duckrun.ui.HighScoreMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
+import edu.bauet.java.cse.duckrun.ui.EndlessLevelMenu;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,6 +29,7 @@ public class MenuScene {
     private SettingsMenu settingsMenu;
     private LevelMenu levelMenu;
     private HighScoreMenu highScoreMenu;
+    private EndlessLevelMenu endlessLevelMenu;
 
     public MenuScene(Stage stage) {
         this.stage = stage;
@@ -56,11 +58,13 @@ public class MenuScene {
 
         Button btnNewGame = createMenuButton("New Game");
         Button btnLevels = createMenuButton("Levels");
+        Button btnEndless = createMenuButton("Endless");
         Button btnScore = createMenuButton("High Score");
         Button btnSettings = createMenuButton("Settings");
         Button btnExit = createMenuButton("Exit");
 
-        levelMenu = new LevelMenu(this::closeMenu);
+        endlessLevelMenu = new EndlessLevelMenu(this::closeMenu);
+        levelMenu = new LevelMenu(this::closeMenu, () -> showMenu(endlessLevelMenu));
         highScoreMenu = new HighScoreMenu(this::closeMenu);
         settingsMenu = new SettingsMenu(this::closeMenu, highScoreMenu);
 
@@ -72,16 +76,17 @@ public class MenuScene {
         });
 
         btnLevels.setOnAction(e -> showMenu(levelMenu));
+        btnEndless.setOnAction(e -> showMenu(endlessLevelMenu));
         btnScore.setOnAction(e -> showMenu(highScoreMenu));
         btnSettings.setOnAction(e -> showMenu(settingsMenu));
         btnExit.setOnAction(e -> stage.close());
 
         menuBox = new VBox(10);
-        menuBox.getChildren().addAll(titleView, btnNewGame, btnLevels, btnScore, btnSettings, btnExit);
+        menuBox.getChildren().addAll(titleView, btnNewGame, btnLevels, btnEndless, btnScore, btnSettings, btnExit);
         menuBox.setAlignment(Pos.CENTER_LEFT);
         menuBox.setStyle("-fx-padding: 80 0 0 160;");
 
-        root.getChildren().addAll(background, overlay, menuBox, levelMenu, highScoreMenu, settingsMenu);
+        root.getChildren().addAll(background, overlay, menuBox, levelMenu, highScoreMenu, settingsMenu, endlessLevelMenu);
 
         Scene scene = new Scene(root, MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/styles/main_menu.css").toExternalForm());
@@ -93,6 +98,7 @@ public class MenuScene {
         levelMenu.setVisible(false);
         highScoreMenu.setVisible(false);
         settingsMenu.setVisible(false);
+        endlessLevelMenu.setVisible(false);
         menuToShow.setVisible(true);
         overlay.setVisible(true);
         menuBox.setDisable(true);
@@ -104,6 +110,7 @@ public class MenuScene {
         levelMenu.setVisible(false);
         highScoreMenu.setVisible(false);
         settingsMenu.setVisible(false);
+        endlessLevelMenu.setVisible(false);
         overlay.setVisible(false);
         menuBox.setDisable(false);
         menuBox.setVisible(true);

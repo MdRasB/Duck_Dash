@@ -15,6 +15,7 @@ public class HighScoreMenu extends StackPane {
 
     private Runnable onClose;
     private VBox storyPanel;
+    private VBox endlessPanel;
 
     public HighScoreMenu(Runnable onCloseAction) {
         this.onClose = onCloseAction;
@@ -27,6 +28,11 @@ public class HighScoreMenu extends StackPane {
                 buildScoreRow("Level 1", HighScoreManager.getLevel1Best()),
                 buildScoreRow("Level 2", HighScoreManager.getLevel2Best()),
                 buildScoreRow("Level 3", HighScoreManager.getLevel3Best())
+        );
+        endlessPanel.getChildren().setAll(
+                buildScoreRow("Level 1", HighScoreManager.getEndless1Best()),
+                buildScoreRow("Level 2", HighScoreManager.getEndless2Best()),
+                buildScoreRow("Level 3", HighScoreManager.getEndless3Best())
         );
     }
 
@@ -52,7 +58,7 @@ public class HighScoreMenu extends StackPane {
         tabRow.setAlignment(Pos.CENTER);
 
         storyPanel   = buildStoryPanel();
-        VBox endlessPanel = buildEndlessPanel();
+        endlessPanel = buildEndlessPanel();
         endlessPanel.setVisible(false);
         endlessPanel.setManaged(false);
 
@@ -116,11 +122,13 @@ public class HighScoreMenu extends StackPane {
     }
 
     private VBox buildEndlessPanel() {
-        VBox panel = new VBox();
+        VBox panel = new VBox(14);
         panel.setAlignment(Pos.CENTER);
-        Label comingSoon = new Label("Coming Soon!");
-        comingSoon.getStyleClass().add("hs-info");
-        panel.getChildren().add(comingSoon);
+        panel.getChildren().addAll(
+                buildScoreRow("Level 1", HighScoreManager.getEndless1Best()),
+                buildScoreRow("Level 2", HighScoreManager.getEndless2Best()),
+                buildScoreRow("Level 3", HighScoreManager.getEndless3Best())
+        );
         return panel;
     }
 }

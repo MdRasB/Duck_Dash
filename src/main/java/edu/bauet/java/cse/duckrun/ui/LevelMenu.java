@@ -16,9 +16,15 @@ import javafx.scene.layout.VBox;
 
 public class LevelMenu extends StackPane {
     private Runnable onClose;
+    private Runnable onEndless;
 
     public LevelMenu(Runnable onCloseAction) {
-        this.onClose = onCloseAction;
+        this(onCloseAction, null);
+    }
+
+    public LevelMenu(Runnable onCloseAction, Runnable onEndlessAction) {
+        this.onClose   = onCloseAction;
+        this.onEndless = onEndlessAction;
         initialize();
     }
 

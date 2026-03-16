@@ -41,6 +41,17 @@ public class TimeUtil {
         updateTimeProperty();
     }
 
+    public void decreaseTime(int seconds) {
+        currentTimeSeconds = Math.max(0, currentTimeSeconds - seconds);
+        updateTimeProperty();
+    }
+
+    /** Sets the time to a specific value (used for countdown initialisation). */
+    public void setTime(int seconds) {
+        currentTimeSeconds = seconds;
+        updateTimeProperty();
+    }
+
     public StringProperty timeProperty() {
         return timeProperty;
     }
