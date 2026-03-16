@@ -3,6 +3,7 @@ package edu.bauet.java.cse.duckrun.scenes;
 import edu.bauet.java.cse.duckrun.MainApp;
 import edu.bauet.java.cse.duckrun.entities.*;
 import edu.bauet.java.cse.duckrun.levels.Level;
+import edu.bauet.java.cse.duckrun.levels.Level1;
 import edu.bauet.java.cse.duckrun.ui.PauseMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 import edu.bauet.java.cse.duckrun.ui.SleepBar;
@@ -77,10 +78,25 @@ public class GameScene {
 
     private long lastFrameTime = 0;
 
+    // --- Spawn pacing rules ---
+    // Level-specific spawn pacing:
+    // - Level 1 keeps the original cadence (food cycle every 4th spawn, safety-force after 7 non-food spawns).
+    // - Levels 2+ shift food opportunity from the 4th term to the 5th term (and then 10th, ...),
+    //   and safety-force food on the 11th term if 10 consecutive non-food spawns happened.
+    private final boolean isLevel1;
+    private final int minNonFoodSpawnsBeforeFoodOpportunity;
+    private final int forceFoodAfterNonFoodSpawns;
+    // Counts consecutive non-food spawns since the last food spawn.
+    private int nonFoodSpawnsSinceLastFood = 0;
+    // Counts non-food spawns since the last cycle reset point (food or the last opportunity spawn).
+    // When this reaches minNonFoodSpawnsBeforeFoodOpportunity, the next spawn becomes food-eligible.
+    private int nonFoodSpawnsSinceCycleReset = 0;
+    // Counts total spawn events in this run (resets on restart).
+    private int totalSpawnCount = 0;
+
     // Tracks what killed the duck — set just before calling gameOver()
     private enum DeathCause { SLEEP, OBSTACLE, CAT, BOY, EAGLE }
     private DeathCause deathCause = null;
-
     // Level completion — track how far the background has scrolled
     private int                  bgScrolledTotal = 0;
     private int                  loopsToComplete = 0;
@@ -89,6 +105,9 @@ public class GameScene {
 
     public GameScene(Level level) {
         this.currentLevel = level;
+        this.isLevel1 = level instanceof Level1;
+        this.minNonFoodSpawnsBeforeFoodOpportunity = isLevel1 ? 3 : 4;
+        this.forceFoodAfterNonFoodSpawns = isLevel1 ? 7 : 10;
         this.backgroundScrollSpeed = level.getBackgroundScrollSpeed();
         this.loopsToComplete = level.getLoopsToComplete();
         initialize(level.getBackgroundPath());
@@ -309,15 +328,33 @@ public class GameScene {
         double spawnX = MainApp.WINDOW_WIDTH + 50;
         int entityType;
 
-        if (spawnHistory.size() == 2 && spawnHistory.get(0).equals(spawnHistory.get(1))) {
-            int lastSpawnedType = spawnHistory.get(0);
-            List<Integer> possibleTypes = IntStream.range(0, 3)
-                    .filter(i -> i != lastSpawnedType)
-                    .boxed()
-                    .collect(Collectors.toList());
-            entityType = possibleTypes.get(random.nextInt(possibleTypes.size()));
+        int nextSpawnNumber = totalSpawnCount + 1;
+        boolean forceFoodOnLevel1Cycle = isLevel1 && (nextSpawnNumber % 4 == 0);
+        boolean forceFood = forceFoodOnLevel1Cycle
+                || nonFoodSpawnsSinceLastFood >= forceFoodAfterNonFoodSpawns;
+        List<Integer> allowedTypes;
+        if (forceFood) {
+            allowedTypes = List.of(1);
+        } else if (nonFoodSpawnsSinceCycleReset < minNonFoodSpawnsBeforeFoodOpportunity) {
+            allowedTypes = List.of(0, 2); // non-food only
         } else {
-            entityType = random.nextInt(3);
+            allowedTypes = List.of(0, 1, 2); // opportunity spawn: food is eligible
+        }
+
+        if (allowedTypes.size() == 1) {
+            entityType = allowedTypes.get(0);
+        } else if (spawnHistory.size() == 2 && spawnHistory.get(0).equals(spawnHistory.get(1))) {
+            int lastSpawnedType = spawnHistory.get(0);
+            List<Integer> possibleTypes = allowedTypes.stream()
+                    .filter(i -> i != lastSpawnedType)
+                    .collect(Collectors.toList());
+            if (possibleTypes.isEmpty()) {
+                entityType = allowedTypes.get(random.nextInt(allowedTypes.size()));
+            } else {
+                entityType = possibleTypes.get(random.nextInt(possibleTypes.size()));
+            }
+        } else {
+            entityType = allowedTypes.get(random.nextInt(allowedTypes.size()));
         }
 
         switch (entityType) {
@@ -344,10 +381,27 @@ public class GameScene {
                 break;
         }
 
+        // Update spawn pacing counters.
+        if (entityType == 1) {
+            nonFoodSpawnsSinceLastFood = 0;
+            nonFoodSpawnsSinceCycleReset = 0;
+        } else {
+            nonFoodSpawnsSinceLastFood++;
+            if (nonFoodSpawnsSinceCycleReset < minNonFoodSpawnsBeforeFoodOpportunity) {
+                nonFoodSpawnsSinceCycleReset++;
+            } else {
+                // We were on the opportunity spawn and did not spawn food:
+                // reset the cycle counter so the next opportunity happens after a full new run of non-food spawns.
+                nonFoodSpawnsSinceCycleReset = 1;
+            }
+        }
+
         spawnHistory.add(entityType);
         if (spawnHistory.size() > 2) {
             spawnHistory.remove(0);
         }
+
+        totalSpawnCount++;
 
         long delay = (long) ((1.5 + Math.random() * 2.5) * 1_000_000_000);
         nextSpawnTime = now + delay;
@@ -528,6 +582,9 @@ public class GameScene {
         duck.setSleepy(false);
         timeUtil.reset();
         spawnHistory.clear();
+        nonFoodSpawnsSinceLastFood = 0;
+        nonFoodSpawnsSinceCycleReset = 0;
+        totalSpawnCount = 0;
         bgScrolledTotal = 0;
         levelCompleted  = false;
         duckRunningOff  = false;
