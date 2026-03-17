@@ -142,8 +142,8 @@ public final class AssetLoader {
             "/images/indicator/sleep_bar_empty.png",
 
             "/images/obstacles/bottle.png",
-            "/images/obstacles/plant 1.png",
-            "/images/obstacles/plant 2.png",
+            "/images/obstacles/plant1.png",
+            "/images/obstacles/plant2.png",
             "/images/obstacles/Chair_wood.png",
             "/images/obstacles/chair_black.png",
 
