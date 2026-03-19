@@ -43,3 +43,5 @@ build/
 ### AI ###
 .aider*
 .aiignore
+.aiignore*
+.aiignore/
