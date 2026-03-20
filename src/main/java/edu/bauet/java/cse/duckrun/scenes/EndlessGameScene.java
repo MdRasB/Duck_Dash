@@ -191,6 +191,14 @@ public class EndlessGameScene {
         duck = new Duck(200, groundY);
         duck.setJumpSpeed(currentJumpSpeed);
         duck.setFallSpeed(currentFallSpeed);
+
+        if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level3) {
+            duck.setAnimationThreshold(12); // Very fast leg movement
+        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level2) {
+            duck.setAnimationThreshold(15); // Faster leg movement
+        } else {
+            duck.setAnimationThreshold(25); // Default/Slow movement for Level 1
+        }
     }
 
     private void createPauseSystem() {
@@ -562,11 +570,7 @@ public class EndlessGameScene {
 
         // Show survival time
         Label survivalLabel = new Label("Survived: " + formatTime(timerSeconds));
-        try {
-            Font f = Font.loadFont(getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"), 16);
-            survivalLabel.setFont(f != null ? f : Font.font("Arial", 16));
-        } catch (Exception e) { survivalLabel.setFont(Font.font("Arial", 16)); }
-        survivalLabel.setTextFill(Color.web("#AE6819"));
+        survivalLabel.getStyleClass().add("survival-time-text");
 
         ImageView deathView = new ImageView(AssetLoader.getImage(imagePath));
         deathView.setFitHeight(180);
@@ -597,7 +601,7 @@ public class EndlessGameScene {
 
         root.getChildren().addAll(darkOverlay, frameContainer);
 
-        String css = Objects.requireNonNull(getClass().getResource("/styles/game_over.css")).toExternalForm();
+        String css = Objects.requireNonNull(getClass().getResource("/styles/game_over_endless.css")).toExternalForm();
         if (!scene.getStylesheets().contains(css)) scene.getStylesheets().add(css);
     }
 
