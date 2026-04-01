@@ -124,6 +124,6 @@ Distributed under the MIT License. See [LICENSE](https://github.com/MdRasB/2D_Du
 
 ## ✉️ Contact
 
-Project Link: [https://github.com/MdRasB/2D_Duck_in_Bauet](https://github.com/MdRasB/2D_Duck_in_Bauet)
+Project Link: [Duck Dash](https://github.com/MdRasB/Duck_Dash)
 
 Developed with ❤️ by the **Duck Dash Team**.
