@@ -41,7 +41,7 @@ public class Duck {
 
     private final double groundLine;
 
-    public static boolean jumping = false;
+    public boolean jumping = false;
     private boolean goingUp = false;
     private boolean comingDown = false;
 
@@ -212,6 +212,10 @@ public class Duck {
         debugHitbox.setY(localBounds.getMinY());
         debugHitbox.setWidth(localBounds.getWidth());
         debugHitbox.setHeight(localBounds.getHeight());
+    }
+
+    public boolean isJumping() {
+        return jumping;
     }
 
     public void jump() {
