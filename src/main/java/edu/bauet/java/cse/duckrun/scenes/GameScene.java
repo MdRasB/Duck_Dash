@@ -9,6 +9,7 @@ import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 import edu.bauet.java.cse.duckrun.ui.SleepBar;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import edu.bauet.java.cse.duckrun.utils.CollisionUtil;
+import edu.bauet.java.cse.duckrun.utils.MusicManager;
 import edu.bauet.java.cse.duckrun.ui.HealthBar;
 import edu.bauet.java.cse.duckrun.utils.TimeUtil;
 import edu.bauet.java.cse.duckrun.utils.HighScoreManager;
@@ -437,6 +438,7 @@ public class GameScene {
                         ((Dog) enemy).showHitImage();
                     }
                     healthBar.decreaseHealth();
+                    MusicManager.getInstance().playSfx("/audio/sound effect/hit.mp3");
                     sleepBar.decreaseSegment();
                     timeUtil.increaseTime(5);
                     if (healthBar.isDead()) {
@@ -488,6 +490,7 @@ public class GameScene {
                 obstacle.markCollided();
                 duck.hit();
                 healthBar.decreaseHealth();
+                MusicManager.getInstance().playSfx("/audio/sound effect/hit.mp3");
                 sleepBar.decreaseSegment();
                 timeUtil.increaseTime(5);
                 if (healthBar.isDead()) {
