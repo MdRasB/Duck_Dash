@@ -1,6 +1,7 @@
 package edu.bauet.java.cse.duckrun.ui;
 
 import edu.bauet.java.cse.duckrun.utils.HighScoreManager;
+import edu.bauet.java.cse.duckrun.utils.MusicManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -100,5 +101,6 @@ public class SettingsMenu extends StackPane {
             musicToggle.getStyleClass().add("music-off");
             musicToggle.setText("OFF");
         }
+        MusicManager.getInstance().setMusicEnabled(isMusicOn);
     }
 }
