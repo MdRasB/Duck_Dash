@@ -5,6 +5,7 @@
 ![Build](https://img.shields.io/badge/Build-Maven-red.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 [![Build](https://github.com/MdRasB/Duck_Dash/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdRasB/Duck_Dash/actions/workflows/ci.yml) <br>
+
 **Duck Dash** is a high-octane, 2D side-scrolling runner built with JavaFX. Players control a determined duck navigating through a challenging environment filled with obstacles, enemies, and power-ups. Manage your health and sleep levels while dashing through levels to achieve the highest score!
 
 ---
@@ -119,6 +120,33 @@ Contributions are what make the open-source community such an amazing place to l
 ## 📜 License
 
 Distributed under the MIT License. See [LICENSE](https://github.com/MdRasB/2D_Duck_in_Bauet?tab=MIT-1-ov-file) for more information.
+
+---
+
+## 👥 Team
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/MdRasB">
+        <img src="https://github.com/MdRasB.png" width="80" style="border-radius:50%"/><br/>
+        <sub><b>MdRasB</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Shabab47">
+        <img src="https://github.com/Shabab47.png" width="80" style="border-radius:50%"/><br/>
+        <sub><b>Shabab</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/aa-jim">
+        <img src="https://github.com/aa-jim.png" width="80" style="border-radius:50%"/><br/>
+        <sub><b>Jim</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
 ---
 
