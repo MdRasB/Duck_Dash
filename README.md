@@ -41,8 +41,8 @@
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/MdRasB/2D_Duck_in_Bauet.git
-    cd DuckDash
+    git clone https://github.com/MdRasB/Duck_Dash.git
+    cd Duck_Dash
     ```
 
 2.  **Build the Project:**
