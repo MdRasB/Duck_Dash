@@ -1,7 +1,7 @@
 package edu.bauet.java.cse.duckrun.entities;
 
-import edu.bauet.java.cse.duckrun.MainApp;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
+import edu.bauet.java.cse.duckrun.utils.MusicManager;
 import javafx.animation.PauseTransition;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -41,7 +41,8 @@ public class Duck {
 
     private final double groundLine;
 
-    public boolean jumping = false;
+    // FIX: was "public" — kept private so external code uses isJumping()
+    private boolean jumping = false;
     private boolean goingUp = false;
     private boolean comingDown = false;
 
@@ -60,23 +61,26 @@ public class Duck {
     private int frameCounter = 0;
     private boolean toggleFrame = false;
 
+    // Path to the stepping sound — swap this to whatever file you place in resources
+    private static final String STEP_SFX = "/audio/sound effect/step.mp3";
+
     private final double DISPLAY_HEIGHT = 90;
 
     public Duck(double x, double groundLine) {
 
         this.groundLine = groundLine;
 
-        runningImage        = AssetLoader.getImage("/images/duck/running.png");
-        runningMidPointImage = AssetLoader.getImage("/images/duck/running_mid_point.png");
-        duckingImage        = AssetLoader.getImage("/images/duck/ducking.png");
-        duckingMidPointImage = AssetLoader.getImage("/images/duck/ducking_mid_point.png");
-        jumpingImage        = AssetLoader.getImage("/images/duck/jumping.png");
+        runningImage             = AssetLoader.getImage("/images/duck/running.png");
+        runningMidPointImage     = AssetLoader.getImage("/images/duck/running_mid_point.png");
+        duckingImage             = AssetLoader.getImage("/images/duck/ducking.png");
+        duckingMidPointImage     = AssetLoader.getImage("/images/duck/ducking_mid_point.png");
+        jumpingImage             = AssetLoader.getImage("/images/duck/jumping.png");
 
-        runningImageSleepy        = AssetLoader.getImage("/images/duck/running_sleepy.png");
-        runningMidPointImageSleepy = AssetLoader.getImage("/images/duck/running_mid_point_sleepy.png");
-        duckingImageSleepy        = AssetLoader.getImage("/images/duck/ducking_sleepy.png");
-        duckingMidPointImageSleepy = AssetLoader.getImage("/images/duck/ducking_mid_point_sleepy.png");
-        jumpingImageSleepy        = AssetLoader.getImage("/images/duck/jumping_sleepy.png");
+        runningImageSleepy           = AssetLoader.getImage("/images/duck/running_sleepy.png");
+        runningMidPointImageSleepy   = AssetLoader.getImage("/images/duck/running_mid_point_sleepy.png");
+        duckingImageSleepy           = AssetLoader.getImage("/images/duck/ducking_sleepy.png");
+        duckingMidPointImageSleepy   = AssetLoader.getImage("/images/duck/ducking_mid_point_sleepy.png");
+        jumpingImageSleepy           = AssetLoader.getImage("/images/duck/jumping_sleepy.png");
 
         normalShadowImage = AssetLoader.getImage("/images/shadow/Shadow(normal).png");
         jumpShadowImage   = AssetLoader.getImage("/images/shadow/Shadow(small).png");
@@ -187,23 +191,38 @@ public class Duck {
     private void animate() {
 
         frameCounter++;
+        boolean frameJustToggled = false;
+
         if (frameCounter >= animationThreshold) {
             toggleFrame = !toggleFrame;
             frameCounter = 0;
+            frameJustToggled = true;
         }
 
         if (crouching && !jumping) {
             duckView.setImage(toggleFrame
-                    ? (sleepy ? duckingImageSleepy        : duckingImage)
+                    ? (sleepy ? duckingImageSleepy         : duckingImage)
                     : (sleepy ? duckingMidPointImageSleepy : duckingMidPointImage));
             duckView.setLayoutY(groundLine - DISPLAY_HEIGHT + 20);
+
+            // Play step sound on each waddle frame while crouching
+            if (frameJustToggled) {
+                MusicManager.getInstance().playSfx(STEP_SFX);
+            }
+
         } else if (!jumping) {
             duckView.setImage(toggleFrame
-                    ? (sleepy ? runningImageSleepy        : runningImage)
+                    ? (sleepy ? runningImageSleepy         : runningImage)
                     : (sleepy ? runningMidPointImageSleepy : runningMidPointImage));
             double runOffset = toggleFrame ? -2 : 0;
             duckView.setLayoutY(groundLine - DISPLAY_HEIGHT + runOffset);
+
+            // Play step sound on every frame toggle while running on the ground
+            if (frameJustToggled) {
+                MusicManager.getInstance().playSfx(STEP_SFX);
+            }
         }
+        // No step sound while jumping — duck is airborne
     }
 
     private void updateDebugHitbox() {
