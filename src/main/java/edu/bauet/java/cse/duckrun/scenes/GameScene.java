@@ -41,6 +41,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.media.MediaPlayer;
 
 public class GameScene {
 
@@ -299,6 +300,38 @@ public class GameScene {
         }
     }
 
+    private void startBgMusic() {
+        String bgmPath;
+        if (currentLevel instanceof Level1) {
+            bgmPath = "/audio/music/Pixel Dash.mp3";
+        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level2) {
+            bgmPath = "/audio/music/Pixel_Corridor_Dash.mp3";
+        } else {
+            bgmPath = "/audio/music/Terminal_Velocity_Run.mp3";
+        }
+
+        javafx.scene.media.Media music = AssetLoader.loadMusic(bgmPath);
+        if (music == null) return;
+
+        MediaPlayer player = new MediaPlayer(music);
+        player.setCycleCount(MediaPlayer.INDEFINITE);
+        player.setVolume(0.6);
+
+        MusicManager mm = MusicManager.getInstance();
+        if (mm.getBgPlayer() != null) mm.getBgPlayer().stop();
+        mm.setBgPlayer(player);
+
+        if (mm.isMusicEnabled()) player.play();
+    }
+
+    private void stopBgMusic() {
+        MediaPlayer player = MusicManager.getInstance().getBgPlayer();
+        if (player != null) {
+            player.stop();
+            MusicManager.getInstance().setBgPlayer(null);
+        }
+    }
+
     private void setupControls() {
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
@@ -539,6 +572,7 @@ public class GameScene {
             }
         };
         timeUtil.start();
+        startBgMusic();
         gameLoop.start();
     }
 
@@ -546,6 +580,9 @@ public class GameScene {
         if (isPaused) return;
         isPaused = true;
         timeUtil.stop();
+        // pause BGM
+        MediaPlayer bgm = MusicManager.getInstance().getBgPlayer();
+        if (bgm != null && MusicManager.getInstance().isMusicEnabled()) bgm.pause();
         pauseMenu.setVisible(true, background1, background2);
         menuLayer.toFront();
         pauseMenu.getRoot().toFront();
@@ -557,6 +594,9 @@ public class GameScene {
         isPaused = false;
         lastFrameTime = 0;
         timeUtil.start();
+        // resume BGM
+        MediaPlayer bgm = MusicManager.getInstance().getBgPlayer();
+        if (bgm != null && MusicManager.getInstance().isMusicEnabled()) bgm.play();
         pauseMenu.setVisible(false, background1, background2);
         pauseButton.setVisible(true);
         root.requestFocus();
@@ -598,6 +638,7 @@ public class GameScene {
         Image normalBg = AssetLoader.getImage(currentLevel.getBackgroundPath());
         background1.setImage(normalBg);
         background2.setImage(normalBg);
+        startBgMusic();
     }
 
     private void gameOver() {
@@ -606,6 +647,7 @@ public class GameScene {
         gameLoop.stop();
         gameLoop = null;
         timeUtil.stop();
+        stopBgMusic();
 
         if (deathCause == DeathCause.SLEEP) {
             showGameOverScreen("/images/duck/sleeping.png");
@@ -706,6 +748,7 @@ public class GameScene {
             gameLoop = null;
         }
         timeUtil.stop();
+        stopBgMusic();
         int elapsed = timeUtil.getElapsedSeconds();
         if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level1) {
             HighScoreManager.submitLevel1(elapsed);
@@ -823,6 +866,7 @@ public class GameScene {
         if (gameLoop != null) {
             gameLoop.stop();
         }
+        stopBgMusic();
         MenuScene menuScene = new MenuScene(MainApp.getPrimaryStage());
         MainApp.switchScene(menuScene.createScene());
     }
