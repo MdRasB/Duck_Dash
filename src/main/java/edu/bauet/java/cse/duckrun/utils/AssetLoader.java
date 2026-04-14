@@ -17,6 +17,27 @@ public final class AssetLoader {
 
     private static final Map<String, Image> imageCache = new HashMap<>();
     private static final Map<String, Media> videoCache = new HashMap<>();
+    private static final Map<String, Media> musicCache = new HashMap<>();
+
+    public static Media loadMusic(String resourcePath) {
+        if (musicCache.containsKey(resourcePath)) {
+            return musicCache.get(resourcePath);
+        }
+
+        try {
+            URL url = AssetLoader.class.getResource(resourcePath);
+            if (url == null) {
+                LOGGER.severe("MUSIC NOT FOUND: " + resourcePath);
+                return null;
+            }
+            Media media = new Media(url.toExternalForm());
+            musicCache.put(resourcePath, media);
+            return media;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error loading music: " + resourcePath, e);
+            return null;
+        }
+    }
 
 
     public static Media loadVideo(String resourcePath) {
