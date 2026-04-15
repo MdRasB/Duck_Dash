@@ -264,14 +264,15 @@ public class EndlessGameScene {
 
                 if (!isPaused) {
                     duck.setSleepy(!sleepBar.isEmpty());
-                    updateBackground(deltaTime);
+                    double effectiveDelta = duck.isCrouching() ? deltaTime * 0.75 : deltaTime;
+                    updateBackground(effectiveDelta);
                     duck.update(deltaTime);
                     spawnEntities(now);
-                    updateEnemies(deltaTime);
-                    updateFoods(deltaTime);
-                    updateObstacles(deltaTime);
-                    updateCountdown(deltaTime);
-                    updateEscalation(deltaTime);
+                    updateEnemies(effectiveDelta);
+                    updateFoods(effectiveDelta);
+                    updateObstacles(effectiveDelta);
+                    updateCountdown(deltaTime);      // real time — timer should not slow down
+                    updateEscalation(deltaTime);     // real time — escalation should not slow down
 
 
                     if (sleepBar.isFull()) {

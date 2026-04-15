@@ -237,6 +237,10 @@ public class Duck {
         return jumping;
     }
 
+    public boolean isCrouching() {
+        return crouching;
+    }
+
     public void jump() {
         if (!jumping && !crouching) {
             jumping = true;

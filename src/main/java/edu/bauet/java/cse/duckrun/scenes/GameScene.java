@@ -557,12 +557,13 @@ public class GameScene {
                     }
 
                     duck.setSleepy(!sleepBar.isEmpty());
-                    updateBackground(deltaTime);
+                    double effectiveDelta = duck.isCrouching() ? deltaTime * 0.75 : deltaTime;
+                    updateBackground(effectiveDelta);
                     duck.update(deltaTime);
                     if (!levelCompleted) spawnEntities(now);
-                    updateEnemies(deltaTime);
-                    updateFoods(deltaTime);
-                    updateObstacles(deltaTime);
+                    updateEnemies(effectiveDelta);
+                    updateFoods(effectiveDelta);
+                    updateObstacles(effectiveDelta);
 
                     if (sleepBar.isFull()) {
                         deathCause = DeathCause.SLEEP;
