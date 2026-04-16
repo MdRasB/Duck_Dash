@@ -2,7 +2,6 @@ package edu.bauet.java.cse.duckrun.scenes;
 
 import edu.bauet.java.cse.duckrun.MainApp;
 import edu.bauet.java.cse.duckrun.entities.*;
-import edu.bauet.java.cse.duckrun.levels.Level;
 import edu.bauet.java.cse.duckrun.ui.PauseMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 import edu.bauet.java.cse.duckrun.ui.SleepBar;
@@ -11,6 +10,11 @@ import edu.bauet.java.cse.duckrun.utils.CollisionUtil;
 import edu.bauet.java.cse.duckrun.utils.MusicManager;
 import edu.bauet.java.cse.duckrun.ui.HealthBar;
 import edu.bauet.java.cse.duckrun.utils.HighScoreManager;
+
+import edu.bauet.java.cse.duckrun.levels.Level;
+import edu.bauet.java.cse.duckrun.levels.Level1;
+import edu.bauet.java.cse.duckrun.levels.Level2;
+import edu.bauet.java.cse.duckrun.levels.Level3;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,8 +39,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.media.MediaPlayer;
 
 public class EndlessGameScene {
 
@@ -202,6 +208,38 @@ public class EndlessGameScene {
         }
     }
 
+    private void startBgMusic() {
+        String bgmPath;
+        if (currentLevel instanceof Level1) {
+            bgmPath = "/audio/music/Pixel Dash.mp3";
+        } else if (currentLevel instanceof Level2) {
+            bgmPath = "/audio/music/Pixel_Corridor_Dash.mp3";
+        } else {
+            bgmPath = "/audio/music/Terminal_Velocity_Run.mp3";
+        }
+
+        javafx.scene.media.Media music = AssetLoader.loadMusic(bgmPath);
+        if (music == null) return;
+
+        MediaPlayer player = new MediaPlayer(music);
+        player.setCycleCount(MediaPlayer.INDEFINITE);
+        player.setVolume(0.2);
+
+        MusicManager mm = MusicManager.getInstance();
+        if (mm.getBgPlayer() != null) mm.getBgPlayer().stop();
+        mm.setBgPlayer(player);
+
+        if (mm.isMusicEnabled()) player.play();
+    }
+
+    private void stopBgMusic() {
+        MediaPlayer player = MusicManager.getInstance().getBgPlayer();
+        if (player != null) {
+            player.stop();
+            MusicManager.getInstance().setBgPlayer(null);
+        }
+    }
+
     private void createPauseSystem() {
         Image pauseImage = AssetLoader.getImage("/images/pause_menu/pause_button.png");
         ImageView pauseIcon = new ImageView(pauseImage);
@@ -282,6 +320,7 @@ public class EndlessGameScene {
                 }
             }
         };
+        startBgMusic();
         gameLoop.start();
     }
 
@@ -452,6 +491,8 @@ public class EndlessGameScene {
     private void pauseGame() {
         if (isPaused) return;
         isPaused = true;
+        MediaPlayer bgm = MusicManager.getInstance().getBgPlayer();
+        if (bgm != null && MusicManager.getInstance().isMusicEnabled()) bgm.pause();
         pauseMenu.setVisible(true, background1, background2);
         menuLayer.toFront();
         pauseMenu.getRoot().toFront();
@@ -462,6 +503,8 @@ public class EndlessGameScene {
         if (!isPaused) return;
         isPaused = false;
         lastFrameTime = 0;
+        MediaPlayer bgm = MusicManager.getInstance().getBgPlayer();
+        if (bgm != null && MusicManager.getInstance().isMusicEnabled()) bgm.play();
         pauseMenu.setVisible(false, background1, background2);
         pauseButton.setVisible(true);
         root.requestFocus();
@@ -504,6 +547,7 @@ public class EndlessGameScene {
         Image normalBg = AssetLoader.getImage(currentLevel.getBackgroundPath());
         background1.setImage(normalBg);
         background2.setImage(normalBg);
+        startBgMusic();
     }
 
     private void openSettings() {
@@ -518,6 +562,7 @@ public class EndlessGameScene {
 
     private void exitToMenu() {
         if (gameLoop != null) gameLoop.stop();
+        stopBgMusic();
         MenuScene menuScene = new MenuScene(MainApp.getPrimaryStage());
         MainApp.switchScene(menuScene.createScene());
     }
@@ -527,6 +572,7 @@ public class EndlessGameScene {
         if (gameLoop == null) return;
         gameLoop.stop();
         gameLoop = null;
+        stopBgMusic();
 
         // Save best endless survival time
         saveEndlessScore();

@@ -36,6 +36,10 @@ public class MusicManager {
      * @param resourcePath  e.g. "/sounds/hit.mp3"
      */
     public void playSfx(String resourcePath) {
+        playSfx(resourcePath, 1.0); // default full volume
+    }
+
+    public void playSfx(String resourcePath, double volume) {
         if (!soundEnabled) return;
 
         try {
@@ -45,6 +49,7 @@ public class MusicManager {
                 return;
             }
             AudioClip clip = new AudioClip(url.toExternalForm());
+            clip.setVolume(volume);
             clip.play();
         } catch (Exception e) {
             System.err.println("MusicManager: could not play SFX: " + resourcePath);
