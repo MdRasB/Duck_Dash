@@ -203,11 +203,11 @@ public class Duck {
             duckView.setImage(toggleFrame
                     ? (sleepy ? duckingImageSleepy         : duckingImage)
                     : (sleepy ? duckingMidPointImageSleepy : duckingMidPointImage));
-            duckView.setLayoutY(groundLine - DISPLAY_HEIGHT + 20);
+            duckView.setLayoutY(groundLine - DISPLAY_HEIGHT + 15);
 
             // Play step sound on each waddle frame while crouching
             if (frameJustToggled) {
-                MusicManager.getInstance().playSfx(STEP_SFX, 1.0);
+                MusicManager.getInstance().playSfx(STEP_SFX, 0.4);
             }
 
         } else if (!jumping) {
@@ -219,7 +219,7 @@ public class Duck {
 
             // Play step sound on every frame toggle while running on the ground
             if (frameJustToggled) {
-                MusicManager.getInstance().playSfx(STEP_SFX, 1.0);
+                MusicManager.getInstance().playSfx(STEP_SFX, 0.4);
             }
         }
         // No step sound while jumping — duck is airborne
