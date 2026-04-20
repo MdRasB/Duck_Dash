@@ -87,6 +87,6 @@ public class Level3 extends Level {
 
     @Override
     public String getTransitionImagePath() {
-        return "/images/backgrounds/level1_transition.png";
+        return "/images/backgrounds/level3_transition.png";
     }
 }
