@@ -208,7 +208,7 @@ public class Duck {
 
             // Play step sound on each waddle frame while crouching
             if (frameJustToggled) {
-                MusicManager.getInstance().playSfx(STEP_SFX, 1.0);
+                MusicManager.getInstance().playSfx(STEP_SFX, 0.4);
             }
 
         } else if (!jumping) {
@@ -220,7 +220,7 @@ public class Duck {
 
             // Play step sound on every frame toggle while running on the ground
             if (frameJustToggled) {
-                MusicManager.getInstance().playSfx(STEP_SFX, 1.0);
+                MusicManager.getInstance().playSfx(STEP_SFX, 0.4);
             }
         }
         // No step sound while jumping — duck is airborne
