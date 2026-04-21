@@ -203,8 +203,7 @@ public class Duck {
             duckView.setImage(toggleFrame
                     ? (sleepy ? duckingImageSleepy         : duckingImage)
                     : (sleepy ? duckingMidPointImageSleepy : duckingMidPointImage));
-            duckView.setLayoutY(groundLine - DISPLAY_HEIGHT + 20);
-            duckShadow.setLayoutY(groundLine - DISPLAY_HEIGHT + 43);
+            duckView.setLayoutY(groundLine - DISPLAY_HEIGHT + 15);
 
             // Play step sound on each waddle frame while crouching
             if (frameJustToggled) {
