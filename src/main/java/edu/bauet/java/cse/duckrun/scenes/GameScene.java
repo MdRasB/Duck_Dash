@@ -307,7 +307,7 @@ public class GameScene {
     private void startBgMusic() {
         String bgmPath;
         if (currentLevel instanceof Level1) {
-            bgmPath = "/audio/music/Pixel Dash.mp3";
+            bgmPath = "/audio/music/Pixel_Dash.mp3";
         } else if (currentLevel instanceof Level2) {
             bgmPath = "/audio/music/Pixel_Corridor_Dash.mp3";
         } else {
@@ -475,7 +475,7 @@ public class GameScene {
                         ((Dog) enemy).showHitImage();
                     }
                     healthBar.decreaseHealth();
-                    MusicManager.getInstance().playSfx("/audio/sound effect/hit.mp3");
+                    MusicManager.getInstance().playSfx("/audio/sound_effect/hit.mp3");
                     sleepBar.decreaseSegment();
                     timeUtil.increaseTime(5);
                     if (healthBar.isDead()) {
@@ -527,7 +527,7 @@ public class GameScene {
                 obstacle.markCollided();
                 duck.hit();
                 healthBar.decreaseHealth();
-                MusicManager.getInstance().playSfx("/audio/sound effect/hit.mp3");
+                MusicManager.getInstance().playSfx("/audio/sound_effect/hit.mp3");
                 sleepBar.decreaseSegment();
                 timeUtil.increaseTime(5);
                 if (healthBar.isDead()) {

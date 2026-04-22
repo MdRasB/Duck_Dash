@@ -10,6 +10,8 @@ module edu.bauet.java.cse.duckrun {
     opens edu.bauet.java.cse.duckrun to javafx.graphics;
     opens edu.bauet.java.cse.duckrun.scenes to javafx.fxml;
     opens edu.bauet.java.cse.duckrun.ui to javafx.fxml;
-    opens edu.bauet.java.cse.duckrun.utils to javafx.media;
+    //opens edu.bauet.java.cse.duckrun.utils to javafx.media;
+
+    exports edu.bauet.java.cse.duckrun;
 
 }
