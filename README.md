@@ -101,7 +101,8 @@ The full project flow is documented in `PROJECT_FLOWCHART.md`, and can be viewed
 ![Main Menu](src/main/resources/images/ui/main_menu.png)
 
 ### In-Game Action
-![Gameplay](src/main/resources/images/ui/game_play_1.png)
+![Gameplay](src/main/resources/images/ui/gameplay_screen.png)
+![Gameover](src/main/resources/images/ui/gameover_screen.png)
 
 ---
 
