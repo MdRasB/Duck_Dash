@@ -1,6 +1,6 @@
 # 🦆 Duck Dash
 
-![Java Version](https://img.shields.io/badge/Java-17%2B-orange.svg)
+![Java Version](https://img.shields.io/badge/Java-21%2B-orange.svg)
 ![JavaFX Version](https://img.shields.io/badge/JavaFX-21-blue.svg)
 ![Build](https://img.shields.io/badge/Build-Maven-red.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
@@ -23,7 +23,7 @@
 
 ## 🛠 Tech Stack
 
-*   **Language:** Java 17
+*   **Language:** Java 21
 *   **Framework:** JavaFX 21
 *   **Build Tool:** Maven
 *   **Media Handling:** JavaFX Media API for SFX and Music
