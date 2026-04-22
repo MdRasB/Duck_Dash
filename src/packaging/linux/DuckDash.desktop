@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=DuckDash
+Comment=2D Duck Running Game - Reach the class on time!
+Exec=/opt/DuckDash/bin/DuckDash
+Icon=/opt/DuckDash/lib/DuckDash.png
+Terminal=false
+Type=Application
+Categories=Game;
+StartupNotify=true

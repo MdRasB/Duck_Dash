@@ -62,7 +62,7 @@ public class Duck {
     private boolean toggleFrame = false;
 
     // Path to the stepping sound — swap this to whatever file you place in resources
-    private static final String STEP_SFX = "/audio/sound effect/step3x.mp3";
+    private static final String STEP_SFX = "/audio/sound_effect/step3x.mp3";
 
     private final double DISPLAY_HEIGHT = 90;
 

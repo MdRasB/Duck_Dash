@@ -211,7 +211,7 @@ public class EndlessGameScene {
     private void startBgMusic() {
         String bgmPath;
         if (currentLevel instanceof Level1) {
-            bgmPath = "/audio/music/Pixel Dash.mp3";
+            bgmPath = "/audio/music/Pixel_Dash.mp3";
         } else if (currentLevel instanceof Level2) {
             bgmPath = "/audio/music/Pixel_Corridor_Dash.mp3";
         } else {
@@ -431,7 +431,7 @@ public class EndlessGameScene {
                         ((Dog) enemy).showHitImage();
                     }
                     healthBar.decreaseHealth();
-                    MusicManager.getInstance().playSfx("/audio/sound effect/hit.mp3");
+                    MusicManager.getInstance().playSfx("/audio/sound_effect/hit.mp3");
                     sleepBar.decreaseSegment();
                     timerSeconds += HIT_TIME_PENALTY;
                     timerLabel.setText(formatTime(timerSeconds));
@@ -475,7 +475,7 @@ public class EndlessGameScene {
                 obstacle.markCollided();
                 duck.hit();
                 healthBar.decreaseHealth();
-                MusicManager.getInstance().playSfx("/audio/sound effect/hit.mp3");
+                MusicManager.getInstance().playSfx("/audio/sound_effect/hit.mp3");
                 sleepBar.decreaseSegment();
                 timerSeconds += HIT_TIME_PENALTY;
                 timerLabel.setText(formatTime(timerSeconds));
