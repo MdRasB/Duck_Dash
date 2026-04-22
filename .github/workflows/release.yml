@@ -50,11 +50,13 @@ jobs:
         shell: bash
         run: |
           jlink \
-            --module-path "$JAVA_HOME/jmods:target/deps" \
+            --module-path "$JAVA_HOME/jmods:target/deps:/duckrun-1.0.0.jar" \
             --add-modules edu.bauet.java.cse.duckrun \
             --output target/runtime \
-            --strip-debug --no-header-files \
-            --no-man-pages --compress=2
+            --strip-debug \
+            --no-header-files \
+            --no-man-pages \
+            --compress=2
 
       - name: jpackage — create installer
         shell: bash
