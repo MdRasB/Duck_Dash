@@ -25,6 +25,7 @@ mvn clean package
 # 2. PREPARE APP DIRECTORY
 # -------------------------------
 echo "📁 Preparing app directory..."
+
 rm -rf target/app
 mkdir -p target/app
 
