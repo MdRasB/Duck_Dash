@@ -1,0 +1,95 @@
+name: Release builds
+
+on:
+  push:
+    tags: ['v*']          # triggers on: git tag v1.0.0 && git push --tags
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux
+            pkg_type: deb
+            artifact: "*.deb"
+          - os: windows-latest
+            label: windows
+            pkg_type: exe
+            artifact: "*.exe"
+          - os: macos-latest
+            label: macos
+            pkg_type: dmg
+            artifact: "*.dmg"
+
+    runs-on: ${{ matrix.os }}
+    name: Build ${{ matrix.label }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Install Linux packaging tools
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get install -y fakeroot dpkg
+          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+
+      - name: jlink — build minimal runtime
+        shell: bash
+        run: |
+          jlink \
+            --module-path "$JAVA_HOME/jmods:target/deps" \
+            --add-modules edu.bauet.java.cse.duckrun \
+            --output target/runtime \
+            --strip-debug --no-header-files \
+            --no-man-pages --compress=2
+
+      - name: jpackage — create installer
+        shell: bash
+        run: |
+          jpackage \
+            --type ${{ matrix.pkg_type }} \
+            --name "DuckDash" \
+            --app-version "${GITHUB_REF_NAME#v}" \
+            --input target/deps \
+            --main-jar duckrun-*.jar \
+            --main-class edu.bauet.java.cse.duckrun.MainApp \
+            --runtime-image target/runtime \
+            --dest target \
+            --resource-dir src/packaging/${{ matrix.label }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DuckDash-${{ matrix.label }}
+          path: target/${{ matrix.artifact }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            DuckDash-linux/*.deb
+            DuckDash-windows/*.exe
+            DuckDash-macos/*.dmg
+          generate_release_notes: true
