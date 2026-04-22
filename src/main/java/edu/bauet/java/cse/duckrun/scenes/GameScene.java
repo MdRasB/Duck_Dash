@@ -9,6 +9,7 @@ import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import edu.bauet.java.cse.duckrun.utils.CollisionUtil;
 import edu.bauet.java.cse.duckrun.utils.MusicManager;
 import edu.bauet.java.cse.duckrun.ui.HealthBar;
+import edu.bauet.java.cse.duckrun.ui.LevelProgressBar;
 import edu.bauet.java.cse.duckrun.utils.TimeUtil;
 import edu.bauet.java.cse.duckrun.utils.HighScoreManager;
 
@@ -23,10 +24,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.PauseTransition;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.media.Media;
 import javafx.util.Duration;
 import javafx.geometry.Pos;
@@ -70,13 +71,27 @@ public class GameScene {
     private final List<Obstacle> obstacles = new ArrayList<>();
     private long nextSpawnTime = 0;
 
-    // Background scroll speed is now sourced directly from the Level.
-    // Enemy speed is already embedded in each spawned entity via getWorldSpeed().
     private final double backgroundScrollSpeed;
 
     private HealthBar healthBar;
     private SleepBar sleepBar;
     private TimeUtil timeUtil;
+
+    // ── Level Progress Bar ───────────────────────────────────────────────────
+    private LevelProgressBar levelProgressBar;
+    private Canvas progressCanvas;
+    private double levelScrolledPixels    = 0.0;
+    private double levelTotalScrollPixels = 10000.0;
+
+    // During the run-off phase the background stops scrolling, so we switch to
+    // a separate counter that drives the bar from its frozen value up to 1.0.
+    // We track how far the duck has run since startRunOff(), and the bar reaches
+    // 1.0 exactly when duck.hasRunOff() becomes true.
+    private double runOffScrolled = 0.0;   // pixels the duck has run off so far
+    // Duck starts near x=200 and must reach WINDOW_WIDTH.  Add a small buffer so
+    // the bar hits 1.0 just before hasRunOff() fires, not after.
+    private final double runOffTotal = MainApp.WINDOW_WIDTH - 160.0;
+    // ────────────────────────────────────────────────────────────────────────
 
     private final double groundY = MainApp.WINDOW_HEIGHT - 130;
     private final Random random = new Random();
@@ -85,29 +100,22 @@ public class GameScene {
     private long lastFrameTime = 0;
 
     // --- Spawn pacing rules ---
-    // Level-specific spawn pacing:
-    // - Level 1 keeps the original cadence (food cycle every 4th spawn, safety-force after 7 non-food spawns).
-    // - Levels 2+ shift food opportunity from the 4th term to the 5th term (and then 10th, ...),
-    //   and safety-force food on the 11th term if 10 consecutive non-food spawns happened.
     private final boolean isLevel1;
     private final int minNonFoodSpawnsBeforeFoodOpportunity;
     private final int forceFoodAfterNonFoodSpawns;
-    // Counts consecutive non-food spawns since the last food spawn.
     private int nonFoodSpawnsSinceLastFood = 0;
-    // Counts non-food spawns since the last cycle reset point (food or the last opportunity spawn).
-    // When this reaches minNonFoodSpawnsBeforeFoodOpportunity, the next spawn becomes food-eligible.
     private int nonFoodSpawnsSinceCycleReset = 0;
-    // Counts total spawn events in this run (resets on restart).
     private int totalSpawnCount = 0;
 
-    // Tracks what killed the duck — set just before calling gameOver()
+    // Tracks what killed the duck
     private enum DeathCause { SLEEP, OBSTACLE, CAT, BOY, EAGLE, DOG }
     private DeathCause deathCause = null;
-    // Level completion — track how far the background has scrolled
-    private int                  bgScrolledTotal = 0;
-    private int                  loopsToComplete = 0;
-    private boolean              levelCompleted  = false;
-    private boolean              duckRunningOff  = false;
+
+    // Level completion tracking
+    private int     bgScrolledTotal = 0;
+    private int     loopsToComplete = 0;
+    private boolean levelCompleted  = false;
+    private boolean duckRunningOff  = false;
 
     public GameScene(Level level) {
         this.currentLevel = level;
@@ -169,15 +177,26 @@ public class GameScene {
         border.setSpread(2.0);
         timerLabel.setEffect(border);
 
+        // ── Create the progress bar canvas ───────────────────────────────────
+        // A transparent Canvas that sits on top of all game elements.
+        // Mouse events pass through it so gameplay is unaffected.
+        progressCanvas = new Canvas(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
+        progressCanvas.setMouseTransparent(true);
+        levelProgressBar = new LevelProgressBar(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
+        levelProgressBar.setLevelLength(levelTotalScrollPixels); // refined in createBackground()
+        // ────────────────────────────────────────────────────────────────────
+
         createPauseSystem();
 
-        root.getChildren().addAll(background1,
+        root.getChildren().addAll(
+                background1,
                 background2,
                 duck.getNode(),
                 healthBar.getView(),
                 sleepBar.getView(),
                 timerLabel,
                 pauseButton,
+                progressCanvas,   // <-- progress bar canvas, above game, below menus
                 menuLayer
         );
 
@@ -244,6 +263,16 @@ public class GameScene {
 
         background1.setLayoutX(0);
         background2.setLayoutX(width);
+
+        // ── Compute the real level total length for the progress bar ─────────
+        // The level triggers completion at bgScrolledTotal == loopsToComplete - 2
+        // (see onTileWrapped). So the bar must be full exactly when that loop count
+        // is reached — i.e. total scroll = (loopsToComplete - 2) * bgWidth.
+        levelTotalScrollPixels = Math.max(1.0, (loopsToComplete - 2)) * width;
+        if (levelProgressBar != null) {
+            levelProgressBar.setLevelLength(levelTotalScrollPixels);
+        }
+        // ────────────────────────────────────────────────────────────────────
     }
 
     private void updateBackground(double deltaTime) {
@@ -251,6 +280,12 @@ public class GameScene {
 
         background1.setLayoutX(background1.getLayoutX() - moveAmount);
         background2.setLayoutX(background2.getLayoutX() - moveAmount);
+
+        // ── Accumulate scroll distance for the progress bar ──────────────────
+        if (!levelCompleted) {
+            levelScrolledPixels += moveAmount;
+        }
+        // ────────────────────────────────────────────────────────────────────
 
         double width = background1.getBoundsInParent().getWidth();
 
@@ -265,14 +300,12 @@ public class GameScene {
             onTileWrapped(background2);
         }
 
-        // Victory: right edge of transition tile has reached right edge of screen
-        // i.e. layoutX + width <= WINDOW_WIDTH means it's fully entered
         if (levelCompleted && !duckRunningOff) {
             ImageView transitionTile = (background1.getImage() == transitionImage)
                     ? background1 : background2;
             double rightEdge = transitionTile.getLayoutX() + transitionTile.getBoundsInParent().getWidth();
             if (rightEdge <= MainApp.WINDOW_WIDTH) {
-                levelCompleted = false; // prevent re-trigger
+                levelCompleted = false;
                 duckRunningOff = true;
                 duck.startRunOff();
             }
@@ -287,20 +320,39 @@ public class GameScene {
         }
     }
 
+    // ── Draw the progress bar onto its canvas ─────────────────────────────────
+    private void drawProgressBar() {
+        GraphicsContext gc = progressCanvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, progressCanvas.getWidth(), progressCanvas.getHeight());
+
+        if (duckRunningOff) {
+            // During run-off: blend from frozen scroll progress toward 1.0
+            // using how far the duck has run off screen.
+            double scrollProgress = Math.min(1.0, levelScrolledPixels / levelTotalScrollPixels);
+            double runOffFraction = Math.min(1.0, runOffScrolled / runOffTotal);
+            // Combined: scroll fills the bar up to scrollProgress,
+            // then run-off fills the remaining gap to 1.0
+            double combined = scrollProgress + (1.0 - scrollProgress) * runOffFraction;
+            levelProgressBar.updateDirect(combined);
+        } else {
+            levelProgressBar.update(levelScrolledPixels);
+        }
+
+        levelProgressBar.draw(gc);
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     private void createPlayer() {
         duck = new Duck(200, groundY);
-        // Apply per-level jump and fall speeds to the duck.
-        // Enemy speed is already handled inside each spawned entity.
         duck.setJumpSpeed(currentLevel.getDuckJumpSpeed());
         duck.setFallSpeed(currentLevel.getDuckFallSpeed());
 
-        // Adjust animation speed based on level
-        if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level3) {
-            duck.setAnimationThreshold(12); // Very fast leg movement
-        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level2) {
-            duck.setAnimationThreshold(15); // Faster leg movement
+        if (currentLevel instanceof Level3) {
+            duck.setAnimationThreshold(12);
+        } else if (currentLevel instanceof Level2) {
+            duck.setAnimationThreshold(15);
         } else {
-            duck.setAnimationThreshold(25); // Default/Slow movement for Level 1
+            duck.setAnimationThreshold(25);
         }
     }
 
@@ -374,9 +426,9 @@ public class GameScene {
         if (forceFood) {
             allowedTypes = List.of(1);
         } else if (nonFoodSpawnsSinceCycleReset < minNonFoodSpawnsBeforeFoodOpportunity) {
-            allowedTypes = List.of(0, 2); // non-food only
+            allowedTypes = List.of(0, 2);
         } else {
-            allowedTypes = List.of(0, 1, 2); // opportunity spawn: food is eligible
+            allowedTypes = List.of(0, 1, 2);
         }
 
         if (allowedTypes.size() == 1) {
@@ -419,7 +471,6 @@ public class GameScene {
                 break;
         }
 
-        // Update spawn pacing counters.
         if (entityType == 1) {
             nonFoodSpawnsSinceLastFood = 0;
             nonFoodSpawnsSinceCycleReset = 0;
@@ -428,8 +479,6 @@ public class GameScene {
             if (nonFoodSpawnsSinceCycleReset < minNonFoodSpawnsBeforeFoodOpportunity) {
                 nonFoodSpawnsSinceCycleReset++;
             } else {
-                // We were on the opportunity spawn and did not spawn food:
-                // reset the cycle counter so the next opportunity happens after a full new run of non-food spawns.
                 nonFoodSpawnsSinceCycleReset = 1;
             }
         }
@@ -479,10 +528,10 @@ public class GameScene {
                     sleepBar.decreaseSegment();
                     timeUtil.increaseTime(5);
                     if (healthBar.isDead()) {
-                        if (enemy instanceof Dog)        deathCause = DeathCause.DOG;
+                        if (enemy instanceof Dog)             deathCause = DeathCause.DOG;
                         else if (enemy instanceof CatBrown)   deathCause = DeathCause.CAT;
-                        else if (enemy instanceof Eagle) deathCause = DeathCause.EAGLE;
-                        else                             deathCause = DeathCause.CAT;
+                        else if (enemy instanceof Eagle)      deathCause = DeathCause.EAGLE;
+                        else                                  deathCause = DeathCause.CAT;
                         gameOver();
                     }
                 }
@@ -553,6 +602,9 @@ public class GameScene {
                 if (!isPaused) {
                     if (duckRunningOff) {
                         duck.update(deltaTime);
+                        // Accumulate how far the duck has run so the bar tracks it
+                        runOffScrolled += backgroundScrollSpeed * deltaTime;
+                        drawProgressBar();
                         if (duck.hasRunOff(MainApp.WINDOW_WIDTH)) {
                             duckRunningOff = false;
                             showVictoryScreen();
@@ -568,6 +620,10 @@ public class GameScene {
                     updateEnemies(effectiveDelta);
                     updateFoods(effectiveDelta);
                     updateObstacles(effectiveDelta);
+
+                    // ── Redraw progress bar every frame ──────────────────────
+                    drawProgressBar();
+                    // ─────────────────────────────────────────────────────────
 
                     if (sleepBar.isFull()) {
                         deathCause = DeathCause.SLEEP;
@@ -585,7 +641,6 @@ public class GameScene {
         if (isPaused) return;
         isPaused = true;
         timeUtil.stop();
-        // pause BGM
         MediaPlayer bgm = MusicManager.getInstance().getBgPlayer();
         if (bgm != null && MusicManager.getInstance().isMusicEnabled()) bgm.pause();
         pauseMenu.setVisible(true, background1, background2);
@@ -599,7 +654,6 @@ public class GameScene {
         isPaused = false;
         lastFrameTime = 0;
         timeUtil.start();
-        // resume BGM
         MediaPlayer bgm = MusicManager.getInstance().getBgPlayer();
         if (bgm != null && MusicManager.getInstance().isMusicEnabled()) bgm.play();
         pauseMenu.setVisible(false, background1, background2);
@@ -613,19 +667,13 @@ public class GameScene {
         background1.setLayoutX(0);
         background2.setLayoutX(background1.getBoundsInLocal().getWidth());
 
-        for (Enemy e : enemies) {
-            root.getChildren().remove(e.getNode());
-        }
+        for (Enemy e : enemies) root.getChildren().remove(e.getNode());
         enemies.clear();
 
-        for (Food f : foods) {
-            root.getChildren().remove(f.getNode());
-        }
+        for (Food f : foods) root.getChildren().remove(f.getNode());
         foods.clear();
 
-        for (Obstacle o : obstacles) {
-            root.getChildren().remove(o.getNode());
-        }
+        for (Obstacle o : obstacles) root.getChildren().remove(o.getNode());
         obstacles.clear();
 
         nextSpawnTime = 0;
@@ -640,6 +688,13 @@ public class GameScene {
         bgScrolledTotal = 0;
         levelCompleted  = false;
         duckRunningOff  = false;
+
+        // ── Reset progress bar ───────────────────────────────────────────────
+        levelScrolledPixels = 0.0;
+        runOffScrolled      = 0.0;
+        levelProgressBar.reset();
+        // ────────────────────────────────────────────────────────────────────
+
         Image normalBg = AssetLoader.getImage(currentLevel.getBackgroundPath());
         background1.setImage(normalBg);
         background2.setImage(normalBg);
@@ -667,39 +722,32 @@ public class GameScene {
         } else if (deathCause == DeathCause.DOG) {
             showGameOverScreen("/images/game_over/game_over_dog.png");
         } else {
-            exitToMenu(); // fallback, should never happen
+            exitToMenu();
         }
     }
 
     private void showGameOverScreen(String imagePath) {
-        // 1. Full-screen background image (e.g., your black.png or a darkened version)
         javafx.scene.shape.Rectangle darkOverlay = new javafx.scene.shape.Rectangle(
                 MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT, Color.rgb(0, 0, 0, 0.8)
         );
 
-        // 2. The Frame Container
         StackPane frameContainer = new StackPane();
         frameContainer.getStyleClass().add("game-over-frame-container");
 
-        // Using the game_over_frame.png you uploaded
         ImageView frameView = new ImageView(AssetLoader.getImage("/images/game_over/game_over_frame.png"));
-        frameView.setFitWidth(750); // Slightly larger to give the content room to breathe
+        frameView.setFitWidth(750);
         frameView.setPreserveRatio(true);
 
-        // 3. Content Layout (Vertical Box)
         VBox contentLayout = new VBox(25);
         contentLayout.setAlignment(javafx.geometry.Pos.CENTER);
 
-        // Title with CSS styling
         Label gameOverLabel = new Label("GAME OVER");
         gameOverLabel.getStyleClass().add("game-over-title");
 
-        // Death Image (dynamically chosen based on cause)
         ImageView deathView = new ImageView(AssetLoader.getImage(imagePath));
         deathView.setFitHeight(180);
         deathView.setPreserveRatio(true);
 
-        // Buttons Row
         HBox buttonRow = new HBox(50);
         buttonRow.setAlignment(Pos.CENTER);
 
@@ -719,25 +767,18 @@ public class GameScene {
         buttonRow.getChildren().addAll(restartBtn, exitBtn);
         contentLayout.getChildren().addAll(gameOverLabel, deathView, buttonRow);
 
-        // Add frame and content to the stack
         frameContainer.getChildren().addAll(frameView, contentLayout);
-
-        // Position the frame in the center of the screen
-        // Using StackPane's layout properties or centering it manually:
         frameContainer.setTranslateX((MainApp.WINDOW_WIDTH - 750) / 2.0);
         frameContainer.setTranslateY((MainApp.WINDOW_HEIGHT - 480) / 2.0);
 
-        // 4. Final assembly
         root.getChildren().addAll(darkOverlay, frameContainer);
 
-        // Load the CSS if it's not present
         String css = Objects.requireNonNull(getClass().getResource("/styles/game_over.css")).toExternalForm();
         if (!scene.getStylesheets().contains(css)) {
             scene.getStylesheets().add(css);
         }
     }
 
-    // Helper to keep code clean
     private ImageView createButtonIcon(String path) {
         ImageView iv = new ImageView(AssetLoader.getImage(path));
         iv.setFitWidth(100);
@@ -745,9 +786,7 @@ public class GameScene {
         return iv;
     }
 
-
     private void showVictoryScreen() {
-        // Stop the game loop — freeze everything
         if (gameLoop != null) {
             gameLoop.stop();
             gameLoop = null;
@@ -755,34 +794,31 @@ public class GameScene {
         timeUtil.stop();
         stopBgMusic();
         int elapsed = timeUtil.getElapsedSeconds();
-        if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level1) {
+        if (currentLevel instanceof Level1) {
             HighScoreManager.submitLevel1(elapsed);
-        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level2) {
+        } else if (currentLevel instanceof Level2) {
             HighScoreManager.submitLevel2(elapsed);
-        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level3) {
+        } else if (currentLevel instanceof Level3) {
             HighScoreManager.submitLevel3(elapsed);
         }
 
-        // Clear remaining entities
         for (Enemy e : enemies) root.getChildren().remove(e.getNode());
         enemies.clear();
         for (Food f : foods) root.getChildren().remove(f.getNode());
         foods.clear();
         for (Obstacle o : obstacles) root.getChildren().remove(o.getNode());
         obstacles.clear();
-        // 1. Dark overlay — mouse transparent so buttons behind it still work
+
         javafx.scene.shape.Rectangle darkOverlay = new javafx.scene.shape.Rectangle(
                 MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT, Color.rgb(0, 0, 0, 0.8));
         darkOverlay.setMouseTransparent(true);
 
-        // 2. Frame
         StackPane frameContainer = new StackPane();
         ImageView frameView = new ImageView(
                 AssetLoader.getImage("/images/game_over/game_over_frame.png"));
         frameView.setFitWidth(750);
         frameView.setPreserveRatio(true);
 
-        // 3. Content
         VBox contentLayout = new VBox(25);
         contentLayout.setAlignment(Pos.CENTER);
 
@@ -794,11 +830,9 @@ public class GameScene {
         victoryView.setFitHeight(180);
         victoryView.setPreserveRatio(true);
 
-        // 4. Buttons row — restart | play/next | exit
         HBox buttonRow = new HBox(40);
         buttonRow.setAlignment(Pos.CENTER);
 
-        // Restart — same level
         Button restartBtn = new Button();
         restartBtn.setGraphic(createButtonIcon("/images/pause_menu/restart_button.png"));
         restartBtn.getStyleClass().add("game-over-button");
@@ -807,7 +841,6 @@ public class GameScene {
             MainApp.switchScene(fresh.getScene());
         });
 
-        // Play — next level OR main menu if on level 3
         Button playBtn = new Button();
         playBtn.setGraphic(createButtonIcon("/images/pause_menu/play_button.png"));
         playBtn.getStyleClass().add("game-over-button");
@@ -817,11 +850,10 @@ public class GameScene {
                 GameScene next = new GameScene(nextLevel);
                 MainApp.switchScene(next.getScene());
             } else {
-                exitToMenu(); // Level 3 completed — go to main menu
+                exitToMenu();
             }
         });
 
-        // Exit — main menu
         Button exitBtn = new Button();
         exitBtn.setGraphic(createButtonIcon("/images/pause_menu/exit_button.png"));
         exitBtn.getStyleClass().add("game-over-button");
@@ -843,14 +875,13 @@ public class GameScene {
         }
     }
 
-    /** Returns the next level, or null if currentLevel is Level3. */
     private Level getNextLevel() {
-        if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level1) {
-            return new edu.bauet.java.cse.duckrun.levels.Level2(groundY);
-        } else if (currentLevel instanceof edu.bauet.java.cse.duckrun.levels.Level2) {
-            return new edu.bauet.java.cse.duckrun.levels.Level3(groundY);
+        if (currentLevel instanceof Level1) {
+            return new Level2(groundY);
+        } else if (currentLevel instanceof Level2) {
+            return new Level3(groundY);
         } else {
-            return null; // Level3 — no next level
+            return null;
         }
     }
 
