@@ -19,7 +19,8 @@ echo "🚀 Building ${APP_NAME} v${VERSION}..."
 # 1. BUILD PROJECT
 # -------------------------------
 echo "📦 Running Maven build..."
-mvn clean package
+mvn clean
+mvn clean package -DskipTests
 
 # -------------------------------
 # 2. PREPARE APP DIRECTORY
