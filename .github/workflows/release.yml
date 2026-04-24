@@ -17,10 +17,6 @@ jobs:
             label: windows
             pkg_type: exe
             artifact: "*.exe"
-          - os: macos-latest
-            label: macos
-            pkg_type: dmg
-            artifact: "*.dmg"
 
     runs-on: ${{ matrix.os }}
     name: Build ${{ matrix.label }}
@@ -49,14 +45,23 @@ jobs:
       - name: jlink — build minimal runtime
         shell: bash
         run: |
+          JAR_FILE=$(ls target/*.jar | head -n 1)
+
           jlink \
-            --module-path "$JAVA_HOME/jmods:target/deps:/duckrun-1.0.0.jar" \
+            --module-path "$JAVA_HOME/jmods:target/deps:$JAR_FILE" \
             --add-modules edu.bauet.java.cse.duckrun \
             --output target/runtime \
             --strip-debug \
             --no-header-files \
             --no-man-pages \
-            --compress=2  
+            --compress=2
+
+      - name: Prepare app directory
+        shell: bash
+        run: |
+          mkdir -p target/app
+          cp target/*.jar target/app/
+          cp target/deps/* target/app/
 
       - name: jpackage — create installer
         shell: bash
@@ -65,8 +70,8 @@ jobs:
             --type ${{ matrix.pkg_type }} \
             --name "DuckDash" \
             --app-version "${GITHUB_REF_NAME#v}" \
-            --input target/deps \
-            --main-jar duckrun-*.jar \
+            --input target/app \
+            --main-jar $(ls target/app/*.jar | xargs -n 1 basename) \
             --main-class edu.bauet.java.cse.duckrun.MainApp \
             --runtime-image target/runtime \
             --dest target \
@@ -93,5 +98,4 @@ jobs:
           files: |
             DuckDash-linux/*.deb
             DuckDash-windows/*.exe
-            DuckDash-macos/*.dmg
           generate_release_notes: true
