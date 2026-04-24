@@ -9,14 +9,15 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            label: linux
-            pkg_type: deb
-            artifact: "*.deb"
           - os: windows-latest
             label: windows
             pkg_type: exe
             artifact: "*.exe"
+          - os: ubuntu-latest
+            label: linux
+            pkg_type: deb
+            artifact: "*.deb"
+
 
     runs-on: ${{ matrix.os }}
     name: Build ${{ matrix.label }}
