@@ -4,8 +4,7 @@
 ![JavaFX Version](https://img.shields.io/badge/JavaFX-21-blue.svg)
 ![Build](https://img.shields.io/badge/Build-Maven-red.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-[![Build](https://github.com/MdRasB/Duck_Dash/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdRasB/Duck_Dash/actions/workflows/ci.yml) <br>
-
+[![Build](https://github.com/MdRasB/Duck_Dash/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/MdRasB/Duck_Dash/actions/workflows/build.yml)
 **Duck Dash** is a high-octane, 2D side-scrolling runner built with JavaFX. Players control a determined duck navigating through a challenging environment filled with obstacles, enemies, and power-ups. Manage your health and sleep levels while dashing through levels to achieve the highest score!
 
 ---
