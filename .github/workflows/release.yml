@@ -2,51 +2,64 @@ name: Release builds
 
 on:
   push:
-    tags: ['v*']          # triggers on: git tag v1.0.0 && git push --tags
+    tags: ['v*']   # trigger: git tag v1.0.0 && git push --tags
 
 jobs:
   build:
     strategy:
       matrix:
         include:
-          - os: windows-latest
-            label: windows
-            pkg_type: exe
-            artifact: "*.exe"
           - os: ubuntu-latest
             label: linux
             pkg_type: deb
             artifact: "*.deb"
-
+          - os: windows-latest
+            label: windows
+            pkg_type: exe
+            artifact: "*.exe"
 
     runs-on: ${{ matrix.os }}
     name: Build ${{ matrix.label }}
 
     steps:
+      # -------------------------
+      # Checkout
+      # -------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21 (Temurin)
+      # -------------------------
+      # Setup Java
+      # -------------------------
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
 
+      # -------------------------
+      # Build project
+      # -------------------------
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      - name: Install Linux packaging tools
+      # -------------------------
+      # Linux dependencies
+      # -------------------------
+      - name: Install Linux tools
         if: matrix.os == 'ubuntu-latest'
         run: |
+          sudo apt-get update
           sudo apt-get install -y fakeroot dpkg
-          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool-x86_64.AppImage
 
-      - name: jlink — build minimal runtime
+      # -------------------------
+      # jlink (runtime)
+      # -------------------------
+      - name: Build runtime (jlink)
         shell: bash
         run: |
-          JAR_FILE=$(ls target/*.jar | head -n 1)
+          JAR_FILE=$(ls target/duckrun-*.jar | head -n 1)
 
           jlink \
             --module-path "$JAVA_HOME/jmods:target/deps:$JAR_FILE" \
@@ -57,40 +70,62 @@ jobs:
             --no-man-pages \
             --compress=2
 
+      # -------------------------
+      # Prepare app directory
+      # -------------------------
       - name: Prepare app directory
         shell: bash
         run: |
           mkdir -p target/app
-          cp target/*.jar target/app/
-          cp target/deps/* target/app/
+          cp target/duckrun-*.jar target/app/
+          cp target/deps/*.jar target/app/
 
-      - name: jpackage — create installer
+      # -------------------------
+      # jpackage
+      # -------------------------
+      - name: Create installer
         shell: bash
         run: |
-          jpackage \
-            --type ${{ matrix.pkg_type }} \
-            --name "DuckDash" \
-            --app-version "${GITHUB_REF_NAME#v}" \
-            --input target/app \
-            --main-jar $(ls target/app/*.jar | xargs -n 1 basename) \
-            --main-class edu.bauet.java.cse.duckrun.MainApp \
-            --runtime-image target/runtime \
-            --dest target \
-            --resource-dir src/packaging/${{ matrix.label }}
+            MAIN_JAR=$(ls target/app/duckrun-*.jar | xargs -n 1 basename)
+            
+            if [ "${{ matrix.label }}" = "windows" ]; then
+              ICON_FLAG="--icon src/packaging/windows/DuckDash.ico"
+            else
+              ICON_FLAG=""
+            fi
+            
+            jpackage \
+              --type ${{ matrix.pkg_type }} \
+              --name DuckDash \
+              --app-version "${GITHUB_REF_NAME#v}" \
+              --input target/app \
+              --main-jar "$MAIN_JAR" \
+              --main-class edu.bauet.java.cse.duckrun.MainApp \
+              --runtime-image target/runtime \
+              --dest target \
+              --resource-dir src/packaging/${{ matrix.label }} \
+              $ICON_FLAG
 
+      # -------------------------
+      # Upload artifact
+      # -------------------------
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: DuckDash-${{ matrix.label }}
           path: target/${{ matrix.artifact }}
 
+  # -------------------------
+  # Release job
+  # -------------------------
   release:
     needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
-      - name: Download all artifacts
+      - name: Download artifacts
         uses: actions/download-artifact@v4
 
       - name: Create GitHub Release
