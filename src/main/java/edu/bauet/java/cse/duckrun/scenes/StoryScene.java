@@ -29,7 +29,6 @@ public class StoryScene {
         MediaPlayer mp = null;
 
         try {
-
             // Load video using AssetLoader
             Media video = AssetLoader.loadVideo("/Story/opening.mp4");
 
@@ -38,22 +37,26 @@ public class StoryScene {
             }
 
             mp = new MediaPlayer(video);
-
             MediaView mv = new MediaView(mp);
+
+            // Scaling and Smoothing
             mv.setFitWidth(MainApp.WINDOW_WIDTH);
             mv.setFitHeight(MainApp.WINDOW_HEIGHT);
             mv.setPreserveRatio(true);
+            mv.setSmooth(true);
 
-            root.getChildren().add(mv);
+            root.getChildren().add(0, mv); // Add to the back of the StackPane
 
-            mp.setAutoPlay(true);
-
+            // Standard playback logic
             MediaPlayer finalMp = mp;
+            mp.setOnReady(() -> {
+                finalMp.play();
+            });
+
             mp.setOnEndOfMedia(() -> navigateToMenu(stage, finalMp));
 
         } catch (Exception e) {
-
-            System.out.println("Video failed. Skipping intro.");
+            System.out.println("Video engine error. Skipping intro.");
             navigateToMenu(stage, mp);
         }
 
