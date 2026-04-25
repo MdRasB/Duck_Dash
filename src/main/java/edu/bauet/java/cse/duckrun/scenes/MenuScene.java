@@ -19,6 +19,10 @@ import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.effect.GaussianBlur;
 
+import edu.bauet.java.cse.duckrun.utils.MusicManager;
+import edu.bauet.java.cse.duckrun.utils.AssetLoader;
+import javafx.scene.media.MediaPlayer;
+
 public class MenuScene {
 
     private Stage stage;
@@ -91,6 +95,7 @@ public class MenuScene {
         Scene scene = new Scene(root, MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/styles/main_menu.css").toExternalForm());
 
+        startMenuMusic();
         return scene;
     }
 
@@ -121,5 +126,21 @@ public class MenuScene {
         Button btn = new Button(text);
         btn.getStyleClass().add("menu-button");
         return btn;
+    }
+
+    //main menu music
+    private void startMenuMusic() {
+        javafx.scene.media.Media music = AssetLoader.loadMusic("/audio/music/menu.mp3");
+        if (music == null) return;
+
+        MediaPlayer player = new MediaPlayer(music);
+        player.setCycleCount(MediaPlayer.INDEFINITE);
+        player.setVolume(0.6);
+
+        MusicManager mm = MusicManager.getInstance();
+        if (mm.getBgPlayer() != null) mm.getBgPlayer().stop();
+        mm.setBgPlayer(player);
+
+        if (mm.isMusicEnabled()) player.play();
     }
 }
