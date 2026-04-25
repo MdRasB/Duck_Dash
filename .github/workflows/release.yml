@@ -60,6 +60,12 @@ jobs:
         shell: bash
         run: |
           JAR_FILE=$(ls target/duckrun-*.jar | head -n 1)
+          
+          if [ "${{ matrix.label }}" = "windows" ]; then
+            SEP=";"
+          else
+            SEP=":"
+          fi
 
           jlink \
             --module-path "$JAVA_HOME/jmods:target/deps:$JAR_FILE" \
