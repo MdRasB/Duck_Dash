@@ -29,7 +29,7 @@ public class StoryScene {
         MediaPlayer mp = null;
 
         try {
-            // Load video using AssetLoader
+            // Load video using assetLoader
             Media video = AssetLoader.loadVideo("/Story/opening.mp4");
 
             if (video == null) {
