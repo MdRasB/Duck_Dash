@@ -111,10 +111,9 @@ public class LevelProgressBar {
         progress = Math.min(1.0, Math.max(0.0, targetProgress));
         if (progress >= 1.0) completed = true;
 
-        // Faster lerp during run-off so duck visibly rushes to the flag
-        double lerpSpeed = 0.15;
+        double lerpSpeed = 0.08;
         smoothProgress += (progress - smoothProgress) * lerpSpeed;
-        if (smoothProgress > 0.992) smoothProgress = 1.0;
+        if (smoothProgress > 0.992) smoothProgress = progress >= 1.0 ? 1.0 : smoothProgress;
     }
 
     /** Reset bar to zero (call when a new level starts). */

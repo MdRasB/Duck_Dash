@@ -84,13 +84,9 @@ public class GameScene {
     private double levelTotalScrollPixels = 10000.0;
 
     // During the run-off phase the background stops scrolling, so we switch to
-    // a separate counter that drives the bar from its frozen value up to 1.0.
-    // We track how far the duck has run since startRunOff(), and the bar reaches
-    // 1.0 exactly when duck.hasRunOff() becomes true.
-    private double runOffScrolled = 0.0;   // pixels the duck has run off so far
-    // Duck starts near x=200 and must reach WINDOW_WIDTH.  Add a small buffer so
-    // the bar hits 1.0 just before hasRunOff() fires, not after.
-    private final double runOffTotal = MainApp.WINDOW_WIDTH - 160.0;
+    // tracking the duck's actual screen X position to drive the bar from its
+    // frozen scroll value up to 1.0 — reaching 1.0 exactly when the duck exits.
+    private double runOffStartX = 200.0;   // duck's X when run-off begins (set in startRunOff)
     // ────────────────────────────────────────────────────────────────────────
 
     private final double groundY = MainApp.WINDOW_HEIGHT - 130;
@@ -268,7 +264,8 @@ public class GameScene {
         // The level triggers completion at bgScrolledTotal == loopsToComplete - 2
         // (see onTileWrapped). So the bar must be full exactly when that loop count
         // is reached — i.e. total scroll = (loopsToComplete - 2) * bgWidth.
-        levelTotalScrollPixels = Math.max(1.0, (loopsToComplete - 2)) * width;
+        double normalLoops = Math.max(1.0, (loopsToComplete - 2));
+        levelTotalScrollPixels = normalLoops * width + width + MainApp.WINDOW_WIDTH;
         if (levelProgressBar != null) {
             levelProgressBar.setLevelLength(levelTotalScrollPixels);
         }
@@ -282,7 +279,7 @@ public class GameScene {
         background2.setLayoutX(background2.getLayoutX() - moveAmount);
 
         // ── Accumulate scroll distance for the progress bar ──────────────────
-        if (!levelCompleted) {
+        if (!duckRunningOff) {
             levelScrolledPixels += moveAmount;
         }
         // ────────────────────────────────────────────────────────────────────
@@ -307,6 +304,7 @@ public class GameScene {
             if (rightEdge <= MainApp.WINDOW_WIDTH) {
                 levelCompleted = false;
                 duckRunningOff = true;
+                runOffStartX = duck.getNode().getLayoutX(); // snapshot X so bar tracks real position
                 duck.startRunOff();
             }
         }
@@ -326,16 +324,15 @@ public class GameScene {
         gc.clearRect(0, 0, progressCanvas.getWidth(), progressCanvas.getHeight());
 
         if (duckRunningOff) {
-            // During run-off: blend from frozen scroll progress toward 1.0
-            // using how far the duck has run off screen.
-            double scrollProgress = Math.min(1.0, levelScrolledPixels / levelTotalScrollPixels);
-            double runOffFraction = Math.min(1.0, runOffScrolled / runOffTotal);
-            // Combined: scroll fills the bar up to scrollProgress,
-            // then run-off fills the remaining gap to 1.0
-            double combined = scrollProgress + (1.0 - scrollProgress) * runOffFraction;
-            levelProgressBar.updateDirect(combined);
+            // Run-off phase: mini duck has already reached the flag (bar = 1.0).
+            // Keep it pinned at 1.0 while the main duck exits the screen.
+            levelProgressBar.updateDirect(1.0);
         } else {
-            levelProgressBar.update(levelScrolledPixels);
+            // Normal + transition phase: drive bar by actual pixels scrolled.
+            // levelTotalScrollPixels = normalLoops*bgW + transitionW + WINDOW_WIDTH,
+            // so progress hits 1.0 exactly when the transition right edge exits.
+            double scrollProgress = Math.min(1.0, levelScrolledPixels / levelTotalScrollPixels);
+            levelProgressBar.updateDirect(scrollProgress);
         }
 
         levelProgressBar.draw(gc);
@@ -602,8 +599,6 @@ public class GameScene {
                 if (!isPaused) {
                     if (duckRunningOff) {
                         duck.update(deltaTime);
-                        // Accumulate how far the duck has run so the bar tracks it
-                        runOffScrolled += backgroundScrollSpeed * deltaTime;
                         drawProgressBar();
                         if (duck.hasRunOff(MainApp.WINDOW_WIDTH)) {
                             duckRunningOff = false;
@@ -691,7 +686,7 @@ public class GameScene {
 
         // ── Reset progress bar ───────────────────────────────────────────────
         levelScrolledPixels = 0.0;
-        runOffScrolled      = 0.0;
+        runOffStartX        = 200.0;
         levelProgressBar.reset();
         // ────────────────────────────────────────────────────────────────────
 
