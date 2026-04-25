@@ -41,26 +41,13 @@ public final class AssetLoader {
 
 
     public static Media loadVideo(String resourcePath) {
-
-        if (videoCache.containsKey(resourcePath)) {
-            return videoCache.get(resourcePath);
-        }
-
         try {
-
             URL url = AssetLoader.class.getResource(resourcePath);
-
             if (url == null) {
                 System.out.println("VIDEO NOT FOUND: " + resourcePath);
                 return null;
             }
-
-            Media media = new Media(url.toExternalForm());
-
-            videoCache.put(resourcePath, media);
-
-            return media;
-
+            return new Media(url.toExternalForm()); // fresh every time for video
         } catch (Exception e) {
             e.printStackTrace();
             return null;
