@@ -68,7 +68,7 @@ jobs:
           fi
 
           jlink \
-            --module-path "$JAVA_HOME/jmods:target/deps:$JAR_FILE" \
+            --module-path "$JAVA_HOME/jmods${SEP}target/deps${SEP}$JAR_FILE" \
             --add-modules edu.bauet.java.cse.duckrun \
             --output target/runtime \
             --strip-debug \
