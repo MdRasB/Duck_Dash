@@ -354,27 +354,48 @@ public class GameScene {
     }
 
     private void startBgMusic() {
-        String bgmPath;
+        String introPath;
+        String loopPath;
+
+        // Define different paths based on the level
         if (currentLevel instanceof Level1) {
-            bgmPath = "/audio/music/Pixel_Dash.mp3";
+            introPath = "/audio/music/Pixel_Dash.mp3";
+            loopPath  = "/audio/music/Pixel_Dash.mp3";
         } else if (currentLevel instanceof Level2) {
-            bgmPath = "/audio/music/Pixel_Corridor_Dash.mp3";
+            introPath = "/audio/music/Pixel Quest1.mp3";
+            loopPath  = "/audio/music/Pixel Quest2.wav";
         } else {
-            bgmPath = "/audio/music/Terminal_Velocity_Run.mp3";
+            introPath = "/audio/music/Terminal_Velocity_Run.mp3";
+            loopPath  = "/audio/music/Terminal_Velocity_Run.mp3";
         }
 
-        Media music = AssetLoader.loadMusic(bgmPath);
-        if (music == null) return;
+        // Load the two distinct files
+        javafx.scene.media.Media intro = AssetLoader.loadMusic(introPath);
+        javafx.scene.media.Media loop  = AssetLoader.loadMusic(loopPath);
 
-        MediaPlayer player = new MediaPlayer(music);
-        player.setCycleCount(MediaPlayer.INDEFINITE);
-        player.setVolume(0.2);
+        if (intro == null || loop == null) return;
 
         MusicManager mm = MusicManager.getInstance();
         if (mm.getBgPlayer() != null) mm.getBgPlayer().stop();
-        mm.setBgPlayer(player);
 
-        if (mm.isMusicEnabled()) player.play();
+        // Prepare the looping player
+        MediaPlayer loopPlayer = new MediaPlayer(loop);
+        loopPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        loopPlayer.setVolume(0.2);
+
+        // Prepare the intro player
+        MediaPlayer introPlayer = new MediaPlayer(intro);
+        introPlayer.setCycleCount(1);
+        introPlayer.setVolume(0.2);
+
+        // Switch to loopPlayer when intro finishes
+        introPlayer.setOnEndOfMedia(() -> {
+            mm.setBgPlayer(loopPlayer);
+            if (mm.isMusicEnabled()) loopPlayer.play();
+        });
+
+        mm.setBgPlayer(introPlayer);
+        if (mm.isMusicEnabled()) introPlayer.play();
     }
 
     private void stopBgMusic() {

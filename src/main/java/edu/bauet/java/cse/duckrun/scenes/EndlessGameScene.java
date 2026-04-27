@@ -209,27 +209,60 @@ public class EndlessGameScene {
     }
 
     private void startBgMusic() {
-        String bgmPath;
+        String introPath;
+        String loopPath;
+
+        // Define different paths based on the level
         if (currentLevel instanceof Level1) {
-            bgmPath = "/audio/music/Pixel_Dash.mp3";
+            introPath = "/audio/music/Pixel_Dash.mp3";
+            loopPath  = "/audio/music/Pixel_Dash.mp3";
         } else if (currentLevel instanceof Level2) {
-            bgmPath = "/audio/music/Pixel_Corridor_Dash.mp3";
+            // Level 2 uses two distinct files for intro and loop
+            introPath = "/audio/music/Pixel Quest1.mp3";
+            loopPath  = "/audio/music/Pixel Quest2.wav";
         } else {
-            bgmPath = "/audio/music/Terminal_Velocity_Run.mp3";
+            introPath = "/audio/music/Terminal_Velocity_Run.mp3";
+            loopPath  = "/audio/music/Terminal_Velocity_Run.mp3";
         }
 
-        javafx.scene.media.Media music = AssetLoader.loadMusic(bgmPath);
-        if (music == null) return;
+        // Load the two media assets
+        javafx.scene.media.Media introMedia = AssetLoader.loadMusic(introPath);
+        javafx.scene.media.Media loopMedia  = AssetLoader.loadMusic(loopPath);
 
-        MediaPlayer player = new MediaPlayer(music);
-        player.setCycleCount(MediaPlayer.INDEFINITE);
-        player.setVolume(0.2);
+        // Safety check: if loading fails, abort to avoid NullPointerException
+        if (introMedia == null || loopMedia == null) return;
 
         MusicManager mm = MusicManager.getInstance();
-        if (mm.getBgPlayer() != null) mm.getBgPlayer().stop();
-        mm.setBgPlayer(player);
 
-        if (mm.isMusicEnabled()) player.play();
+        // Stop any currently playing background music
+        if (mm.getBgPlayer() != null) {
+            mm.getBgPlayer().stop();
+        }
+
+        // 1. Setup the Looping Player (to be played after the intro)
+        MediaPlayer loopPlayer = new MediaPlayer(loopMedia);
+        loopPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        loopPlayer.setVolume(0.2);
+
+        // 2. Setup the Intro Player (plays once)
+        MediaPlayer introPlayer = new MediaPlayer(introMedia);
+        introPlayer.setCycleCount(1);
+        introPlayer.setVolume(0.2);
+
+        // 3. Define the hand-off logic
+        introPlayer.setOnEndOfMedia(() -> {
+            // Switch the reference in MusicManager so pause/stop works on the new player
+            mm.setBgPlayer(loopPlayer);
+            if (mm.isMusicEnabled()) {
+                loopPlayer.play();
+            }
+        });
+
+        // 4. Set the intro as the active player and start playback
+        mm.setBgPlayer(introPlayer);
+        if (mm.isMusicEnabled()) {
+            introPlayer.play();
+        }
     }
 
     private void stopBgMusic() {
