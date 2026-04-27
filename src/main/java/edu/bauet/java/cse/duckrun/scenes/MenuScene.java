@@ -6,7 +6,9 @@ import edu.bauet.java.cse.duckrun.ui.LevelMenu;
 import edu.bauet.java.cse.duckrun.ui.HighScoreMenu;
 import edu.bauet.java.cse.duckrun.ui.SettingsMenu;
 import edu.bauet.java.cse.duckrun.ui.EndlessLevelMenu;
+import edu.bauet.java.cse.duckrun.ui.MenuBackground;          // ← NEW
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
+import edu.bauet.java.cse.duckrun.utils.MusicManager;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -14,20 +16,17 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.stage.Stage;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.effect.GaussianBlur;
-
-import edu.bauet.java.cse.duckrun.utils.MusicManager;
-import edu.bauet.java.cse.duckrun.utils.AssetLoader;
-import javafx.scene.media.MediaPlayer;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 public class MenuScene {
 
     private Stage stage;
     private StackPane root;
-    private ImageView background;
+    private MenuBackground animatedBg;          // ← NEW (replaces plain ImageView)
     private VBox menuBox;
     private Rectangle overlay;
     private SettingsMenu settingsMenu;
@@ -44,60 +43,75 @@ public class MenuScene {
 
         root = new StackPane();
 
-        Image bgImage = AssetLoader.getImage("/images/ui/menu/menu_bg.png");
-        background = new ImageView(bgImage);
-        background.setFitWidth(MainApp.WINDOW_WIDTH);
-        background.setFitHeight(MainApp.WINDOW_HEIGHT);
-        background.setPreserveRatio(false);
+        // ── Animated background (sky + moving clouds + building) ──────────────
+        animatedBg = new MenuBackground();
 
+        // ── Dim overlay (shown when a sub-menu is open) ───────────────────────
         overlay = new Rectangle(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
         overlay.setStyle("-fx-fill: rgba(0, 0, 0, 0.5);");
         overlay.setVisible(false);
 
+        // ── Game title image ──────────────────────────────────────────────────
         Image gameTitle = new Image(getClass().getResourceAsStream("/images/ui/menu/title2.png"));
         ImageView titleView = new ImageView(gameTitle);
         titleView.setFitWidth(472);
         titleView.setPreserveRatio(true);
         VBox.setMargin(titleView, new javafx.geometry.Insets(-175, 0, 0, -105));
 
-        Button btnNewGame = createMenuButton("New Game");
-        Button btnLevels = createMenuButton("Levels");
-        Button btnEndless = createMenuButton("Endless");
-        Button btnScore = createMenuButton("High Score");
+        // ── Menu buttons ──────────────────────────────────────────────────────
+        Button btnNewGame  = createMenuButton("New Game");
+        Button btnLevels   = createMenuButton("Levels");
+        Button btnEndless  = createMenuButton("Endless");
+        Button btnScore    = createMenuButton("High Score");
         Button btnSettings = createMenuButton("Settings");
-        Button btnExit = createMenuButton("Exit");
+        Button btnExit     = createMenuButton("Exit");
 
+        // ── Sub-menus ─────────────────────────────────────────────────────────
         endlessLevelMenu = new EndlessLevelMenu(this::closeMenu);
-        levelMenu = new LevelMenu(this::closeMenu, () -> showMenu(endlessLevelMenu));
-        highScoreMenu = new HighScoreMenu(this::closeMenu);
-        settingsMenu = new SettingsMenu(this::closeMenu, highScoreMenu);
+        levelMenu        = new LevelMenu(this::closeMenu, () -> showMenu(endlessLevelMenu));
+        highScoreMenu    = new HighScoreMenu(this::closeMenu);
+        settingsMenu     = new SettingsMenu(this::closeMenu, highScoreMenu);
 
+        // ── Button actions ────────────────────────────────────────────────────
         btnNewGame.setOnAction(e -> {
-            // Create a Level1 object and pass it to the GameScene
+            animatedBg.stop();                              // stop animation when leaving
             Level1 level1 = new Level1(MainApp.WINDOW_HEIGHT - 130);
             GameScene gameScene = new GameScene(level1);
             MainApp.switchScene(gameScene.getScene());
         });
 
-        btnLevels.setOnAction(e -> showMenu(levelMenu));
-        btnEndless.setOnAction(e -> showMenu(endlessLevelMenu));
-        btnScore.setOnAction(e -> showMenu(highScoreMenu));
+        btnLevels.setOnAction(e   -> showMenu(levelMenu));
+        btnEndless.setOnAction(e  -> showMenu(endlessLevelMenu));
+        btnScore.setOnAction(e    -> showMenu(highScoreMenu));
         btnSettings.setOnAction(e -> showMenu(settingsMenu));
-        btnExit.setOnAction(e -> stage.close());
+        btnExit.setOnAction(e     -> { animatedBg.stop(); stage.close(); });
 
+        // ── Layout ────────────────────────────────────────────────────────────
         menuBox = new VBox(10);
-        menuBox.getChildren().addAll(titleView, btnNewGame, btnLevels, btnEndless, btnScore, btnSettings, btnExit);
+        menuBox.getChildren().addAll(titleView, btnNewGame, btnLevels, btnEndless,
+                btnScore, btnSettings, btnExit);
         menuBox.setAlignment(Pos.CENTER_LEFT);
         menuBox.setStyle("-fx-padding: 80 0 0 160;");
 
-        root.getChildren().addAll(background, overlay, menuBox, levelMenu, highScoreMenu, settingsMenu, endlessLevelMenu);
+        root.getChildren().addAll(
+                animatedBg,                  // layer 0: bg + clouds + building
+                overlay,                     // layer 1: dim overlay
+                menuBox,                     // layer 2: buttons
+                levelMenu,
+                highScoreMenu,
+                settingsMenu,
+                endlessLevelMenu
+        );
 
         Scene scene = new Scene(root, MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/styles/main_menu.css").toExternalForm());
 
+        animatedBg.start();              // ← begin cloud animation
         startMenuMusic();
         return scene;
     }
+
+    // ── Sub-menu show / hide ──────────────────────────────────────────────────
 
     private void showMenu(StackPane menuToShow) {
         levelMenu.setVisible(false);
@@ -108,7 +122,8 @@ public class MenuScene {
         overlay.setVisible(true);
         menuBox.setDisable(true);
         menuBox.setVisible(false);
-        background.setEffect(new GaussianBlur(10));
+        // Blur only the animated background pane
+        animatedBg.setEffect(new GaussianBlur(10));
     }
 
     private void closeMenu() {
@@ -119,8 +134,10 @@ public class MenuScene {
         overlay.setVisible(false);
         menuBox.setDisable(false);
         menuBox.setVisible(true);
-        background.setEffect(null);
+        animatedBg.setEffect(null);
     }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private Button createMenuButton(String text) {
         Button btn = new Button(text);
@@ -128,9 +145,8 @@ public class MenuScene {
         return btn;
     }
 
-    //main menu music
     private void startMenuMusic() {
-        javafx.scene.media.Media music = AssetLoader.loadMusic("/audio/music/menu.mp3");
+        javafx.scene.media.Media music = AssetLoader.loadMusic("/audio/music/Square Cartridge.mp3");
         if (music == null) return;
 
         MediaPlayer player = new MediaPlayer(music);
