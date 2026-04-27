@@ -69,17 +69,18 @@ public final class AssetLoader {
 
 
     private static Image loadImageInternal(String path) {
+        try {
+            // Get the resource URL instead of the Stream
+            URL url = AssetLoader.class.getResource(path);
 
-        try (InputStream stream = AssetLoader.class.getResourceAsStream(path)) {
-
-            if (stream == null) {
+            if (url == null) {
                 return handleMissingImage(path);
             }
 
-            return new Image(stream);
+            // Loading via URL string preserves the URL property for img.getUrl()
+            return new Image(url.toExternalForm());
 
         } catch (Exception e) {
-
             LOGGER.log(Level.SEVERE, "Error loading image: " + path, e);
             return handleMissingImage(path);
         }
@@ -169,7 +170,15 @@ public final class AssetLoader {
 
             "/images/ui/duck_emoji.png",
             "/images/ui/hall_background.png",
-            "/images/ui/hall_ui_1200x600.png"
+            "/images/ui/hall_ui_1200x600.png",
+
+            "/Story/startstory.png"
+    };
+
+
+    private static final String[] PRELOAD_VIDEO_PATHS = {
+
+            "/Story/opening.mp4"
     };
 
 
@@ -185,10 +194,29 @@ public final class AssetLoader {
     }
 
 
+    public static void preloadVideos() {
+        // Videos are NOT cached because MediaPlayer.dispose() kills the underlying
+        // Media object — caching a disposed Media causes black screen on next use.
+        // This method is intentionally a no-op; loadFreshVideo() creates on demand.
+        LOGGER.info("Video preloading skipped (videos are always created fresh).");
+    }
+
+
+    /**
+     * Always returns a brand-new Media object for the given path.
+     * Use this for videos that will be played then disposed (e.g. cutscenes).
+     * Never use the old getCachedVideo() for disposable media.
+     */
+    public static Media loadFreshVideo(String resourcePath) {
+        return loadVideo(resourcePath);
+    }
+
+
     public static void clearAll() {
 
         imageCache.clear();
+        videoCache.clear();
 
-        LOGGER.info("Image cache cleared.");
+        LOGGER.info("Image and video cache cleared.");
     }
 }
