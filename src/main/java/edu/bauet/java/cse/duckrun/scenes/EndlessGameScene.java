@@ -214,15 +214,15 @@ public class EndlessGameScene {
 
         // Define different paths based on the level
         if (currentLevel instanceof Level1) {
-            introPath = "/audio/music/Pixel_Dash.mp3";
-            loopPath  = "/audio/music/Pixel_Dash.mp3";
+            introPath = "/audio/music/Pixel_Dash1.mp3";
+            loopPath  = "/audio/music/Pixel_Dash2.wav";
         } else if (currentLevel instanceof Level2) {
             // Level 2 uses two distinct files for intro and loop
-            introPath = "/audio/music/Pixel Quest1.mp3";
-            loopPath  = "/audio/music/Pixel Quest2.wav";
+            introPath = "/audio/music/Pixel_Quest1.mp3";
+            loopPath  = "/audio/music/Pixel_Quest2.wav";
         } else {
-            introPath = "/audio/music/Terminal_Velocity_Run.mp3";
-            loopPath  = "/audio/music/Terminal_Velocity_Run.mp3";
+            introPath = "/audio/music/Terminal_Velocity1.mp3";
+            loopPath  = "/audio/music/Terminal_Velocity2.wav";
         }
 
         // Load the two media assets
@@ -242,12 +242,12 @@ public class EndlessGameScene {
         // 1. Setup the Looping Player (to be played after the intro)
         MediaPlayer loopPlayer = new MediaPlayer(loopMedia);
         loopPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-        loopPlayer.setVolume(0.2);
+        loopPlayer.setVolume(0.6);
 
         // 2. Setup the Intro Player (plays once)
         MediaPlayer introPlayer = new MediaPlayer(introMedia);
         introPlayer.setCycleCount(1);
-        introPlayer.setVolume(0.2);
+        introPlayer.setVolume(0.6);
 
         // 3. Define the hand-off logic
         introPlayer.setOnEndOfMedia(() -> {

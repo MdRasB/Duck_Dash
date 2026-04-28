@@ -359,14 +359,14 @@ public class GameScene {
 
         // Define different paths based on the level
         if (currentLevel instanceof Level1) {
-            introPath = "/audio/music/Pixel_Dash.mp3";
-            loopPath  = "/audio/music/Pixel_Dash.mp3";
+            introPath = "/audio/music/Pixel_Dash1.mp3";
+            loopPath  = "/audio/music/Pixel_Dash2.wav";
         } else if (currentLevel instanceof Level2) {
-            introPath = "/audio/music/Pixel Quest1.mp3";
-            loopPath  = "/audio/music/Pixel Quest2.wav";
+            introPath = "/audio/music/Pixel_Quest1.mp3";
+            loopPath  = "/audio/music/Pixel_Quest2.wav";
         } else {
-            introPath = "/audio/music/Terminal_Velocity_Run.mp3";
-            loopPath  = "/audio/music/Terminal_Velocity_Run.mp3";
+            introPath = "/audio/music/Terminal_Velocity1.mp3";
+            loopPath  = "/audio/music/Terminal_Velocity2.wav";
         }
 
         // Load the two distinct files
@@ -381,12 +381,12 @@ public class GameScene {
         // Prepare the looping player
         MediaPlayer loopPlayer = new MediaPlayer(loop);
         loopPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-        loopPlayer.setVolume(0.2);
+        loopPlayer.setVolume(0.6);
 
         // Prepare the intro player
         MediaPlayer introPlayer = new MediaPlayer(intro);
         introPlayer.setCycleCount(1);
-        introPlayer.setVolume(0.2);
+        introPlayer.setVolume(0.6);
 
         // Switch to loopPlayer when intro finishes
         introPlayer.setOnEndOfMedia(() -> {
@@ -757,6 +757,9 @@ public class GameScene {
     }
 
     private void showGameOverScreen(String imagePath) {
+        // play game over sound
+        MusicManager.getInstance().playOneShot("/audio/music/game_over.mp3", 1.0);
+
         javafx.scene.shape.Rectangle darkOverlay = new javafx.scene.shape.Rectangle(
                 MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT, Color.rgb(0, 0, 0, 0.8)
         );
@@ -823,6 +826,10 @@ public class GameScene {
         }
         timeUtil.stop();
         stopBgMusic();
+
+        // play victory music
+        MusicManager.getInstance().playOneShot("/audio/music/victory.mp3", 1.0);
+
         int elapsed = timeUtil.getElapsedSeconds();
         if (currentLevel instanceof Level1) {
             HighScoreManager.submitLevel1(elapsed);

@@ -65,7 +65,7 @@ public class Duck {
     private boolean toggleFrame = false;
 
     // Path to the stepping sound — swap this to whatever file you place in resources
-    private static final String STEP_SFX = "/audio/sound_effect/step3x.mp3";
+    private static final String STEP_SFX = "/audio/sound_effect/stepMAX.mp3";
 
     private final double DISPLAY_HEIGHT = 90;
 
@@ -219,7 +219,7 @@ public class Duck {
 
             // Play step sound on each waddle frame while crouching
             if (frameJustToggled) {
-                MusicManager.getInstance().playSfx(STEP_SFX, 0.4);
+                MusicManager.getInstance().playSfx(STEP_SFX, 0.3);
             }
 
         } else if (!jumping) {
@@ -231,7 +231,7 @@ public class Duck {
 
             // Play step sound on every frame toggle while running on the ground
             if (frameJustToggled) {
-                MusicManager.getInstance().playSfx(STEP_SFX, 0.4);
+                MusicManager.getInstance().playSfx(STEP_SFX, 0.3);
             }
         }
         // No step sound while jumping — duck is airborne

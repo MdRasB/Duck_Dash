@@ -146,8 +146,8 @@ public class MenuScene {
     }
 
     private void startMenuMusic() {
-        javafx.scene.media.Media intro = AssetLoader.loadMusic("/audio/music/Square Cartridge1.mp3");
-        javafx.scene.media.Media loop  = AssetLoader.loadMusic("/audio/music/Square Cartridge2.wav");
+        javafx.scene.media.Media intro = AssetLoader.loadMusic("/audio/music/Square_Cartridge1.mp3");
+        javafx.scene.media.Media loop  = AssetLoader.loadMusic("/audio/music/Square_Cartridge2.wav");
         if (intro == null || loop == null) return;
 
         MusicManager mm = MusicManager.getInstance();
