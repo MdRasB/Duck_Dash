@@ -23,8 +23,8 @@ public class MenuBackground extends Pane {
 
     /** Vertical band (fraction of window height) where clouds appear.
      *  Negative values go above the screen top. */
-    private static final double CLOUD_Y_MIN = -0.06;  // -4% above top
-    private static final double CLOUD_Y_MAX =  0.30;  // 20% from top
+    private static final double CLOUD_Y_MIN = -0.06;
+    private static final double CLOUD_Y_MAX =  0.30;
 
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -36,6 +36,8 @@ public class MenuBackground extends Pane {
     private AnimationTimer timer;
     private long lastNano = -1;
     private final Random rng = new Random();
+
+    private MenuDuck menuDuck;   // ← duck layer
 
     public MenuBackground() {
         setPrefSize(W, H);
@@ -57,10 +59,12 @@ public class MenuBackground extends Pane {
             }
         };
         timer.start();
+        menuDuck.start();   // ← start duck animation
     }
 
     public void stop() {
         if (timer != null) { timer.stop(); timer = null; }
+        menuDuck.stop();    // ← stop duck animation
     }
 
     // ── private helpers ───────────────────────────────────────────────────────
@@ -91,19 +95,17 @@ public class MenuBackground extends Pane {
             getChildren().add(cs.view);
         }
 
-        // ── Layer 2: building ─────────────────────────────────────────────────
+        // ── Layer 3: building ─────────────────────────────────────────────────
         Image buildingImg = AssetLoader.getImage("/images/ui/menu/bauet.png");
         ImageView buildingView = new ImageView(buildingImg);
-        buildingView.setFitHeight(H * 0.80);  // drive by height to preserve tall proportions
-        buildingView.setFitWidth(W * 0.70);           // width follows automatically
-        //buildingView.setPreserveRatio(true);
+        buildingView.setFitHeight(H * 0.80);
+        buildingView.setFitWidth(W * 0.70);
 
-        buildingView.setLayoutX(W * 0.30);     // horizontal position — tweak as needed
+        buildingView.setLayoutX(W * 0.30);
 
-        double groundStripHeight = H * 0.1;   // matches ground strip in menubg
+        double groundStripHeight = H * 0.1;
         buildingView.setLayoutY(H - buildingView.getFitHeight() - groundStripHeight + 36);
 
-        // Reposition once image is fully loaded (actual rendered height may differ)
         buildingImg.progressProperty().addListener((obs, o, n) -> {
             if (n.doubleValue() >= 1.0) {
                 double renderedH = buildingView.getFitHeight();
@@ -111,12 +113,14 @@ public class MenuBackground extends Pane {
             }
         });
         getChildren().add(buildingView);
+
+        // ── Layer 2: duck (runs in front of everything) ─────────
+        menuDuck = new MenuDuck(this);
     }
 
     /** Returns true for cloud1 and cloud2, which should render larger. */
     private boolean isLargeCloud(Image img) {
         String url = img.getUrl();
-        // Null check added to prevent the crash
         if (url == null) return false;
         return url.contains("cloud1") || url.contains("cloud2");
     }
@@ -127,7 +131,7 @@ public class MenuBackground extends Pane {
         Image img = cloudImages.get(rng.nextInt(cloudImages.size()));
         iv.setImage(img);
 
-        boolean isLarge = isLargeCloud(img); //
+        boolean isLarge = isLargeCloud(img);
         double cloudW = isLarge
                 ? 260 + rng.nextDouble() * 180
                 : 100 + rng.nextDouble() * 80;
@@ -139,11 +143,9 @@ public class MenuBackground extends Pane {
         double speedMultiplier = isLarge ? 1.5 : 0.8;
         double speed = BASE_SPEED * speedMultiplier * (0.5 + (1.0 - (cloudW - 140) / 240.0) * 1.2);
 
-        // --- ADJUSTMENT START ---
-        double yMin = CLOUD_Y_MIN; // Both start at -0.04
+        double yMin = CLOUD_Y_MIN;
         double yMax = isLarge ? 0.05 : CLOUD_Y_MAX;
         double y = yMin * H + rng.nextDouble() * (yMax - yMin) * H;
-        // --- ADJUSTMENT END ---
 
         double x = scatterInitially
                 ? -iv.getFitWidth() + rng.nextDouble() * (W + iv.getFitWidth())
@@ -178,11 +180,9 @@ public class MenuBackground extends Pane {
         double speedMultiplier = isLarge ? 1.5 : 0.8;
         cs.speed = BASE_SPEED * speedMultiplier * (0.5 + (1.0 - (cloudW - 140) / 240.0) * 1.2);
 
-        // --- ADJUSTMENT START ---
         double yMin = CLOUD_Y_MIN;
         double yMax = isLarge ? 0.05 : CLOUD_Y_MAX;
         double y = yMin * H + rng.nextDouble() * (yMax - yMin) * H;
-        // --- ADJUSTMENT END ---
 
         cs.view.setLayoutX(-cloudW - rng.nextDouble() * 120);
         cs.view.setLayoutY(y);

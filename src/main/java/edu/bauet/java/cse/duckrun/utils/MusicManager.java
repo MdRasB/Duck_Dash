@@ -84,4 +84,33 @@ public class MusicManager {
     public MediaPlayer getBgPlayer() {
         return bgPlayer;
     }
+
+    /**
+     * Plays a one-shot music track (non-looping) — used for game-over and
+     * level-clear jingles. Respects the mute flag and is stored as bgPlayer
+     * so stopBgMusic() can clean it up.
+     *
+     * @param resourcePath  e.g. "/audio/music/game_over.mp3"
+     * @param volume        0.0 – 1.0
+     */
+    public void playOneShot(String resourcePath, double volume) {
+        if (!soundEnabled) return;
+        try {
+            URL url = MusicManager.class.getResource(resourcePath);
+            if (url == null) {
+                System.err.println("MusicManager: one-shot not found: " + resourcePath);
+                return;
+            }
+            javafx.scene.media.Media media =
+                    new javafx.scene.media.Media(url.toExternalForm());
+            MediaPlayer player = new MediaPlayer(media);
+            player.setCycleCount(1);
+            player.setVolume(volume);
+            setBgPlayer(player);
+            player.play();
+        } catch (Exception e) {
+            System.err.println("MusicManager: could not play one-shot: " + resourcePath);
+            e.printStackTrace();
+        }
+    }
 }
