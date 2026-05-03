@@ -199,7 +199,7 @@ public class CreditsScene {
         // ── A Game by ─────────────────────────────────────────────────────
         col.getChildren().add(makeLabel("A Game by",        "credits-small-gray"));
         addSpacer(col, 14);
-        col.getChildren().add(makeLabel("Team Rotten Eggs", "credits-team-name"));
+        col.getChildren().add(makeLabel("Team Duck Dash", "credits-team-name"));
 
         addSpacer(col, 100);
         addDivider(col);
@@ -244,7 +244,7 @@ public class CreditsScene {
         addSpacer(col, 50);
 
         addToolGroup(col, "Language & Runtime",
-                "Java 17   ·   JDK 17+");
+                "Java 21   ·   JDK 21.0.10");
         addSpacer(col, 50);
         addToolGroup(col, "Framework & UI",
                 "JavaFX 21",
@@ -312,7 +312,7 @@ public class CreditsScene {
         // Closing card
         col.getChildren().add(makeLabel("Duck Dash",                               "credits-closing-title"));
         addSpacer(col, 14);
-        col.getChildren().add(makeLabel("MIT License   ·   2025",                             "credits-tiny-gray"));
+        col.getChildren().add(makeLabel("GPL-v3-or-Later License   ·   2026",                             "credits-tiny-gray"));
         addSpacer(col, 50);
         col.getChildren().add(makeLabel(
                 "Made with late nights and bad ideas — but we shipped it.", "credits-small-italic"));
