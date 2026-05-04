@@ -33,6 +33,7 @@ public class MainApp extends Application {
         Scene scene = storyScene.createScene(stage);
 
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 
