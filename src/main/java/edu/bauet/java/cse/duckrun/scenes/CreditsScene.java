@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.transform.Scale;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -77,6 +78,8 @@ public class CreditsScene {
         StackPane root = new StackPane();
         root.getStyleClass().add("credits-root");
         root.setPrefSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
+        root.setMinSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
+        root.setMaxSize(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT);
 
         // Scroll container: plain Pane — does NOT constrain children to its own
         // size, so the VBox can grow to its full natural content height.
@@ -92,7 +95,22 @@ public class CreditsScene {
         scrollPane.getChildren().add(creditsColumn);
         root.getChildren().addAll(scrollPane, thankYouOverlay);
 
-        Scene scene = new Scene(root, MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT, Color.BLACK);
+        // ── Scale-to-fit: content stays at 1280x720, window can be any size ─────
+        // Group is used as wrapper because it sizes itself to the transformed
+        // bounds of its child — unlike StackPane which ignores transforms for layout.
+        Scale creditsScale = new Scale(1, 1, 0, 0);
+        root.getTransforms().add(creditsScale);
+        javafx.scene.Group scaleWrapper = new javafx.scene.Group(root);
+
+        Scene scene = new Scene(scaleWrapper);
+        scene.widthProperty().addListener((obs, o, n) -> {
+            double s = Math.min(n.doubleValue() / MainApp.WINDOW_WIDTH, scene.getHeight() / MainApp.WINDOW_HEIGHT);
+            creditsScale.setX(s); creditsScale.setY(s);
+        });
+        scene.heightProperty().addListener((obs, o, n) -> {
+            double s = Math.min(scene.getWidth() / MainApp.WINDOW_WIDTH, n.doubleValue() / MainApp.WINDOW_HEIGHT);
+            creditsScale.setX(s); creditsScale.setY(s);
+        });
         scene.getStylesheets().add(getClass().getResource(CREDITS_CSS).toExternalForm());
 
         // SPACE skips to menu at any time
@@ -181,7 +199,7 @@ public class CreditsScene {
         // ── A Game by ─────────────────────────────────────────────────────
         col.getChildren().add(makeLabel("A Game by",        "credits-small-gray"));
         addSpacer(col, 14);
-        col.getChildren().add(makeLabel("Team Rotten Eggs", "credits-team-name"));
+        col.getChildren().add(makeLabel("Team Duck Dash", "credits-team-name"));
 
         addSpacer(col, 100);
         addDivider(col);
@@ -226,7 +244,7 @@ public class CreditsScene {
         addSpacer(col, 50);
 
         addToolGroup(col, "Language & Runtime",
-                "Java 17   ·   JDK 17+");
+                "Java 21   ·   JDK 21.0.10");
         addSpacer(col, 50);
         addToolGroup(col, "Framework & UI",
                 "JavaFX 21",
@@ -294,7 +312,7 @@ public class CreditsScene {
         // Closing card
         col.getChildren().add(makeLabel("Duck Dash",                               "credits-closing-title"));
         addSpacer(col, 14);
-        col.getChildren().add(makeLabel("MIT License   ·   2025",                             "credits-tiny-gray"));
+        col.getChildren().add(makeLabel("GPL-v3-or-Later License   ·   2026",                             "credits-tiny-gray"));
         addSpacer(col, 50);
         col.getChildren().add(makeLabel(
                 "Made with late nights and bad ideas — but we shipped it.", "credits-small-italic"));
