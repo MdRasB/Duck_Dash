@@ -1,5 +1,6 @@
 package edu.bauet.java.cse.duckrun;
 
+import edu.bauet.java.cse.duckrun.scenes.LogoScene;
 import edu.bauet.java.cse.duckrun.scenes.StoryScene;
 import edu.bauet.java.cse.duckrun.utils.AssetLoader;
 import javafx.application.Application;
@@ -26,8 +27,8 @@ public class MainApp extends Application {
         AssetLoader.preloadAssets();
         AssetLoader.preloadVideos();
 
-        StoryScene storyScene = new StoryScene();
-        Scene scene = storyScene.createScene(stage);
+        LogoScene logoScene = new LogoScene();
+        Scene scene = logoScene.createScene(stage);
 
         primaryStage.setScene(scene);
         primaryStage.show();

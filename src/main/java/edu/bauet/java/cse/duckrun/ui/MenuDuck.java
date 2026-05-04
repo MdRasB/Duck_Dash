@@ -50,14 +50,15 @@ public class MenuDuck {
     private long lastNano = -1;
 
     // animation state
-    private int  frameCounter  = 0;
-    private boolean toggleFrame = false;
+    private int     frameCounter = 0;
+    private boolean toggleFrame  = false;
 
     // spawn / active state
-    private boolean active        = false;   // duck is currently on screen
+    private boolean active         = false;  // duck is currently on screen
     private double  spawnCountdown = 0;      // seconds until next spawn
     private double  duckX          = 0;
     private double  duckY          = 0;
+    private boolean goingRight     = true;   // current travel direction
 
     private final java.util.Random rng = new java.util.Random();
 
@@ -104,8 +105,8 @@ public class MenuDuck {
 
     private void update(double dt) {
         if (active) {
-            // move duck right
-            duckX += DUCK_SPEED * dt;
+            // move duck in current direction
+            duckX += (goingRight ? 1 : -1) * DUCK_SPEED * dt;
             duckView.setLayoutX(duckX);
 
             // animate legs
@@ -119,8 +120,11 @@ public class MenuDuck {
                 duckView.setLayoutY(duckY + runOffset);
             }
 
-            // duck has fully left the right edge → deactivate and schedule next spawn
-            if (duckX > W + duckView.getFitWidth() + 20) {
+            // duck has fully left the screen edge → deactivate and schedule next spawn
+            boolean exited = goingRight
+                    ? duckX > W + duckView.getFitWidth() + 20    // off right edge
+                    : duckX < -duckView.getFitWidth() - 20;      // off left edge
+            if (exited) {
                 deactivate();
             }
 
@@ -134,8 +138,20 @@ public class MenuDuck {
     }
 
     private void spawn() {
-        duckX = -duckView.getFitWidth() - 10;
+        // randomly pick a direction each time
+        goingRight = rng.nextBoolean();
+
+        double duckWidth = duckView.getFitWidth();
+
+        // start just off the appropriate edge
+        duckX = goingRight
+                ? -duckWidth - 10      // off left edge, walking right
+                : W + duckWidth + 10;  // off right edge, walking left
+
         duckY = H - DUCK_DISPLAY_HEIGHT - DUCK_Y_OFFSET;
+
+        // flip the sprite horizontally when walking left
+        duckView.setScaleX(goingRight ? 1.0 : -1.0);
 
         duckView.setLayoutX(duckX);
         duckView.setLayoutY(duckY);

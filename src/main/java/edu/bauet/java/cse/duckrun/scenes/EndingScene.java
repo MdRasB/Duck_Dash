@@ -23,6 +23,8 @@ public class EndingScene {
     private static final int MAX_RETRIES = 3;
     private MediaPlayer videoPlayer = null;
 
+    private static final long POST_VIDEO_DELAY_MS = 1500;
+
     public Scene createScene() {
         StackPane root = new StackPane();
         root.setStyle("-fx-background-color: black;");
@@ -86,8 +88,12 @@ public class EndingScene {
 
         videoPlayer.setOnPlaying(() -> everPlayed[0] = true);
 
-        // ── Video ends → go to credits ─────────────────────────────────────
-        videoPlayer.setOnEndOfMedia(this::navigateToCredits);
+        videoPlayer.setOnEndOfMedia(() -> {
+            disposeAll();
+            PauseTransition postVideoDelay = new PauseTransition(Duration.millis(POST_VIDEO_DELAY_MS));
+            postVideoDelay.setOnFinished(e -> Platform.runLater(this::navigateToCredits));
+            postVideoDelay.play();
+        });
 
         videoPlayer.setOnError(() -> {
             System.out.println("Ending video error: " + videoPlayer.getError());

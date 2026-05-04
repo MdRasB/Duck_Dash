@@ -24,22 +24,6 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.nio.file.Paths;
 
-/**
- * CreditsScene — Ending credits for Duck Dash.
- *
- * Flow:
- *   1. Black screen fades in
- *   2. "Thank You for Playing" fades in and holds
- *   3. Full credits scroll upward (including title image at top)
- *   4. After scroll completes → fade to black → return to MenuScene
- *   SPACE at any time skips directly to MenuScene.
- *
- * All visual styling is controlled by:
- *   src/main/resources/styles/credits_scene.css
- *
- * Can also be launched standalone from the Settings menu via:
- *   new CreditsScene().createScene()
- */
 public class CreditsScene {
 
     // ── Timing constants ──────────────────────────────────────────────────────
@@ -65,10 +49,17 @@ public class CreditsScene {
     // CSS resource path
     private static final String CREDITS_CSS = "/styles/credits_scene.css";
 
+    // How long the closing card stays visible before fading out (ms)
+    private static final long   CLOSING_HOLD_MS      = 1_500;
+    // How long the closing card fade-out takes (seconds)
+    private static final double CLOSING_FADE_OUT_SEC = 2.5;
+
     // ── State ─────────────────────────────────────────────────────────────────
-    private volatile boolean hasNavigated = false;
-    private MediaPlayer      musicPlayer  = null;
-    private AnimationTimer   scrollTimer  = null;
+    private volatile boolean hasNavigated  = false;
+    private MediaPlayer      musicPlayer   = null;
+    private AnimationTimer   scrollTimer   = null;
+    // Reference to the closing card so the scroll timer can detect its position
+    private VBox             closingCard   = null;
 
     // ── Public entry point ────────────────────────────────────────────────────
 
@@ -211,7 +202,7 @@ public class CreditsScene {
                 "Tawfik Rahman Shabab");
         addSpacer(col, 80);
 
-        addRoleEntry(col, "Project Management",
+        addRoleEntry(col, "Project Management & Publishing",
                 "Muhammad Rasek Biswas");
         addSpacer(col, 80);
 
@@ -294,31 +285,41 @@ public class CreditsScene {
 
         // Mentor 1
         col.getChildren().add(makeLabel("Md. Atikur Rahman", "credits-name"));
-        col.getChildren().add(makeLabel("Lecturer, Dept. of CSE, BAUET", "credits-small-gray"));
+        col.getChildren().add(makeLabel("Lecturer, Dept. of CSE, BAUET", "credits-small-gray-italic"));
         addSpacer(col, 30);
 
         // Mentor 2
         col.getChildren().add(makeLabel("Redoanul Haque", "credits-name"));
-        col.getChildren().add(makeLabel("Lecturer, Dept. of CSE, BAUET", "credits-small-gray"));
+        col.getChildren().add(makeLabel("Lecturer, Dept. of CSE, BAUET", "credits-small-gray-italic"));
         addSpacer(col, 30);
 
         // Playtesters
         col.getChildren().add(makeLabel("& Our Playtesters", "credits-name"));
 
-        addSpacer(col, 100);
-        addDivider(col);
-        addSpacer(col, 100);
-
-        // Closing card
-        col.getChildren().add(makeLabel("Duck Dash",                               "credits-closing-title"));
-        addSpacer(col, 14);
-        col.getChildren().add(makeLabel("GPL-v3-or-Later License   ·   2026",                             "credits-tiny-gray"));
         addSpacer(col, 50);
-        col.getChildren().add(makeLabel(
-                "Made with late nights and bad ideas — but we shipped it.", "credits-small-italic"));
+        addDivider(col);
+        addSpacer(col, 300);
 
-        // Extra padding so last line fully scrolls off before scene ends
-        addSpacer(col, 100);
+        // ── Closing card — wrapped so it can be faded as one unit ────────────
+        // The scroll timer watches this node's screen position and stops
+        // scrolling once it reaches the vertical center of the window.
+        closingCard = new VBox();
+        closingCard.setAlignment(Pos.CENTER);
+        closingCard.setSpacing(0);
+        closingCard.setPrefWidth(MainApp.WINDOW_WIDTH);
+
+        Label titleClosing = makeLabel("Duck Dash", "credits-closing-title");
+        Region gap1 = new Region(); gap1.setPrefHeight(14);
+        Label licenseLabel = makeLabel("GPL-v3-or-Later License   ·   2026", "credits-tiny-gray");
+        Region gap2 = new Region(); gap2.setPrefHeight(50);
+        Label taglineLabel = makeLabel(
+                "Made with late nights and bad ideas — but we shipped it.", "credits-small-italic");
+
+        closingCard.getChildren().addAll(titleClosing, gap1, licenseLabel, gap2, taglineLabel);
+        col.getChildren().add(closingCard);
+
+        // Bottom padding — enough room for the closing card to scroll to center
+        addSpacer(col, MainApp.WINDOW_HEIGHT / 2.0);
 
         return col;
     }
@@ -326,12 +327,14 @@ public class CreditsScene {
     // ── Scroll animation ──────────────────────────────────────────────────────
 
     private void startScrolling(VBox creditsColumn, StackPane root) {
-        long[] lastTime = {-1};
+        long[]    lastTime   = {-1};
+        boolean[] stopped    = {false};
 
         scrollTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if (lastTime[0] < 0) { lastTime[0] = now; return; }
+                if (stopped[0]) return;
 
                 double delta = (now - lastTime[0]) / 1_000_000_000.0;
                 lastTime[0] = now;
@@ -339,39 +342,61 @@ public class CreditsScene {
                 double newY = creditsColumn.getTranslateY() - SCROLL_SPEED_PX_PER_SEC * delta;
                 creditsColumn.setTranslateY(newY);
 
-                double colHeight = creditsColumn.getBoundsInLocal().getHeight();
-                if (newY + colHeight < 0) {
-                    stop();
-                    fadeOutAndGoToMenu(root);
+                // Check if the closing card's center has reached the screen center.
+                // getBoundsInParent gives position relative to the Pane (scrollPane),
+                // plus translateY offset already applied — so we add col.translateY.
+                if (closingCard != null) {
+                    double cardTop    = closingCard.getBoundsInParent().getMinY() + newY;
+                    double cardCenter = cardTop + closingCard.getBoundsInLocal().getHeight() / 2.0;
+                    double screenMid  = MainApp.WINDOW_HEIGHT / 2.0;
+
+                    if (cardCenter <= screenMid) {
+                        stopped[0] = true;
+                        stop(); // stop AnimationTimer
+                        fadeOutClosingCard(root);
+                    }
                 }
             }
         };
         scrollTimer.start();
     }
 
-    // ── End-of-credits fade ───────────────────────────────────────────────────
+    // ── Closing card: hold → fade out → black screen → menu ──────────────────
+
+    private void fadeOutClosingCard(StackPane root) {
+        // Hold the closing card centred on screen for CLOSING_HOLD_MS
+        PauseTransition hold = new PauseTransition(Duration.millis(CLOSING_HOLD_MS));
+        hold.setOnFinished(e -> {
+            // Fade out the closing card text
+            FadeTransition cardFade = new FadeTransition(
+                    Duration.seconds(CLOSING_FADE_OUT_SEC), closingCard);
+            cardFade.setFromValue(1.0);
+            cardFade.setToValue(0.0);
+
+            // Simultaneously fade music volume down
+            if (musicPlayer != null) {
+                Timeline musicFade = new Timeline(new KeyFrame(
+                        Duration.seconds(CLOSING_FADE_OUT_SEC),
+                        new KeyValue(musicPlayer.volumeProperty(), 0.0)));
+                musicFade.play();
+            }
+
+            cardFade.setOnFinished(done -> fadeOutAndGoToMenu(root));
+            cardFade.play();
+        });
+        hold.play();
+    }
+
+    // ── Full-screen black fade then navigate ──────────────────────────────────
 
     private void fadeOutAndGoToMenu(StackPane root) {
-        // 1. Prepare the visual black overlay
         Rectangle blackOverlay = new Rectangle(MainApp.WINDOW_WIDTH, MainApp.WINDOW_HEIGHT, Color.BLACK);
         blackOverlay.setOpacity(0.0);
         root.getChildren().add(blackOverlay);
 
-        // 2. Visual Fade Transition (Matched to 3 seconds)
-        FadeTransition visualFade = new FadeTransition(Duration.seconds(3.0), blackOverlay);
+        FadeTransition visualFade = new FadeTransition(Duration.seconds(FINAL_FADE_OUT_SEC), blackOverlay);
         visualFade.setFromValue(0.0);
         visualFade.setToValue(1.0);
-
-        // 3. Music Volume Fade (3 seconds)
-        if (musicPlayer != null) {
-            Timeline musicFade = new Timeline(
-                    new KeyFrame(Duration.seconds(3.0),
-                            new KeyValue(musicPlayer.volumeProperty(), 0))
-            );
-            musicFade.play();
-        }
-
-        // 4. Navigate when both fades are complete
         visualFade.setOnFinished(e -> navigateToMenu());
         visualFade.play();
     }
