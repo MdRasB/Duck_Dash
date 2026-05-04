@@ -20,6 +20,7 @@ public class MainApp extends Application {
         primaryStage.setMinWidth(320);
         primaryStage.setMinHeight(180);
 
+
         System.setProperty(
                 "com.sun.media.jfxmediaimpl.platform.gstreamer.GSTPlatform.DISABLE_AV_SYNC",
                 "true"
