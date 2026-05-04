@@ -3,7 +3,7 @@
 ![Java Version](https://img.shields.io/badge/Java-21%2B-orange.svg)
 ![JavaFX Version](https://img.shields.io/badge/JavaFX-21-blue.svg)
 ![Build](https://img.shields.io/badge/Build-Maven-red.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-004D40.svg)
 [![Build](https://github.com/MdRasB/Duck_Dash/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/MdRasB/Duck_Dash/actions/workflows/build.yml)
 
 **Duck Dash** is a high-octane, 2D side-scrolling runner built with JavaFX. Players control a determined duck navigating through a challenging environment filled with obstacles, enemies, and power-ups. Manage your health and sleep levels while dashing through levels to achieve the highest score!
@@ -126,7 +126,14 @@ Contributions are what make the open-source community such an amazing place to l
 
 ## 📜 License
 
-Distributed under the MIT License. See [LICENSE](https://github.com/MdRasB/2D_Duck_in_Bauet?tab=MIT-1-ov-file) for more information.
+Duck Dash - simple runner game<br>
+Copyright (C) 2026-present Duck Dash Team
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a [copy](LICENSE.txt) of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 ---
 
