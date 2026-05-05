@@ -22,7 +22,6 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
-import java.nio.file.Paths;
 
 public class CreditsScene {
 
@@ -33,9 +32,8 @@ public class CreditsScene {
     private static final double SCREEN_FADE_IN_SEC      = 0.6;
     private static final double FINAL_FADE_OUT_SEC      = 1.2;
 
-    // Title image — absolute path on disk
-    private static final String TITLE_IMAGE_PATH =
-            "D:/JavaProject/2D_Duck_in_Bauet/src/main/resources/images/ui/menu/title2.png";
+    // Title image
+    private static final String TITLE_IMAGE_PATH = "/images/ui/menu/title2.png";
 
     // ── Title image position controls ─────────────────────────────────────────
     // Tweak these to reposition the title image without touching anything else.
@@ -458,10 +456,12 @@ public class CreditsScene {
 
     private ImageView loadTitleImage() {
         try {
-            Image img = new Image(
-                    Paths.get(TITLE_IMAGE_PATH).toUri().toString(),
-                    TITLE_IMAGE_WIDTH, 0, true, true
-            );
+            URL url = getClass().getResource(TITLE_IMAGE_PATH);
+            if (url == null) {
+                System.err.println("CreditsScene: title image not found at " + TITLE_IMAGE_PATH);
+                return null;
+            }
+            Image img = new Image(url.toExternalForm(), TITLE_IMAGE_WIDTH, 0, true, true);
             if (img.isError()) {
                 System.err.println("CreditsScene: title image error — " + img.getException());
                 return null;
