@@ -34,7 +34,7 @@
 
 ### Prerequisites
 
-*   JDK 17 or higher installed.
+*   JDK 21 or higher installed.
 *   Maven 3.8+ installed.
 *   (Optional) An IDE like IntelliJ IDEA or VS Code.
 
